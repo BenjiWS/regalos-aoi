@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partida para Aoi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #ff4655;
+    --red-dark: #bd3944;
+    --dark: #0f1923;
+    --dark-2: #1b2733;
+    --dark-3: #263441;
+    --light: #ece8e1;
+    --muted: #8b978f;
+    --ally: #5ee4c2;
+    --gold: #f5c451;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    color: var(--light);
+    background: var(--dark);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* ---------- Fondo ---------- */
+  .bg {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden;
+    background:
+      repeating-linear-gradient(115deg, transparent 0 38px, rgba(236,232,225,.025) 38px 39px),
+      radial-gradient(ellipse at 70% 20%, rgba(255,70,85,.14), transparent 55%),
+      radial-gradient(ellipse at 10% 90%, rgba(94,228,194,.06), transparent 50%),
+      var(--dark);
+  }
+  .bg-word {
+    position: absolute; right: -2vw; bottom: -6vw;
+    font-family: 'Anton', sans-serif; font-size: 42vw; line-height: .8;
+    color: transparent; -webkit-text-stroke: 1px rgba(236,232,225,.06);
+  }
+  .shard {
+    position: absolute; background: var(--red); opacity: .9;
+    animation: shardFloat 7s ease-in-out infinite;
+  }
+  .shard.s1 { width: 16vw; height: 10px; top: 14%; left: -3vw; transform: skewX(-30deg); }
+  .shard.s2 { width: 7vw; height: 5px; top: 18%; left: 9vw; transform: skewX(-30deg); animation-delay: -2s; opacity: .5; }
+  .shard.s3 { width: 22vw; height: 8px; bottom: 12%; right: -4vw; transform: skewX(-30deg); animation-delay: -4s; }
+  @keyframes shardFloat { 0%,100% { translate: 0 0; } 50% { translate: 2vw 0; } }
+
+  /* ---------- Escenas y transición ---------- */
+  .scene {
+    position: fixed; inset: 0; z-index: 2;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px 16px; text-align: center;
+    overflow-y: auto;
+  }
+  .scene.active { display: flex; animation: sceneIn .6s ease both; }
+  @keyframes sceneIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .wipe {
+    position: fixed; top: 0; bottom: 0; left: -30vw; width: 160vw; z-index: 50;
+    background: var(--red); transform: translateX(-110%) skewX(-18deg); pointer-events: none;
+  }
+  .wipe.in  { transition: transform .35s cubic-bezier(.7,0,.3,1); transform: translateX(0) skewX(-18deg); }
+  .wipe.out { transition: transform .35s cubic-bezier(.7,0,.3,1); transform: translateX(110%) skewX(-18deg); }
+
+  .title {
+    font-family: 'Anton', sans-serif; font-weight: 400; text-transform: uppercase;
+    letter-spacing: .02em; line-height: .95;
+  }
+  .label {
+    font-weight: 700; text-transform: uppercase; letter-spacing: .28em; font-size: .85rem; color: var(--muted);
+  }
+
+  /* ---------- Botones estilo Valorant ---------- */
+  .vbtn-wrap {
+    display: inline-block; padding: 5px;
+    border: 1px solid rgba(236,232,225,.45);
+    position: relative;
+  }
+  .vbtn-wrap::before, .vbtn-wrap::after {
+    content: ""; position: absolute; width: 6px; height: 6px; background: var(--light);
+  }
+  .vbtn-wrap::before { top: -1px; left: -1px; }
+  .vbtn-wrap::after  { bottom: -1px; right: -1px; }
+  .vbtn {
+    display: block; font-family: inherit; font-weight: 700; font-size: 1.15rem;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--light); background: var(--red);
+    border: none; padding: 15px 46px; cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+    transition: background .2s, color .2s;
+  }
+  .vbtn:hover, .vbtn:focus-visible { background: var(--light); color: var(--dark); outline: none; }
+  .vbtn.ghost { background: transparent; color: var(--light); box-shadow: inset 0 0 0 1px rgba(236,232,225,.4); }
+  .vbtn.ghost:hover { background: rgba(236,232,225,.1); color: var(--light); }
+
+  /* ---------- 1. Partida encontrada ---------- */
+  .ring-wrap { position: relative; width: min(260px, 64vw); aspect-ratio: 1; margin: 26px 0 30px; }
+  .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(236,232,225,.1); stroke-width: 4; }
+  .ring { fill: none; stroke: var(--red); stroke-width: 4; stroke-dasharray: 565; animation: ring 12s linear infinite; }
+  @keyframes ring { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 565; } }
+  .ring-inner {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .ring-inner .heart { font-size: clamp(3rem, 14vw, 4.5rem); color: var(--red); animation: beat 1.2s ease-in-out infinite; line-height: 1; }
+  @keyframes beat { 0%,100% { transform: scale(1); } 15% { transform: scale(1.15); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } }
+  #found .title { font-size: clamp(2.6rem, 11vw, 5.5rem); }
+  #found .mode { margin-top: 10px; font-size: clamp(1rem, 3.8vw, 1.2rem); letter-spacing: .2em; color: var(--light); opacity: .8; text-transform: uppercase; }
+
+  /* ---------- 2. Selección de agente ---------- */
+  #select { justify-content: flex-start; padding-top: 3vh; }
+  .select-head { display: flex; align-items: center; gap: 18px; justify-content: center; }
+  .select-head .title { font-size: clamp(1.6rem, 6vw, 2.6rem); }
+  .timer {
+    font-family: 'Anton', sans-serif; font-size: clamp(1.6rem, 6vw, 2.4rem);
+    padding: 2px 14px; border: 1px solid rgba(236,232,225,.3); min-width: 3ch;
+  }
+  .agent {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 3vw; align-items: center;
+    width: min(1100px, 100%); margin: 2vh 0 2vh; flex: 1;
+  }
+  .agent-info { text-align: left; }
+  .agent-info .role { color: var(--red); font-weight: 700; letter-spacing: .25em; text-transform: uppercase; font-size: 1rem; }
+  .agent-info .name { font-size: clamp(4rem, 14vw, 9rem); color: var(--light); margin: 4px 0 8px; }
+  .agent-info .bio { font-size: clamp(1.05rem, 3.6vw, 1.25rem); line-height: 1.35; color: #c9c5bd; max-width: 34ch; }
+  .emblem { width: min(300px, 44vw); aspect-ratio: 1; position: relative; }
+  .emblem svg { width: 100%; height: 100%; overflow: visible; }
+  .spin { transform-origin: 150px 150px; animation: spin 18s linear infinite; }
+  .spin.rev { animation-duration: 26s; animation-direction: reverse; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .abilities { display: grid; gap: 10px; text-align: left; }
+  .ability {
+    display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center;
+    background: rgba(27,39,51,.75); border-left: 3px solid var(--red);
+    padding: 9px 12px;
+  }
+  .key {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    font-family: 'Anton', sans-serif; font-size: 1.3rem; background: var(--dark-3); color: var(--light);
+    clip-path: polygon(0 0, 100% 0, 100% 75%, 75% 100%, 0 100%);
+  }
+  .ability.ult .key { background: var(--red); }
+  .ability b { display: block; font-size: 1.1rem; letter-spacing: .06em; text-transform: uppercase; }
+  .ability span { font-size: .98rem; color: #aeb7b2; }
+
+  .roster { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .tile {
+    width: 58px; height: 58px; background: var(--dark-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; color: #4b5a66; border: 1px solid #2d3b48;
+  }
+  .tile.me {
+    background: var(--red); color: var(--light); border-color: var(--light);
+    font-family: 'Anton', sans-serif; font-size: 1.15rem;
+    box-shadow: 0 0 0 3px rgba(255,70,85,.35);
+  }
+  .roster-note { font-size: .95rem; color: var(--muted); letter-spacing: .1em; margin: -8px 0 14px; }
+
+  .locked-stamp {
+    position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+    pointer-events: none; opacity: 0;
+  }
+  .locked-stamp.show { animation: stamp 1.6s ease forwards; }
+  .locked-stamp div {
+    font-family: 'Anton', sans-serif; font-size: clamp(3rem, 14vw, 8rem); letter-spacing: .05em;
+    color: var(--light); background: var(--red); padding: 0 .35em; transform: skewX(-8deg);
+  }
+  @keyframes stamp {
+    0% { opacity: 0; transform: scale(1.6); } 15% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; } 100% { opacity: 0; }
+  }
+
+  /* ---------- Cargando ---------- */
+  #loading .title { font-size: clamp(2.2rem, 9vw, 4.5rem); }
+  .load-bar { width: min(420px, 80vw); height: 4px; background: rgba(236,232,225,.12); margin-top: 22px; overflow: hidden; }
+  .load-bar div { height: 100%; width: 0; background: var(--red); }
+  #loading.active .load-bar div { animation: load 2.4s ease-in-out forwards; }
+  @keyframes load { to { width: 100%; } }
+  .tip { margin-top: 18px; font-size: 1.1rem; color: var(--muted); font-style: italic; max-width: 460px; }
+
+  /* ---------- 3. Ronda ---------- */
+  #round { cursor: none; justify-content: flex-start; padding: 0; overflow: hidden; touch-action: manipulation; }
+  .hud-top {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: stretch; gap: 0; z-index: 4;
+  }
+  .hud-top > div { padding: 6px 16px; background: rgba(15,25,35,.85); font-family: 'Anton', sans-serif; font-size: 1.6rem; }
+  .hud-top .ally { color: var(--ally); }
+  .hud-top .enemy { color: var(--red); }
+  .hud-top .clock { background: rgba(15,25,35,.95); color: var(--light); font-size: 1.3rem; display: flex; flex-direction: column; justify-content: center; line-height: 1; }
+  .hud-top .clock small { font-family: 'Barlow Condensed'; font-size: .7rem; letter-spacing: .2em; color: var(--muted); }
+  .killfeed {
+    position: absolute; top: 12px; right: 12px; z-index: 4;
+    display: flex; flex-direction: column; gap: 5px; align-items: flex-end;
+  }
+  .kf {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(15,25,35,.8); padding: 5px 12px;
+    border-left: 3px solid var(--ally); border-right: 3px solid var(--red);
+    font-weight: 700; font-size: clamp(.85rem, 3vw, 1.05rem); letter-spacing: .05em; text-transform: uppercase;
+    animation: kfIn .3s ease both;
+  }
+  .kf .a { color: var(--ally); }
+  .kf .e { color: var(--red); }
+  .kf svg { width: 44px; height: 14px; fill: var(--light); }
+  @keyframes kfIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+  .round-hint {
+    position: absolute; bottom: 5vh; left: 0; right: 0; z-index: 4; padding: 0 16px;
+    font-size: clamp(1rem, 3.8vw, 1.25rem); letter-spacing: .12em; text-transform: uppercase; color: #c9c5bd;
+  }
+  .round-hint b { color: var(--red); }
+
+  .target {
+    position: absolute; z-index: 3; width: 72px; height: 72px; margin: -36px 0 0 -36px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--red) 0 18%, var(--light) 19% 34%, var(--red) 35% 52%, var(--light) 53% 68%, var(--red) 69%);
+    box-shadow: 0 0 0 3px rgba(15,25,35,.6), 0 0 24px rgba(255,70,85,.5);
+    animation: tIn .25s ease-out both;
+  }
+  .target .tag {
+    position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; font-weight: 700; font-size: .9rem; letter-spacing: .08em;
+    color: var(--red); background: rgba(15,25,35,.85); padding: 1px 8px; text-transform: uppercase;
+  }
+  @keyframes tIn { from { transform: scale(0); } to { transform: scale(1); } }
+  .target.hit { animation: tHit .3s ease-in forwards; pointer-events: none; }
+  @keyframes tHit { to { transform: scale(1.5); opacity: 0; } }
+
+  .hitmarker { position: absolute; z-index: 5; pointer-events: none; width: 26px; height: 26px; margin: -13px 0 0 -13px; animation: hm .35s ease-out forwards; }
+  .hitmarker::before, .hitmarker::after {
+    content: ""; position: absolute; left: 50%; top: 0; width: 2px; height: 100%; background: var(--light);
+  }
+  .hitmarker::before { transform: rotate(45deg); }
+  .hitmarker::after { transform: rotate(-45deg); }
+  @keyframes hm { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.3); opacity: 0; } }
+
+  .crosshair { position: fixed; z-index: 40; pointer-events: none; width: 0; height: 0; display: none; }
+  .crosshair.on { display: block; }
+  .crosshair i { position: absolute; background: var(--ally); box-shadow: 0 0 0 1px rgba(0,0,0,.6); }
+  .crosshair .dot { width: 2px; height: 2px; left: -1px; top: -1px; }
+  .crosshair .l { width: 8px; height: 2px; left: -13px; top: -1px; }
+  .crosshair .r { width: 8px; height: 2px; left: 5px; top: -1px; }
+  .crosshair .t { width: 2px; height: 8px; left: -1px; top: -13px; }
+  .crosshair .b { width: 2px; height: 8px; left: -1px; top: 5px; }
+
+  .ace {
+    position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    pointer-events: none; opacity: 0;
+  }
+  .ace.show { animation: aceAnim 2.6s ease forwards; }
+  .ace .word {
+    font-family: 'Anton', sans-serif; font-size: clamp(6rem, 30vw, 16rem); line-height: .9;
+    color: var(--light); text-shadow: 0 0 40px rgba(255,70,85,.8);
+    position: relative;
+  }
+  .ace .word::before, .ace .word::after {
+    content: ""; position: absolute; left: -20%; right: -20%; height: 8px; background: var(--red); transform: skewY(-8deg);
+  }
+  .ace .word::before { top: 38%; }
+  .ace .word::after { top: 58%; height: 4px; }
+  .ace .sub { font-weight: 700; letter-spacing: .4em; font-size: clamp(1rem, 4vw, 1.4rem); text-transform: uppercase; color: var(--red); margin-top: 8px; }
+  @keyframes aceAnim {
+    0% { opacity: 0; transform: scale(2.2); } 12% { opacity: 1; transform: scale(1); }
+    18% { transform: scale(1.04); } 24% { transform: scale(1); }
+    82% { opacity: 1; } 100% { opacity: 0; transform: scale(.96); }
+  }
+
+  /* ---------- 4. Victoria + MVP ---------- */
+  #victory .title.big {
+    font-size: clamp(4rem, 19vw, 11rem); color: var(--light);
+    text-shadow: 0 0 30px rgba(94,228,194,.45);
+    animation: vIn 1s cubic-bezier(.2,1.2,.4,1) both;
+  }
+  @keyframes vIn { from { letter-spacing: .5em; opacity: 0; } to { letter-spacing: .02em; opacity: 1; } }
+  .score { font-family: 'Anton', sans-serif; font-size: clamp(2rem, 8vw, 3.2rem); margin-top: 4px; }
+  .score .a { color: var(--ally); } .score .e { color: var(--red); }
+  .mvp {
+    margin: 22px 0 26px; width: min(440px, 100%);
+    background: linear-gradient(160deg, var(--dark-2), var(--dark));
+    border: 1px solid rgba(245,196,81,.5); position: relative; padding: 18px 20px 20px;
+    animation: sceneIn .8s ease .6s both;
+  }
+  .mvp::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gold); }
+  .mvp .label { color: var(--gold); }
+  .mvp .who { font-family: 'Anton', sans-serif; font-size: clamp(2.6rem, 10vw, 3.6rem); margin: 2px 0 12px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { background: rgba(236,232,225,.05); padding: 8px 10px; text-align: left; }
+  .stat small { display: block; font-size: .8rem; letter-spacing: .18em; color: var(--muted); text-transform: uppercase; }
+  .stat strong { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 1.35rem; }
+
+  /* ---------- 5. Invitación ---------- */
+  .invite {
+    width: min(460px, 100%); background: var(--dark-2);
+    border-top: 4px solid var(--red); padding: 26px 22px 26px; position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,.45);
+  }
+  .invite .avatar {
+    width: 84px; height: 84px; margin: 14px auto 12px;
+    background: var(--red); display: flex; align-items: center; justify-content: center;
+    font-size: 2.6rem; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    animation: beat 1.4s ease-in-out infinite;
+  }
+  .invite p { font-size: 1.15rem; color: #c9c5bd; }
+  .invite .q { font-size: clamp(2rem, 8.5vw, 3rem); margin: 10px 0 22px; }
+  .invite .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; min-height: 72px; }
+  #declineWrap { transition: transform .25s ease; }
+
+  /* ---------- 6. Final ---------- */
+  #final .title { font-size: clamp(3rem, 14vw, 7rem); }
+  .duo { display: flex; align-items: center; gap: clamp(10px, 4vw, 30px); margin: 22px 0 18px; }
+  .player {
+    width: clamp(110px, 30vw, 170px); padding: 14px 10px 12px;
+    background: var(--dark-2); border-bottom: 4px solid var(--ally);
+    animation: sceneIn .8s ease both;
+  }
+  .player:last-child { animation-delay: .3s; }
+  .player .pic { font-family: 'Anton', sans-serif; font-size: clamp(2rem, 8vw, 3rem); color: var(--ally); }
+  .player .pn { font-weight: 700; letter-spacing: .15em; text-transform: uppercase; font-size: 1.05rem; }
+  .duo .heart { font-size: clamp(2.2rem, 9vw, 3.4rem); color: var(--red); animation: beat 1.2s ease-in-out infinite; }
+  .final-msg { max-width: 540px; font-size: clamp(1.2rem, 4.4vw, 1.5rem); line-height: 1.4; color: #d9d5cd; }
+  .final-msg b { color: var(--red); }
+
+  canvas#fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 44; pointer-events: none; }
+
+  .mute {
+    position: fixed; left: 12px; bottom: 12px; z-index: 60;
+    background: rgba(15,25,35,.8); color: var(--light); border: 1px solid rgba(236,232,225,.3);
+    font-family: inherit; font-weight: 700; letter-spacing: .15em; font-size: .8rem;
+    padding: 7px 12px; cursor: pointer; text-transform: uppercase;
+  }
+
+  @media (max-width: 760px) {
+    .agent { grid-template-columns: 1fr; gap: 14px; margin: 10px 0; flex: none; }
+    .agent-info { text-align: center; }
+    .agent-info .bio { margin: 0 auto; }
+    .emblem { width: 38vw; margin: 0 auto; order: -1; }
+    .abilities { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ability { grid-template-columns: 32px 1fr; gap: 8px; padding: 7px 8px; }
+    .key { width: 32px; height: 32px; font-size: 1.05rem; }
+    .ability b { font-size: .95rem; }
+    .ability span { font-size: .85rem; }
+    .tile { width: 44px; height: 44px; }
+    .hud-top { top: 8px; }
+    .killfeed { top: 64px; right: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="bg-word">AOI</div>
+  <div class="shard s1"></div><div class="shard s2"></div><div class="shard s3"></div>
+</div>
+
+<!-- 1. Partida encontrada -->
+<section class="scene active" id="found">
+  <div class="label">Modo - Competitivo</div>
+  <div class="ring-wrap">
+    <svg viewBox="0 0 200 200"><circle class="ring-bg" cx="100" cy="100" r="90"/><circle class="ring" cx="100" cy="100" r="90"/></svg>
+    <div class="ring-inner"><div class="heart">♥</div></div>
+  </div>
+  <h1 class="title">Partida encontrada</h1>
+  <p class="mode">Mapa: <span id="mapName"></span></p>
+  <div style="margin-top: 30px" class="vbtn-wrap"><button class="vbtn" id="acceptBtn">Aceptar</button></div>
+</section>
+
+<!-- 2. Selección de agente -->
+<section class="scene" id="select">
+  <div class="select-head">
+    <h2 class="title">Selecciona tu agente</h2>
+    <div class="timer" id="timer">30</div>
+  </div>
+
+  <div class="agent">
+    <div class="agent-info">
+      <div class="role" id="agentRole"></div>
+      <div class="name title">AOI</div>
+      <p class="bio" id="agentBio"></p>
+    </div>
+
+    <div class="emblem" aria-hidden="true">
+      <svg viewBox="0 0 300 300">
+        <g class="spin">
+          <circle cx="150" cy="150" r="140" fill="none" stroke="rgba(236,232,225,.25)" stroke-width="1.5" stroke-dasharray="4 10"/>
+        </g>
+        <g class="spin rev">
+          <circle cx="150" cy="150" r="122" fill="none" stroke="#ff4655" stroke-width="3" stroke-dasharray="60 30 10 30"/>
+        </g>
+        <polygon points="150,40 260,150 150,260 40,150" fill="#1b2733" stroke="#ece8e1" stroke-width="2"/>
+        <polygon points="150,62 238,150 150,238 62,150" fill="none" stroke="rgba(255,70,85,.5)" stroke-width="1"/>
+        <path d="M150 196 C112 170 96 148 104 128 C112 108 138 106 150 126 C162 106 188 108 196 128 C204 148 188 170 150 196 Z" fill="#ff4655"/>
+        <path d="M118 128 C120 118 130 114 138 118" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="abilities" id="abilities"></div>
+  </div>
+
+  <div class="roster" id="roster"></div>
+  <p class="roster-note">Solo hay una agente para mí</p>
+  <div class="vbtn-wrap"><button class="vbtn" id="lockBtn">Bloquear</button></div>
+</section>
+<div class="locked-stamp" id="stamp"><div>BLOQUEADA</div></div>
+
+<!-- Cargando -->
+<section class="scene" id="loading">
+  <div class="label">Cargando</div>
+  <h2 class="title" id="loadingMap"></h2>
+  <div class="load-bar"><div></div></div>
+  <p class="tip" id="tip"></p>
+</section>
+
+<!-- 3. Ronda -->
+<section class="scene" id="round">
+  <div class="hud-top">
+    <div class="ally" id="scoreA">0</div>
+    <div class="clock"><small>RONDA</small><span id="roundClock">1:40</span></div>
+    <div class="enemy">0</div>
+  </div>
+  <div class="killfeed" id="killfeed"></div>
+  <p class="round-hint" id="roundHint">Elimina a los enemigos de tu felicidad · <b id="leftCount"></b></p>
+</section>
+<div class="crosshair" id="crosshair"><i class="dot"></i><i class="l"></i><i class="r"></i><i class="t"></i><i class="b"></i></div>
+<div class="ace" id="ace"><div class="word">ACE</div><div class="sub">Aoi · 5 eliminaciones</div></div>
+
+<!-- 4. Victoria -->
+<section class="scene" id="victory">
+  <div class="label">Competitivo · Nuestro camino</div>
+  <h2 class="title big">Victoria</h2>
+  <div class="score"><span class="a">13</span> : <span class="e">0</span></div>
+  <div class="mvp">
+    <div class="label">MVP de la partida</div>
+    <div class="who">AOI</div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="vbtn-wrap"><button class="vbtn" id="continueBtn">Continuar</button></div>
+</section>
+
+<!-- 5. Invitación -->
+<section class="scene" id="invite">
+  <div class="invite">
+    <div class="label">Invitación de grupo</div>
+    <div class="avatar">♥</div>
+    <p><span id="fromName"></span> te invita a jugar en dúo</p>
+    <h2 class="title q">¿Dúo para toda la vida?</h2>
+    <div class="btns">
+      <div class="vbtn-wrap"><button class="vbtn" id="yesBtn">Aceptar</button></div>
+      <div class="vbtn-wrap" id="declineWrap"><button class="vbtn ghost" id="noBtn">Rechazar</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Final -->
+<section class="scene" id="final">
+  <div class="label">Grupo formado</div>
+  <h2 class="title">Dúo para siempre</h2>
+  <div class="duo">
+    <div class="player"><div class="pic">AOI</div><div class="pn">Mi agente favorita</div></div>
+    <div class="heart">♥</div>
+    <div class="player"><div class="pic" id="fromPic"></div><div class="pn" id="fromLabel"></div></div>
+  </div>
+  <p class="final-msg" id="finalMsg"></p>
+</section>
+
+<div class="wipe" id="wipe"></div>
+<canvas id="fx"></canvas>
+<button class="mute" id="muteBtn">Sonido: sí</button>
+
+<script>
+/* ================= Textos (edítalos a tu gusto) ================= */
+const FROM = "Alguien que te adora";  // pon aquí tu nombre o apodo
+const FROM_SHORT = "SPARKY";      // lo que sale en tu tarjeta de jugador
+const MAP = "Nuestro camino";
+const AGENT_ROLE = "Duelista · Dueña de mi todo";
+const AGENT_BIO = "Llegó sin avisar, entró directo a mi vida y la hizo mil veces más bonita. Nadie tiene su puntería: siempre acierta al corazón.";
+const ABILITIES = [
+  ["C", "Sonrisa cegadora", "Deja a todos sin palabras."],
+  ["Q", "Abrazo curativo", "Cura cualquier mal día al instante."],
+  ["E", "Mirada", "Revela todo lo que siento por ella."],
+  ["X", "Robacorazones", "Definitiva: el mío ya es suyo.", true]
+];
+const ENEMIES = ["La tristeza", "El estrés", "Los lunes", "La distancia", "Los malos días"];
+const TIPS = [
+  "Consejo: los abrazos no tienen tiempo de recarga.",
+  "Consejo: jugar en dúo con ella aumenta la felicidad un 100%."
+];
+const STATS = [
+  ["ACS", "999"],
+  ["Sonrisas", "∞"],
+  ["Corazones robados", "1 (el mío)"],
+  ["Precisión", "100% al corazón"]
+];
+const FINAL_MSG = "Gane o pierda, contigo cada partida vale la pena. Gracias por ser mi compañera de equipo en todo. <b>Te quiero, Aoi.</b>";
+
+/* ================= Estado ================= */
+let ac = null, sfxGain = null, muted = false;
+let timerIv = null, clockIv = null, targetTimer = null;
+let kills = 0;
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rand = (a, b) => a + Math.random() * (b - a);
+
+/* ================= Sonido (muy suave) ================= */
+function initAudio() {
+  if (ac) return;
+  try {
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    sfxGain = ac.createGain();
+    sfxGain.gain.value = muted ? 0 : .07;
+    sfxGain.connect(ac.destination);
+  } catch (e) { ac = null; }
+}
+function tone(freq, dur, type = 'square', when = 0, vol = 1) {
+  if (!ac) return;
+  const t = ac.currentTime + when;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + .01);
+  g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.connect(g); g.connect(sfxGain);
+  o.start(t); o.stop(t + dur + .02);
+}
+const sfx = {
+  click: () => tone(880, .08, 'triangle'),
+  accept: () => { tone(660, .12, 'triangle'); tone(990, .2, 'triangle', .1); },
+  lock: () => { tone(220, .25, 'sawtooth', 0, .6); tone(440, .3, 'triangle', .05); },
+  hit: () => { tone(1400, .05, 'square', 0, .5); tone(700, .09, 'triangle', .02); },
+  ace: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .5, 'triangle', i * .09)),
+  win: () => [392, 523, 659, 784].forEach((f, i) => tone(f, .7, 'triangle', i * .14))
+};
+$('muteBtn').addEventListener('click', () => {
+  muted = !muted;
+  $('muteBtn').textContent = 'Sonido: ' + (muted ? 'no' : 'sí');
+  if (sfxGain) sfxGain.gain.value = muted ? 0 : .07;
+});
+
+/* ================= Transición entre escenas ================= */
+const wipe = $('wipe');
+async function goTo(id) {
+  wipe.className = 'wipe'; void wipe.offsetWidth;
+  wipe.classList.add('in');
+  await sleep(380);
+  document.querySelectorAll('.scene').forEach(s => s.classList.toggle('active', s.id === id));
+  wipe.classList.remove('in'); wipe.classList.add('out');
+  await sleep(380);
+  wipe.className = 'wipe';
+}
+
+/* ================= Rellenar textos ================= */
+$('mapName').textContent = MAP;
+$('loadingMap').textContent = MAP;
+$('agentRole').textContent = AGENT_ROLE;
+$('agentBio').textContent = AGENT_BIO;
+$('abilities').innerHTML = ABILITIES.map(([k, n, d, ult]) =>
+  `<div class="ability${ult ? ' ult' : ''}"><div class="key">${k}</div><div><b>${n}</b><span>${d}</span></div></div>`).join('');
+$('roster').innerHTML = '<div class="tile me">AOI</div>' + '<div class="tile">🔒</div>'.repeat(7);
+$('stats').innerHTML = STATS.map(([k, v]) => `<div class="stat"><small>${k}</small><strong>${v}</strong></div>`).join('');
+$('fromName').textContent = FROM;
+$('fromPic').textContent = FROM_SHORT;
+$('fromLabel').textContent = FROM;
+$('finalMsg').innerHTML = FINAL_MSG;
+$('tip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+
+/* ================= 1 → 2 ================= */
+$('acceptBtn').addEventListener('click', async () => {
+  initAudio(); sfx.accept();
+  await goTo('select');
+  let t = 30;
+  $('timer').textContent = t;
+  timerIv = setInterval(() => {
+    t = Math.max(0, t - 1);
+    $('timer').textContent = t;
+    if (t === 0) lockIn();
+  }, 1000);
+});
+
+/* ================= 2 → cargando → 3 ================= */
+let lockedIn = false;
+async function lockIn() {
+  if (lockedIn) return;
+  lockedIn = true;
+  clearInterval(timerIv);
+  sfx.lock();
+  $('stamp').classList.add('show');
+  await sleep(1500);
+  await goTo('loading');
+  await sleep(2700);
+  await goTo('round');
+  startRound();
+}
+$('lockBtn').addEventListener('click', lockIn);
+
+/* ================= 3. Ronda: minijuego de puntería ================= */
+const round = $('round');
+const crosshair = $('crosshair');
+function moveCrosshair(e) {
+  crosshair.style.left = e.clientX + 'px';
+  crosshair.style.top = e.clientY + 'px';
+}
+addEventListener('pointermove', moveCrosshair);
+addEventListener('pointerdown', moveCrosshair);
+
+const GUN_SVG = '<svg viewBox="0 0 88 28"><path d="M2 10h44l4-6h10v6h26v6H62l-6 4v6h-8l-2-8H30l-6 10h-10l6-10H2z"/></svg>';
+
+function updateLeft() {
+  const left = ENEMIES.length - kills;
+  $('leftCount').textContent = left > 0 ? `${left} restantes` : '¡ronda ganada!';
+}
+
+function spawnTarget() {
+  clearTimeout(targetTimer);
+  round.querySelectorAll('.target:not(.hit)').forEach(t => t.remove());
+  if (kills >= ENEMIES.length) return;
+  const W = innerWidth, H = innerHeight;
+  const el = document.createElement('div');
+  el.className = 'target';
+  el.innerHTML = `<span class="tag">${ENEMIES[kills]}</span>`;
+  el.style.left = rand(60, W - 60) + 'px';
+  el.style.top = rand(Math.max(150, H * .22), H * .8) + 'px';
+  el.addEventListener('pointerdown', e => { e.stopPropagation(); hitTarget(el, e); });
+  round.appendChild(el);
+  targetTimer = setTimeout(spawnTarget, 2200);   // si no le das, se mueve
+}
+
+function hitTarget(el, e) {
+  sfx.hit();
+  el.classList.add('hit');
+  setTimeout(() => el.remove(), 320);
+  const hm = document.createElement('div');
+  hm.className = 'hitmarker';
+  hm.style.left = e.clientX + 'px'; hm.style.top = e.clientY + 'px';
+  round.appendChild(hm);
+  setTimeout(() => hm.remove(), 400);
+
+  const kf = document.createElement('div');
+  kf.className = 'kf';
+  kf.innerHTML = `<span class="a">AOI</span>${GUN_SVG}<span class="e">${ENEMIES[kills]}</span>`;
+  $('killfeed').appendChild(kf);
+
+  kills++;
+  $('scoreA').textContent = kills;
+  updateLeft();
+  if (kills >= ENEMIES.length) {
+    clearTimeout(targetTimer);
+    setTimeout(ace, 500);
+  } else {
+    setTimeout(spawnTarget, 350);
+  }
+}
+
+function startRound() {
+  kills = 0;
+  updateLeft();
+  crosshair.classList.add('on');
+  let secs = 100;
+  clockIv = setInterval(() => {
+    secs = Math.max(0, secs - 1);
+    $('roundClock').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+  }, 1000);
+  setTimeout(spawnTarget, 700);
+}
+
+async function ace() {
+  clearInterval(clockIv);
+  crosshair.classList.remove('on');
+  sfx.ace();
+  $('ace').classList.add('show');
+  burst(innerWidth / 2, innerHeight / 2, 90);
+  await sleep(2700);
+  await goTo('victory');
+  sfx.win();
+}
+
+/* ================= 4 → 5 → 6 ================= */
+$('continueBtn').addEventListener('click', () => { sfx.click(); goTo('invite'); });
+
+const declineWrap = $('declineWrap');
+const NO_TEXTS = ['No disponible', 'Error 404', 'Intenta otra vez', 'Ni lo pienses', 'Botón roto'];
+let dodges = 0;
+function dodge(e) {
+  e.preventDefault();
+  dodges++;
+  $('noBtn').textContent = NO_TEXTS[(dodges - 1) % NO_TEXTS.length];
+  const dx = rand(-140, 140), dy = rand(-120, 60);
+  declineWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+  if (dodges >= 5) { declineWrap.style.opacity = '.25'; $('noBtn').disabled = true; }
+}
+$('noBtn').addEventListener('mouseenter', dodge);
+$('noBtn').addEventListener('pointerdown', dodge);
+$('noBtn').addEventListener('click', dodge);
+
+$('yesBtn').addEventListener('click', async () => {
+  sfx.win();
+  await goTo('final');
+  burst(innerWidth / 2, innerHeight * .45, 140);
+  let n = 0;
+  const iv = setInterval(() => { burst(rand(0, innerWidth), rand(0, innerHeight * .6), 40); if (++n > 4) clearInterval(iv); }, 600);
+});
+
+/* ================= Explosión de fragmentos (canvas) ================= */
+const cv = $('fx'), ctx = cv.getContext('2d');
+let parts = [], W = 0, H = 0;
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener('resize', resize);
+resize();
+const COLORS = ['#ff4655', '#ece8e1', '#5ee4c2', '#ff4655'];
+function burst(x, y, n) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, Math.PI * 2), v = rand(3, 12);
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 2, r: rand(0, 6), vr: rand(-.3, .3),
+      w: rand(6, 16), h: rand(3, 6), c: COLORS[i % COLORS.length], life: 1, heart: Math.random() < .25 });
+  }
+}
+function loop() {
+  ctx.clearRect(0, 0, W, H);
+  parts = parts.filter(p => p.life > 0);
+  for (const p of parts) {
+    p.vy += .18; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= .008;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, p.life * 2);
+    ctx.translate(p.x, p.y); ctx.rotate(p.r);
+    ctx.fillStyle = p.c;
+    if (p.heart) {
+      ctx.font = `${p.w + 8}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('♥', 0, 0);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(-p.w / 2, -p.h / 2); ctx.lineTo(p.w / 2, -p.h / 2); ctx.lineTo(p.w / 2 - p.h, p.h / 2); ctx.lineTo(-p.w / 2 - p.h, p.h / 2);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+<a href="index.html" class="back-to-gifts" style="position:fixed;top:12px;left:12px;z-index:1000;padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.35);color:#fff;font:600 14px/1.4 system-ui,sans-serif;text-decoration:none;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25);cursor:pointer">&larr; regalos</a>
+</body>
+</html>

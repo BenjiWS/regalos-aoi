@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concierto para Aoi 🎻</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Pinyon+Script&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --stage-top: #0a0507;
+    --stage-mid: #1c0b10;
+    --velvet-1: #6a0816;
+    --velvet-2: #a3162b;
+    --velvet-3: #7a0c1c;
+    --gold: #e9c27a;
+    --gold-soft: #f6e2b3;
+    --cream: #fbf1dc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--cream);
+    background: radial-gradient(ellipse at 50% 30%, var(--stage-mid) 0%, var(--stage-top) 75%);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+  /* ---------- Escenario ---------- */
+  .spotlight {
+    position: fixed; top: -5vh; left: 50%; z-index: 0;
+    width: min(120vw, 900px); height: 110vh; transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(255,236,190,.22), rgba(255,236,190,.05) 80%, transparent);
+    clip-path: polygon(42% 0, 58% 0, 88% 100%, 12% 100%);
+    filter: blur(6px);
+    opacity: 0; transition: opacity 2.5s ease 1.2s;
+  }
+  .floor {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 17vh; z-index: 0;
+    background:
+      radial-gradient(ellipse 45% 60% at 50% 30%, rgba(255,226,170,.28), transparent 70%),
+      repeating-linear-gradient(90deg, #3a1d10 0 60px, #2f170c 60px 62px),
+      #2f170c;
+  }
+  body.lit .spotlight { opacity: 1; }
+
+  .stage {
+    position: fixed; inset: 0; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 9vh 16px 3vh;
+    overflow: hidden;
+  }
+  .messages {
+    min-height: 19vh; max-width: 640px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  #msg {
+    font-style: italic; font-size: clamp(1.2rem, 4.4vw, 1.75rem); line-height: 1.45;
+    color: var(--gold-soft); text-shadow: 0 2px 14px rgba(0,0,0,.7);
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
+  #msg.show { opacity: 1; transform: none; }
+  #bravo { display: none; }
+  #bravo.show { display: block; animation: rise 1.6s ease both; }
+  #bravo h2 {
+    font-family: 'Pinyon Script', cursive; font-weight: 400;
+    font-size: clamp(3rem, 13vw, 5.5rem); color: var(--gold);
+    text-shadow: 0 0 24px rgba(233,194,122,.55);
+  }
+  #bravo p { font-style: italic; font-size: clamp(1.1rem, 4vw, 1.45rem); color: var(--cream); margin-top: 4px; }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- Violín ---------- */
+  .violin-wrap {
+    position: relative;
+    height: min(56vh, 520px); aspect-ratio: 200 / 560;
+    margin-top: 1vh;
+    opacity: 0; transform: translateY(30px) scale(.94);
+    transition: opacity 2s ease 1.6s, transform 2s ease 1.6s;
+  }
+  body.lit .violin-wrap { opacity: 1; transform: none; }
+  .violin-float { position: absolute; inset: 0; animation: floaty 6s ease-in-out infinite; }
+  @keyframes floaty { 0%,100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(3deg) translateY(-8px); } }
+  #violin { width: 100%; height: 100%; overflow: visible; cursor: pointer; filter: drop-shadow(0 18px 30px rgba(0,0,0,.6)); }
+
+  .str { transition: stroke .2s; }
+  .str.vib { animation: vib .07s linear 10; stroke: #fff6d8; }
+  @keyframes vib { 0%,100% { transform: translateX(0); } 25% { transform: translateX(1.2px); } 75% { transform: translateX(-1.2px); } }
+
+  .bow {
+    position: absolute; left: -75%; width: 250%; top: 62.5%;
+    transform-origin: center; pointer-events: none;
+    opacity: 0; transition: opacity 1s;
+  }
+  .bow.show { opacity: 1; }
+  .bow svg { width: 100%; display: block; transition: transform 1s linear; overflow: visible; }
+
+  .hint {
+    margin-top: auto; padding-top: 10px; text-align: center;
+    font-family: 'Cinzel', serif; letter-spacing: .12em; font-size: clamp(.8rem, 3vw, .95rem);
+    color: rgba(246,226,179,.75);
+    opacity: 0; transition: opacity 1.5s ease;
+    min-height: 1.4em; position: relative; z-index: 3;
+  }
+  .hint.show { opacity: 1; }
+
+  .btn {
+    position: fixed; left: 50%; bottom: 6vh; z-index: 6;
+    transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    font-family: 'Cinzel', serif; font-weight: 600; letter-spacing: .08em; font-size: 1rem;
+    color: #2a0d12; background: linear-gradient(135deg, #f6e2b3, #d9a954);
+    border: none; border-radius: 999px; padding: 13px 28px; cursor: pointer;
+    box-shadow: 0 8px 28px rgba(233,194,122,.35);
+    transition: opacity 1s, transform 1s;
+  }
+  .btn.show { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); animation: glowBtn 2s ease-in-out infinite 1s; }
+  @keyframes glowBtn { 0%,100% { box-shadow: 0 8px 28px rgba(233,194,122,.35); } 50% { box-shadow: 0 8px 40px rgba(233,194,122,.75); } }
+
+  /* ---------- Control de volumen ---------- */
+  .volume {
+    position: fixed; right: 14px; bottom: 14px; z-index: 30;
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px 6px 8px; border-radius: 999px;
+    background: rgba(20,8,12,.7); border: 1px solid rgba(233,194,122,.35);
+    backdrop-filter: blur(6px);
+  }
+  .volume button { background: none; border: none; font-size: 1.15rem; cursor: pointer; line-height: 1; }
+  .volume input { width: 90px; accent-color: var(--gold); cursor: pointer; }
+
+  /* ---------- Notas musicales flotando ---------- */
+  .mnote {
+    position: fixed; z-index: 4; pointer-events: none;
+    color: var(--gold); text-shadow: 0 0 10px rgba(233,194,122,.8);
+    animation: noteUp 2.6s ease-out forwards;
+  }
+  @keyframes noteUp {
+    0%   { opacity: 0; transform: translate(0, 0) scale(.6) rotate(0); }
+    15%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), -160px) scale(1.2) rotate(var(--rot)); }
+  }
+
+  .rose {
+    position: fixed; top: -50px; z-index: 5; pointer-events: none;
+    animation: roseFall linear forwards;
+  }
+  @keyframes roseFall {
+    to { transform: translate(var(--dx), 115vh) rotate(var(--rot)); }
+  }
+
+  /* ---------- Telón ---------- */
+  .curtain {
+    position: fixed; top: 0; bottom: 0; width: 51%; z-index: 20;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.35), transparent 25%, transparent 75%, rgba(0,0,0,.45)),
+      repeating-linear-gradient(90deg, var(--velvet-1) 0, var(--velvet-2) 3.5%, var(--velvet-3) 6%, var(--velvet-1) 8%);
+    box-shadow: inset 0 0 60px rgba(0,0,0,.6);
+    transition: transform 2.8s cubic-bezier(.7,0,.3,1);
+  }
+  .curtain.left  { left: 0; }
+  .curtain.right { right: 0; }
+  body.open .curtain.left  { transform: translateX(-96%); }
+  body.open .curtain.right { transform: translateX(96%); }
+  .valance {
+    position: fixed; top: 0; left: 0; right: 0; height: 7vh; z-index: 21;
+    background:
+      radial-gradient(circle at 50% 0, var(--velvet-2) 0 60%, transparent 62%) 0 100% / 80px 40px repeat-x,
+      linear-gradient(180deg, var(--velvet-1), var(--velvet-2));
+    border-bottom: 3px solid var(--gold);
+    box-shadow: 0 6px 20px rgba(0,0,0,.6);
+  }
+  .curtain-text {
+    position: fixed; inset: 0; z-index: 22;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 16px; cursor: pointer;
+    transition: opacity 1s;
+  }
+  body.open .curtain-text { opacity: 0; pointer-events: none; }
+  .curtain-text .tonight { font-family: 'Cinzel', serif; letter-spacing: .3em; font-size: clamp(.85rem, 3.4vw, 1.1rem); color: var(--gold-soft); }
+  .curtain-text .name {
+    font-family: 'Pinyon Script', cursive; font-size: clamp(5rem, 24vw, 10rem); line-height: 1.1;
+    color: var(--gold); text-shadow: 0 4px 30px rgba(0,0,0,.6), 0 0 24px rgba(233,194,122,.4);
+  }
+  .curtain-text .program { font-style: italic; font-size: clamp(1.05rem, 4vw, 1.3rem); color: var(--cream); }
+  .curtain-text .tap {
+    margin-top: 34px; font-family: 'Cinzel', serif; letter-spacing: .2em; font-size: .85rem;
+    color: var(--gold-soft); animation: blink 2.2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .violin-float, .curtain-text .tap { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="spotlight"></div>
+<div class="floor"></div>
+<canvas id="c"></canvas>
+
+<main class="stage">
+  <div class="messages">
+    <p id="msg"></p>
+    <div id="bravo">
+      <h2>¡Bravo, Aoi!</h2>
+      <p id="bravoText"></p>
+    </div>
+  </div>
+
+  <div class="violin-wrap" id="violinWrap">
+    <div class="violin-float">
+      <svg id="violin" viewBox="0 0 200 560" aria-label="Violín: tócalo para hacerlo sonar" role="img">
+        <defs>
+          <radialGradient id="wood" cx="50%" cy="45%" r="60%">
+            <stop offset="0" stop-color="#e3923a"/>
+            <stop offset=".55" stop-color="#b4561c"/>
+            <stop offset="1" stop-color="#5e230a"/>
+          </radialGradient>
+          <linearGradient id="woodNeck" x1="0" x2="1">
+            <stop offset="0" stop-color="#6b2d0e"/>
+            <stop offset=".5" stop-color="#b8601f"/>
+            <stop offset="1" stop-color="#6b2d0e"/>
+          </linearGradient>
+          <linearGradient id="shine" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity=".35"/>
+            <stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <!-- voluta y clavijero -->
+        <path d="M92 80 L91 34 Q91 26 100 26 Q109 26 109 34 L108 80 Z" fill="url(#woodNeck)" stroke="#3a1606" stroke-width="1"/>
+        <rect x="96" y="34" width="8" height="42" rx="3" fill="#2a1206"/>
+        <circle cx="100" cy="17" r="12" fill="url(#woodNeck)" stroke="#3a1606" stroke-width="1"/>
+        <path d="M100 17 m-7 0 a7 7 0 1 1 7 7 a4 4 0 1 1 -4 -4 a1.8 1.8 0 1 1 1.8 1.8" fill="none" stroke="#3a1606" stroke-width="1.5"/>
+        <!-- clavijas -->
+        <g fill="#1a0f0a">
+          <rect x="78" y="39" width="16" height="5" rx="2.5"/><ellipse cx="76" cy="41.5" rx="5" ry="6"/>
+          <rect x="78" y="57" width="16" height="5" rx="2.5"/><ellipse cx="76" cy="59.5" rx="5" ry="6"/>
+          <rect x="106" y="48" width="16" height="5" rx="2.5"/><ellipse cx="124" cy="50.5" rx="5" ry="6"/>
+          <rect x="106" y="66" width="16" height="5" rx="2.5"/><ellipse cx="124" cy="68.5" rx="5" ry="6"/>
+        </g>
+        <!-- mástil -->
+        <path d="M91 76 L109 76 L111 204 L89 204 Z" fill="url(#woodNeck)"/>
+
+        <!-- cuerpo (proporciones de un violín real) -->
+        <path id="body" d="M100 198 C138 198 176 212 176 252 C176 282 166 296 162 304 C154 316 150 330 150 345 C150 362 156 376 166 386 C180 400 194 420 194 452 C194 496 152 522 100 522 C48 522 6 496 6 452 C6 420 20 400 34 386 C44 376 50 362 50 345 C50 330 46 316 38 304 C34 296 24 282 24 252 C24 212 62 198 100 198 Z"
+              fill="url(#wood)" stroke="#2e1004" stroke-width="3"/>
+        <path d="M100 198 C138 198 176 212 176 252 C176 282 166 296 162 304 C154 316 150 330 150 345 C150 362 156 376 166 386 C180 400 194 420 194 452 C194 496 152 522 100 522 C48 522 6 496 6 452 C6 420 20 400 34 386 C44 376 50 362 50 345 C50 330 46 316 38 304 C34 296 24 282 24 252 C24 212 62 198 100 198 Z"
+              transform="translate(100 360) scale(.955) translate(-100 -360)" fill="none" stroke="rgba(30,10,2,.6)" stroke-width="1.3"/>
+        <path d="M44 236 C58 212 92 204 124 207 C86 216 60 244 48 300 Z" fill="url(#shine)"/>
+        <path d="M150 420 C168 440 176 470 162 496 C172 468 166 444 150 420 Z" fill="rgba(255,255,255,.12)"/>
+
+        <!-- efes -->
+        <g fill="none" stroke="#1a0a03" stroke-width="3" stroke-linecap="round">
+          <path d="M66 350 C56 370 78 400 64 424"/>
+          <path d="M134 350 C144 370 122 400 136 424"/>
+        </g>
+        <g fill="#1a0a03">
+          <circle cx="67" cy="348" r="3.2"/><circle cx="63" cy="426" r="3.2"/>
+          <circle cx="133" cy="348" r="3.2"/><circle cx="137" cy="426" r="3.2"/>
+        </g>
+
+        <!-- diapasón -->
+        <path d="M89 76 L111 76 L119 330 Q100 336 81 330 Z" fill="#141010"/>
+        <path d="M90 78 L93 78 L85 328 L82 328 Z" fill="rgba(255,255,255,.08)"/>
+        <rect x="88" y="74" width="24" height="4" rx="1" fill="#e8dcc0"/>
+
+        <!-- mentonera y cordal -->
+        <path d="M46 486 C58 474 82 476 90 490 C92 504 70 512 54 507 C44 502 42 494 46 486 Z" fill="#2a1a14" stroke="#120a08" stroke-width="1.5"/>
+        <path d="M52 488 C62 480 78 481 84 489" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M91 420 L109 420 L116 484 Q100 494 84 484 Z" fill="#141010"/>
+        <g fill="#c9c2b4"><circle cx="93.5" cy="428" r="1.8"/><circle cx="97.8" cy="428" r="1.8"/><circle cx="102.2" cy="428" r="1.8"/><circle cx="106.5" cy="428" r="1.8"/></g>
+
+        <!-- puente -->
+        <path d="M70 394 L130 394 L126 384 Q100 375 74 384 Z" fill="#e6c690" stroke="#a9824a" stroke-width="1"/>
+        <path d="M84 394 Q86 388 90 390 M110 390 Q114 388 116 394" fill="none" stroke="#a9824a" stroke-width="1"/>
+
+        <!-- cuerdas: Sol, Re, La, Mi -->
+        <polyline class="str" data-s="0" points="94.5,76 86,379 93.5,426" fill="none" stroke="#d8b46a" stroke-width="1.7"/>
+        <polyline class="str" data-s="1" points="98.5,76 95,378 97.8,426" fill="none" stroke="#d9d4c7" stroke-width="1.4"/>
+        <polyline class="str" data-s="2" points="101.5,76 105,378 102.2,426" fill="none" stroke="#d9d4c7" stroke-width="1.15"/>
+        <polyline class="str" data-s="3" points="105.5,76 114,379 106.5,426" fill="none" stroke="#eeeae0" stroke-width=".9"/>
+      </svg>
+
+      <!-- arco -->
+      <div class="bow" id="bow">
+        <svg viewBox="0 0 600 34" id="bowSvg">
+          <path d="M14 10 Q300 0 586 12" stroke="#5a2a0a" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M40 24 L582 18" stroke="#f3ead5" stroke-width="3.5"/>
+          <rect x="18" y="8" width="44" height="20" rx="4" fill="#111"/>
+          <circle cx="40" cy="18" r="4" fill="#e9e1d0"/>
+          <path d="M578 6 L594 12 L582 22 Z" fill="#e9e1d0"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint" id="hint"></p>
+</main>
+
+<div class="volume" title="Volumen">
+  <button id="volIcon" aria-label="Silenciar">🔉</button>
+  <input type="range" id="vol" min="0" max="1" step="0.01" aria-label="Volumen">
+</div>
+
+<button class="btn" id="songBtn">🎻 Escuchar canción</button>
+
+<!-- Telón -->
+<div class="curtain left"></div>
+<div class="curtain right"></div>
+<div class="valance"></div>
+<div class="curtain-text" id="curtainText" role="button" tabindex="0" aria-label="Abrir el telón">
+  <div class="tonight">Esta noche, en concierto</div>
+  <div class="name">Aoi</div>
+  <div class="program">un pequeño recital solo para ti</div>
+  <div class="tap">toca para abrir el telón · con sonido 🔊</div>
+</div>
+
+<script>
+/* ================= Textos (edítalos a tu gusto) ================= */
+const MESSAGES = [
+  "Aoi, cuando tocas el violín, el mundo entero guarda silencio para escucharte.",
+  "Me encanta verte tocar, cómo te pierdes en cada melodía.",
+  "Cada nota tuya tiene algo que solo tú sabes darle.",
+  "Y aunque yo no sepa tocar ni una cuerda, mi corazón aprendió a latir a tu ritmo."
+];
+const BRAVO_TEXT = "Eres la música más bonita de mi vida. Te quiero. 🎻";
+const TAPS_FOR_SONG = 8;
+const VOLUME = 0.3; // volumen inicial del control (0 a 1)
+
+let ac, master, analyser, timeBuf;
+
+/* ================= Control de volumen ================= */
+let currentVol = VOLUME;
+const volToGain = v => v * v * .5; // curva suave: el control se siente natural
+const volSlider = document.getElementById('vol');
+const volIcon = document.getElementById('volIcon');
+volSlider.value = VOLUME;
+function setVolume(v) {
+  currentVol = v;
+  volSlider.value = v;
+  volIcon.textContent = v == 0 ? '🔇' : v < .5 ? '🔉' : '🔊';
+  if (master) master.gain.setTargetAtTime(volToGain(v), ac.currentTime, .05);
+}
+volSlider.addEventListener('input', () => setVolume(+volSlider.value));
+let lastVol = VOLUME;
+volIcon.addEventListener('click', () => {
+  if (currentVol > 0) { lastVol = currentVol; setVolume(0); } else setVolume(lastVol || .3);
+});
+setVolume(VOLUME);
+
+/* ================= Audio: un violín sintetizado ================= */
+function initAudio() {
+  if (ac) return;
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  master = ac.createGain(); master.gain.value = volToGain(currentVol);
+  const limiter = ac.createDynamicsCompressor();
+  limiter.threshold.value = -20; limiter.ratio.value = 8; limiter.attack.value = .005; limiter.release.value = .2;
+  analyser = ac.createAnalyser(); analyser.fftSize = 2048;
+  timeBuf = new Float32Array(analyser.fftSize);
+
+  // reverberación de sala de conciertos
+  const len = ac.sampleRate * 2.8;
+  const ir = ac.createBuffer(2, len, ac.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = ir.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+  }
+  const conv = ac.createConvolver(); conv.buffer = ir;
+  const wet = ac.createGain(); wet.gain.value = .3;
+  master.connect(analyser);
+  master.connect(conv); conv.connect(wet); wet.connect(analyser);
+  analyser.connect(limiter); limiter.connect(ac.destination);
+}
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+
+function violinNote(midi, when, dur, vol = .2) {
+  const f = mtof(midi);
+  const o1 = ac.createOscillator(), o2 = ac.createOscillator();
+  o1.type = o2.type = 'sawtooth';
+  o1.frequency.value = f; o2.frequency.value = f; o2.detune.value = 6;
+
+  const lfo = ac.createOscillator(), lfoGain = ac.createGain();
+  lfo.frequency.value = 5.6;
+  lfoGain.gain.setValueAtTime(0, when);
+  lfoGain.gain.linearRampToValueAtTime(f * .007, when + .35);
+  lfo.connect(lfoGain); lfoGain.connect(o1.frequency); lfoGain.connect(o2.frequency);
+
+  const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 180;
+  const body = ac.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 2800; body.Q.value = 1.2; body.gain.value = 5;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = .7;
+  lp.frequency.setValueAtTime(1400, when);
+  lp.frequency.linearRampToValueAtTime(4200, when + .25);
+
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(vol, when + .12);
+  g.gain.setValueAtTime(vol, when + dur);
+  g.gain.linearRampToValueAtTime(0, when + dur + .45);
+
+  o1.connect(hp); o2.connect(hp); hp.connect(body); body.connect(lp); lp.connect(g); g.connect(master);
+  const end = when + dur + .5;
+  [o1, o2, lfo].forEach(o => { o.start(when); o.stop(end); });
+}
+
+function softNote(midi, when, dur, vol, type = 'triangle') {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.value = mtof(midi);
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(vol, when + .25);
+  g.gain.setValueAtTime(vol, when + dur * .8);
+  g.gain.linearRampToValueAtTime(0, when + dur + .6);
+  o.connect(g); g.connect(master);
+  o.start(when); o.stop(when + dur + .7);
+}
+
+/* ================= Violín interactivo ================= */
+const violin = document.getElementById('violin');
+const strings = [...document.querySelectorAll('.str')];
+const STRING_X = [87, 95, 105, 113];
+// escala pentatónica de Re mayor: cualquier nota suena bonita
+const PENTA = [];
+for (let m = 55; m <= 90; m++) if ([2, 4, 6, 9, 11].includes(m % 12)) PENTA.push(m);
+const OPEN = [55, 62, 69, 76]; // Sol, Re, La, Mi
+const STRING_NOTES = OPEN.map(o => { const i = PENTA.findIndex(m => m >= o); return PENTA.slice(i, i + 5); });
+
+function vibrate(s) {
+  const el = strings[s];
+  el.classList.remove('vib'); void el.getBoundingClientRect(); el.classList.add('vib');
+}
+
+function stringScreenPos(s) {
+  const r = violin.getBoundingClientRect();
+  return { x: r.left + r.width * STRING_X[s] / 200, y: r.top + r.height * 355 / 560 };
+}
+
+const NOTE_CHARS = ['♪', '♫', '♩', '♬'];
+function floatNote(x, y) {
+  const el = document.createElement('span');
+  el.className = 'mnote';
+  el.textContent = NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  el.style.fontSize = (18 + Math.random() * 18) + 'px';
+  el.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+  el.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2700);
+}
+
+let taps = 0, songPlaying = false;
+violin.addEventListener('pointerdown', e => {
+  if (!ac || songPlaying) return;
+  const r = violin.getBoundingClientRect();
+  const vx = (e.clientX - r.left) / r.width * 200;
+  const vy = (e.clientY - r.top) / r.height * 560;
+  const s = vx < 91 ? 0 : vx < 100 ? 1 : vx < 109 ? 2 : 3;
+  const pos = Math.max(0, Math.min(4, Math.floor((vy - 70) / 450 * 5)));
+  violinNote(STRING_NOTES[s][pos], ac.currentTime + .01, .7, .22);
+  vibrate(s);
+  floatNote(e.clientX, e.clientY);
+  if (++taps === TAPS_FOR_SONG) showSongButton();
+});
+
+/* ================= Telón ================= */
+const hint = document.getElementById('hint');
+const songBtn = document.getElementById('songBtn');
+let curtainOpened = false;
+function openCurtain() {
+  if (curtainOpened) return;
+  curtainOpened = true;
+  initAudio();
+  document.body.classList.add('open');
+  setTimeout(() => document.body.classList.add('lit'), 900);
+  // pequeña afinación al abrir el telón
+  const t = ac.currentTime + 1.2;
+  [[57, 0], [64, .5], [69, 1], [76, 1.5]].forEach(([m, d]) => violinNote(m, t + d, .9, .13));
+  setTimeout(() => { hint.textContent = 'toca el violín para hacerlo sonar'; hint.classList.add('show'); }, 4200);
+  setTimeout(showSongButton, 20000);
+}
+document.getElementById('curtainText').addEventListener('click', openCurtain);
+document.getElementById('curtainText').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openCurtain(); });
+
+function showSongButton() {
+  if (songPlaying || songBtn.dataset.done) return;
+  songBtn.classList.add('show');
+}
+
+/* ================= La canción: Canon en Re (Pachelbel) ================= */
+const BEAT = 1.25;
+const MELODY = [78, 76, 74, 73, 71, 69, 71, 73, 74, 73, 71, 69, 67, 66, 67, 64];
+const BASS   = [50, 45, 47, 42, 43, 38, 43, 45];
+const CHORDS = [[54, 57, 62], [52, 57, 61], [54, 59, 62], [54, 57, 61], [55, 59, 62], [54, 57, 62], [55, 59, 62], [52, 57, 61]];
+const stringFor = m => m >= 76 ? 3 : m >= 69 ? 2 : m >= 62 ? 1 : 0;
+
+const bow = document.getElementById('bow'), bowSvg = document.getElementById('bowSvg');
+let bowDir = 1;
+function moveBow() {
+  bowDir *= -1;
+  bowSvg.style.transitionDuration = (BEAT * .95) + 's';
+  bowSvg.style.transform = `translateX(${bowDir * 16}%) rotate(-7deg)`;
+}
+
+const msg = document.getElementById('msg');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+songBtn.addEventListener('click', async () => {
+  songBtn.classList.remove('show'); songBtn.dataset.done = '1';
+  songPlaying = true;
+  hint.textContent = '♪ Canon en Re · J. Pachelbel ♪';
+  bow.classList.add('show');
+  bowSvg.style.transform = 'translateX(-16%) rotate(-7deg)';
+
+  const t0 = ac.currentTime + .6;
+  MELODY.forEach((m, i) => {
+    const when = t0 + i * BEAT;
+    violinNote(m, when, BEAT * .92, .2);
+    const bi = i % 8;
+    softNote(BASS[bi], when, BEAT * .95, .1, 'triangle');
+    CHORDS[bi].forEach(c => softNote(c, when, BEAT * .95, .035, 'sine'));
+    setTimeout(() => {
+      const s = stringFor(m);
+      vibrate(s); moveBow();
+      const p = stringScreenPos(s);
+      floatNote(p.x, p.y);
+    }, (when - ac.currentTime) * 1000);
+  });
+  // acorde final
+  const tEnd = t0 + MELODY.length * BEAT;
+  violinNote(74, tEnd, BEAT * 2.6, .2);
+  softNote(38, tEnd, BEAT * 2.6, .12);
+  [54, 57, 62].forEach(c => softNote(c, tEnd, BEAT * 2.6, .04, 'sine'));
+  setTimeout(() => { vibrate(1); moveBow(); }, (tEnd - ac.currentTime) * 1000);
+
+  // mensajes durante la canción
+  await sleep(900);
+  const slot = (MELODY.length * BEAT * 1000) / MESSAGES.length;
+  for (const m of MESSAGES) {
+    msg.textContent = m;
+    msg.classList.add('show');
+    await sleep(slot - 1300);
+    msg.classList.remove('show');
+    await sleep(1300);
+  }
+  await sleep(BEAT * 2000);
+  finale();
+});
+
+/* ================= Final: ¡Bravo! ================= */
+function finale() {
+  songPlaying = false;
+  bow.classList.remove('show');
+  msg.style.display = 'none';
+  document.getElementById('bravoText').textContent = BRAVO_TEXT;
+  document.getElementById('bravo').classList.add('show');
+  hint.textContent = 'puedes seguir tocando el violín cuando quieras';
+  let n = 0;
+  const iv = setInterval(() => { throwRose(); if (++n > 45) clearInterval(iv); }, 140);
+}
+function throwRose() {
+  const el = document.createElement('span');
+  el.className = 'rose';
+  el.textContent = Math.random() < .7 ? '🌹' : '🌸';
+  el.style.left = Math.random() * 100 + 'vw';
+  el.style.fontSize = (20 + Math.random() * 18) + 'px';
+  el.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+  el.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+  const dur = 4 + Math.random() * 3;
+  el.style.animationDuration = dur + 's';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), dur * 1000);
+}
+
+/* ================= Canvas: pentagrama vivo y polvo de luz ================= */
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let W, H, dust = [];
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  dust = Array.from({ length: 60 }, () => ({ x: W / 2 + (Math.random() - .5) * W * .5, y: Math.random() * H, r: Math.random() * 1.4 + .3, v: Math.random() * .25 + .05, p: Math.random() * 6 }));
+}
+addEventListener('resize', resize);
+resize();
+
+function draw(now) {
+  ctx.clearRect(0, 0, W, H);
+  const t = now / 1000;
+
+  // pentagrama que se mueve con el sonido
+  const gap = Math.max(8, Math.min(12, H * .014));
+  const y0 = H * .075 + 8;
+  let live = false;
+  if (analyser) { analyser.getFloatTimeDomainData(timeBuf); live = true; }
+  ctx.lineWidth = 1.2;
+  for (let l = 0; l < 5; l++) {
+    ctx.strokeStyle = `rgba(233,194,122,${.10 + l * .015})`;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 6) {
+      const win = Math.sin(Math.PI * x / W);
+      let amp = Math.sin(x * .012 + t * 1.2 + l * .6) * 2;
+      if (live) amp += timeBuf[Math.floor(x / W * (timeBuf.length - 1))] * 45 * (l % 2 ? 1 : -1);
+      const y = y0 + l * gap + amp * win;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // polvo flotando en el foco
+  if (document.body.classList.contains('lit')) {
+    for (const d of dust) {
+      d.y -= d.v; d.p += .02;
+      if (d.y < 0) { d.y = H; d.x = W / 2 + (Math.random() - .5) * W * .5; }
+      ctx.fillStyle = `rgba(255,236,190,${.25 + Math.sin(d.p) * .2})`;
+      ctx.beginPath(); ctx.arc(d.x + Math.sin(d.p) * 6, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+<a href="index.html" class="back-to-gifts" style="position:fixed;top:12px;left:12px;z-index:1000;padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.35);color:#fff;font:600 14px/1.4 system-ui,sans-serif;text-decoration:none;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25);cursor:pointer">&larr; regalos</a>
+</body>
+</html>

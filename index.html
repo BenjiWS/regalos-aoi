@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regalos para Aoi 🎁</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #fff6ee;
+    --bg-2: #ffe3ea;
+    --bg-3: #ffd6c9;
+    --text: #6b2440;
+    --soft: #9b4d68;
+    --rose: #d6336c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: 'Quicksand', system-ui, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle, rgba(214,51,108,.07) 1.5px, transparent 2px) 0 0 / 26px 26px,
+      linear-gradient(170deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+  main {
+    position: relative; z-index: 1;
+    min-height: 100vh; padding: 16vh 16px 5vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  h1 {
+    font-family: 'Great Vibes', cursive; font-weight: 400;
+    font-size: clamp(3rem, 12vw, 5.5rem); line-height: 1.05;
+    color: var(--rose);
+    text-shadow: 0 3px 0 rgba(255,255,255,.9), 0 10px 28px rgba(214,51,108,.28);
+    animation: fadeUp 1.2s ease both;
+  }
+  .sub {
+    margin-top: 8px; font-size: clamp(1.05rem, 4vw, 1.3rem); color: var(--soft);
+    animation: fadeUp 1.2s ease .4s both;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .gifts {
+    margin-top: clamp(40px, 8vh, 80px);
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: clamp(26px, 5vw, 56px) clamp(18px, 4vw, 48px);
+    max-width: 1000px;
+  }
+
+  /* ---------- Regalo ---------- */
+  .gift {
+    --w: clamp(96px, 15vw, 140px);
+    position: relative; width: var(--w);
+    background: none; border: none; cursor: pointer; font: inherit; color: inherit;
+    padding-top: calc(var(--w) * .42);
+    animation: fadeUp .9s ease both, wobble 3.2s ease-in-out infinite;
+    transition: transform .3s;
+  }
+  .gift:nth-child(1) { animation-delay: .7s, 1.6s; }
+  .gift:nth-child(2) { animation-delay: .85s, 2.2s; }
+  .gift:nth-child(3) { animation-delay: 1s, 1.9s; }
+  .gift:nth-child(4) { animation-delay: 1.15s, 2.6s; }
+  .gift:nth-child(5) { animation-delay: 1.3s, 2.9s; }
+  @keyframes wobble {
+    0%, 70%, 100% { rotate: 0deg; }
+    75% { rotate: -5deg; } 80% { rotate: 5deg; } 85% { rotate: -3deg; } 90% { rotate: 2deg; }
+  }
+  .gift:hover, .gift:focus-visible { transform: translateY(-8px); outline: none; }
+  .gift:hover .box, .gift:focus-visible .box { box-shadow: 0 20px 34px rgba(150,60,90,.28), 0 0 30px var(--glow); }
+
+  .gift span { display: block; }
+  .box {
+    position: relative; width: 100%; height: calc(var(--w) * .8);
+    background: var(--c);
+    border-radius: 4px 4px 8px 8px;
+    box-shadow: 0 14px 24px rgba(150,60,90,.22);
+    background-image: linear-gradient(90deg, rgba(0,0,0,.12), transparent 30%, transparent 70%, rgba(0,0,0,.15));
+    transition: box-shadow .3s;
+  }
+  .box::before {           /* listón vertical */
+    content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 18%;
+    transform: translateX(-50%); background: var(--r);
+  }
+  .box .dots {
+    position: absolute; inset: 0; border-radius: inherit; opacity: .18;
+    background-image: radial-gradient(circle, #fff 2px, transparent 2.5px);
+    background-size: 18px 18px;
+  }
+  .lid {
+    position: absolute; left: -6%; width: 112%; top: calc(var(--w) * .2);
+    height: calc(var(--w) * .24);
+    background: var(--c);
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,.3);
+    background-image: linear-gradient(180deg, rgba(255,255,255,.18), transparent 60%);
+    z-index: 2;
+    transition: transform .8s cubic-bezier(.3,1.4,.5,1), opacity .8s;
+  }
+  .lid::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 16%;
+    transform: translateX(-50%); background: var(--r);
+  }
+  .bow {
+    position: absolute; left: 50%; bottom: 88%; width: 0; height: 0;
+  }
+  .bow { filter: drop-shadow(0 1px 1.5px rgba(120,40,70,.4)); }
+  .bow::before, .bow::after {
+    content: ""; position: absolute; bottom: 0;
+    width: calc(var(--w) * .3); height: calc(var(--w) * .22);
+    border: calc(var(--w) * .055) solid var(--r);
+    border-radius: 50% 50% 10% 50%;
+  }
+  .bow::before { right: -2px; transform: rotate(-20deg); transform-origin: bottom right; }
+  .bow::after  { left: -2px; transform: rotate(20deg); transform-origin: bottom left; border-radius: 50% 50% 50% 10%; }
+  .knot {
+    position: absolute; left: 50%; top: -4px; transform: translateX(-50%);
+    width: calc(var(--w) * .14); height: calc(var(--w) * .12);
+    background: var(--r); border-radius: 40%; z-index: 3;
+  }
+
+  .tag {
+    display: block; margin-top: 14px;
+    font-weight: 700; font-size: 1rem; letter-spacing: .04em; color: var(--soft);
+    min-height: 1.3em;
+  }
+  .tag .done { color: var(--rose); font-weight: 600; font-size: .92rem; }
+
+  .light {
+    position: absolute; left: 50%; top: 45%; width: 10px; height: 10px; z-index: 1;
+    transform: translate(-50%, -50%); border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, var(--glow) 40%, transparent 70%);
+    opacity: 0; pointer-events: none;
+  }
+
+  /* abriendo */
+  .gift.opening { animation: none; transform: none; }
+  .gift.opening .lid { transform: translateY(calc(var(--w) * -1.1)) rotate(-28deg); opacity: 0; }
+  .gift.opening .light { animation: burst 1.1s ease-out .15s forwards; }
+  @keyframes burst {
+    0% { opacity: 1; width: 10px; height: 10px; }
+    100% { opacity: 0; width: 520px; height: 520px; }
+  }
+  .gift.shake { animation: shake .45s ease; }
+  @keyframes shake {
+    0%,100% { rotate: 0deg; } 20% { rotate: -9deg; } 40% { rotate: 8deg; } 60% { rotate: -6deg; } 80% { rotate: 4deg; }
+  }
+  .gifts.choosing .gift:not(.opening) { opacity: .35; filter: grayscale(.4); transition: opacity .6s, filter .6s; pointer-events: none; }
+
+  .curtain {
+    position: fixed; inset: 0; z-index: 10; pointer-events: none;
+    background: radial-gradient(circle, #fff 0%, #ffd1e1 50%, #f7a1c4 100%);
+    opacity: 0; transition: opacity .7s ease;
+  }
+  .curtain.show { opacity: 1; }
+
+  .foot { margin-top: clamp(36px, 7vh, 64px); font-size: .98rem; color: rgba(155,77,104,.75); animation: fadeUp 1s ease 1.8s both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gift { animation: fadeUp .01ms both !important; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<main>
+  <h1>Para ti, Aoi</h1>
+  <p class="sub">Tengo 5 regalos para ti. Elige uno ♥</p>
+
+  <div class="gifts" id="gifts"></div>
+
+  <p class="foot">Cuando termines uno, puedes volver y abrir otro.</p>
+</main>
+
+<div class="curtain" id="curtain"></div>
+
+<script>
+/* ================= Regalos (cambia el orden o los colores si quieres) ================= */
+const GIFTS = [
+  { href: 'detalle.html',  name: 'Una carta',            c: '#ff6b9a', r: '#ffe08a', glow: 'rgba(255,107,154,.8)' },
+  { href: 'violin.html',   name: 'Un concierto',         c: '#8b5cf6', r: '#ffd1e1', glow: 'rgba(139,92,246,.8)' },
+  { href: 'jardin.html',   name: 'Un jardín',            c: '#2dd4bf', r: '#ff8fb1', glow: 'rgba(45,212,191,.8)' },
+  { href: 'valorant.html', name: 'Una partida',          c: '#ff4655', r: '#ece8e1', glow: 'rgba(255,70,85,.8)' },
+  { href: 'frasco.html',   name: 'Un frasco de estrellas', c: '#f5b942', r: '#e0457b', glow: 'rgba(245,185,66,.8)' }
+];
+
+/* recordar cuáles ya abrió (solo en su navegador) */
+function getOpened() {
+  try { return JSON.parse(localStorage.getItem('aoi-regalos') || '[]'); } catch (e) { return []; }
+}
+function markOpened(href) {
+  try {
+    const o = getOpened();
+    if (!o.includes(href)) { o.push(href); localStorage.setItem('aoi-regalos', JSON.stringify(o)); }
+  } catch (e) {}
+}
+
+const wrap = document.getElementById('gifts');
+function render() {
+  const opened = getOpened();
+  wrap.className = 'gifts';
+  wrap.innerHTML = GIFTS.map((g, i) => `
+    <button class="gift" data-i="${i}" style="--c:${g.c};--r:${g.r};--glow:${g.glow}" aria-label="Regalo ${i + 1}">
+      <span class="light"></span>
+      <span class="lid"><span class="bow"></span><span class="knot"></span></span>
+      <span class="box"><span class="dots"></span></span>
+      <span class="tag">${opened.includes(g.href) ? `<span class="done">✓ ${g.name}</span>` : `Regalo ${i + 1}`}</span>
+    </button>`).join('');
+}
+render();
+
+let busy = false;
+wrap.addEventListener('click', e => {
+  const btn = e.target.closest('.gift');
+  if (!btn || busy) return;
+  busy = true;
+  const g = GIFTS[+btn.dataset.i];
+  wrap.classList.add('choosing');
+  btn.classList.add('shake');
+  setTimeout(() => {
+    btn.classList.remove('shake');
+    btn.classList.add('opening');
+    const r = btn.getBoundingClientRect();
+    sparkle(r.left + r.width / 2, r.top + r.height * .4, 60);
+  }, 450);
+  setTimeout(() => document.getElementById('curtain').classList.add('show'), 1350);
+  setTimeout(() => { markOpened(g.href); location.href = g.href; }, 2100);
+});
+
+// si vuelve con el botón "atrás", dejar todo como nuevo
+addEventListener('pageshow', () => {
+  busy = false;
+  document.getElementById('curtain').classList.remove('show');
+  render();
+});
+
+/* ================= Fondo: guirnaldas de luces, bokeh y confeti ================= */
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let W, H, bokeh = [], confetti = [], sparks = [];
+const BULB_COLORS = ['#ff6b9a', '#f5b942', '#8b5cf6', '#2dd4bf', '#ff8a5c'];
+const BOKEH_COLORS = ['255,143,177', '255,205,120', '196,181,253', '125,226,209', '255,170,140'];
+const CONF_COLORS = ['#ff6b9a', '#f5b942', '#8b5cf6', '#2dd4bf', '#ff8a5c', '#e0457b'];
+const rand = (a, b) => a + Math.random() * (b - a);
+
+function newConfetti(anywhere) {
+  return { x: rand(0, W), y: anywhere ? rand(0, H) : -20, w: rand(6, 11), h: rand(3, 6),
+    vy: rand(.4, 1.1), vx: rand(-.3, .3), r: rand(0, 6), vr: rand(-.05, .05), flip: rand(0, 6),
+    c: CONF_COLORS[Math.floor(Math.random() * CONF_COLORS.length)] };
+}
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  bokeh = Array.from({ length: Math.round(Math.min(22, W / 50)) }, () => ({
+    x: rand(0, W), y: rand(0, H), r: rand(18, 70),
+    c: BOKEH_COLORS[Math.floor(Math.random() * BOKEH_COLORS.length)],
+    a: rand(.12, .28), vy: rand(.08, .3), p: rand(0, 6)
+  }));
+  confetti = Array.from({ length: Math.round(Math.min(45, W / 25)) }, () => newConfetti(true));
+}
+addEventListener('resize', resize);
+resize();
+
+// guirnalda: un cable que cuelga con foquitos que parpadean
+function drawGarland(t, y0, sag, phase, offset) {
+  const sway = Math.sin(t * .8 + phase) * 4;
+  const pt = u => ({ x: -20 + u * (W + 40), y: y0 + (sag + sway) * Math.sin(Math.PI * u) });
+  ctx.strokeStyle = 'rgba(90,50,60,.55)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let i = 0; i <= 60; i++) { const p = pt(i / 60); i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }
+  ctx.stroke();
+  const n = Math.max(8, Math.round(W / 60));
+  for (let i = 0; i < n; i++) {
+    const u = (i + .5 + offset) / n;
+    if (u >= 1) continue;
+    const p = pt(u), col = BULB_COLORS[(i + (offset ? 2 : 0)) % BULB_COLORS.length];
+    const glow = .55 + .45 * Math.sin(t * 2.2 + i * 1.7 + phase);
+    ctx.save();
+    ctx.translate(p.x, p.y); ctx.rotate(-Math.cos(Math.PI * u) * .35);
+    const g = ctx.createRadialGradient(0, 12, 0, 0, 12, 26);
+    g.addColorStop(0, col + Math.round(glow * 110).toString(16).padStart(2, '0'));
+    g.addColorStop(1, col + '00');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 12, 26, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5a3a40';
+    ctx.fillRect(-3, 0, 6, 6);
+    ctx.globalAlpha = .75 + glow * .25;
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.ellipse(0, 13, 5.5, 8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = .7;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.ellipse(-1.8, 10, 1.5, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+}
+
+const SPARK_COLORS = ['#ff6b9a', '#f5b942', '#8b5cf6', '#2dd4bf', '#e0457b'];
+function sparkle(x, y, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, v = Math.random() * 7 + 2;
+    sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 3, life: 1,
+      c: SPARK_COLORS[i % SPARK_COLORS.length], heart: Math.random() < .35, s: Math.random() * 10 + 8 });
+  }
+}
+
+function loop(now) {
+  const t = now / 1000;
+  ctx.clearRect(0, 0, W, H);
+
+  // luces desenfocadas
+  for (const b of bokeh) {
+    b.y -= b.vy; b.p += .01;
+    if (b.y < -b.r) { b.y = H + b.r; b.x = rand(0, W); }
+    const a = b.a * (.75 + .25 * Math.sin(b.p));
+    const bx = b.x + Math.sin(b.p) * 10;
+    const g = ctx.createRadialGradient(bx, b.y, 0, bx, b.y, b.r);
+    g.addColorStop(0, `rgba(${b.c},${a})`);
+    g.addColorStop(.7, `rgba(${b.c},${a * .6})`);
+    g.addColorStop(1, `rgba(${b.c},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(bx, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // confeti cayendo
+  for (let i = 0; i < confetti.length; i++) {
+    const c = confetti[i];
+    c.y += c.vy; c.x += c.vx + Math.sin(t + i) * .2; c.r += c.vr; c.flip += .05;
+    if (c.y > H + 20) confetti[i] = newConfetti(false);
+    ctx.save();
+    ctx.translate(c.x, c.y); ctx.rotate(c.r); ctx.scale(1, Math.cos(c.flip));
+    ctx.globalAlpha = .7;
+    ctx.fillStyle = c.c;
+    ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+
+  // dos guirnaldas arriba
+  const sag = Math.min(70, H * .08);
+  drawGarland(t, -6, sag * 1.25, 1.3, .5);
+  drawGarland(t, -10, sag, 0, 0);
+
+  sparks = sparks.filter(p => p.life > 0);
+  for (const p of sparks) {
+    p.vy += .15; p.x += p.vx; p.y += p.vy; p.life -= .015;
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.c;
+    if (p.heart) {
+      ctx.font = `${p.s}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('♥', p.x, p.y);
+    } else {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frasco de estrellas para Aoi ✨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-top: #0e1433;
+    --bg-mid: #1d2456;
+    --bg-low: #3b2a5c;
+    --warm: #ffcf7a;
+    --star: #ffe29a;
+    --paper: #fffaf0;
+    --ink: #3d2c4f;
+    --pink: #ff8fb1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: #fff;
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 55%, var(--bg-low) 100%);
+    -webkit-tap-highlight-color: transparent;
+  }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; }
+  #bg { z-index: 0; }
+  #fx { z-index: 6; pointer-events: none; }
+
+  /* luz cálida de la mesa */
+  .table {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 16vh; z-index: 1;
+    background: linear-gradient(180deg, #5b3a3f, #3a2230);
+    box-shadow: 0 -2px 0 rgba(255,207,122,.15);
+    transition: opacity 2s;
+  }
+  .glow-floor {
+    position: fixed; left: 50%; bottom: 10vh; z-index: 1;
+    width: min(90vw, 520px); height: 120px; transform: translateX(-50%);
+    background: radial-gradient(ellipse, rgba(255,207,122,.35), transparent 70%);
+    transition: opacity 2s;
+  }
+
+  .header {
+    position: fixed; top: 7vh; left: 0; right: 0; z-index: 4;
+    text-align: center; padding: 0 16px;
+    transition: opacity 1.5s;
+  }
+  .header h1 {
+    font-weight: 600; font-size: clamp(1.7rem, 6.5vw, 2.8rem);
+    letter-spacing: .02em;
+  }
+  .header h1 em { font-style: italic; color: var(--warm); }
+  .header p {
+    margin-top: 8px; font-family: 'Caveat', cursive;
+    font-size: clamp(1.3rem, 5vw, 1.7rem); color: #d9d4ff;
+  }
+  .counter {
+    display: inline-block; margin-top: 12px;
+    font-family: 'Caveat', cursive; font-size: 1.4rem;
+    padding: 2px 16px; border-radius: 999px;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,226,154,.3);
+    color: var(--star);
+  }
+
+  /* ---------- Frasco ---------- */
+  .jar-area {
+    position: fixed; left: 50%; bottom: 12vh; z-index: 3;
+    transform: translateX(-50%);
+    width: min(240px, 58vw);
+    cursor: pointer;
+    transition: opacity 1.5s, transform 1.5s;
+  }
+  .jar-area.wiggle .jar { animation: wiggle .5s ease; }
+  @keyframes wiggle {
+    0%,100% { transform: rotate(0); } 20% { transform: rotate(-6deg); } 40% { transform: rotate(5deg); }
+    60% { transform: rotate(-3deg); } 80% { transform: rotate(2deg); }
+  }
+  .jar { position: relative; width: 100%; aspect-ratio: 240 / 300; transform-origin: bottom center; }
+  .jar svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .jar-inner-glow {
+    position: absolute; left: 12%; right: 12%; top: 30%; bottom: 6%;
+    border-radius: 30px;
+    background: radial-gradient(ellipse at 50% 60%, rgba(255,226,154,.55), transparent 70%);
+    animation: breathe 3s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+  .jar-stars { position: absolute; left: 16%; right: 16%; top: 34%; bottom: 8%; }
+  .jstar {
+    position: absolute; font-size: 22px; color: var(--star);
+    text-shadow: 0 0 10px rgba(255,226,154,.9);
+    animation: bob var(--d) ease-in-out infinite;
+    transition: opacity .4s;
+  }
+  @keyframes bob {
+    0%,100% { transform: translateY(0) rotate(var(--r)); }
+    50% { transform: translateY(-8px) rotate(calc(var(--r) + 20deg)); }
+  }
+  .tap {
+    margin-top: 14px; text-align: center;
+    font-family: 'Caveat', cursive; font-size: 1.5rem; color: var(--warm);
+    animation: fade 2s ease-in-out infinite;
+  }
+  @keyframes fade { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
+
+  /* ---------- Nota ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: rgba(8,10,30,.55);
+    opacity: 0; visibility: hidden; transition: opacity .5s, visibility .5s;
+    perspective: 1000px;
+  }
+  .overlay.show { opacity: 1; visibility: visible; }
+  .note {
+    width: min(400px, 100%);
+    background: var(--paper);
+    background-image: repeating-linear-gradient(180deg, transparent 0 33px, rgba(120,140,200,.18) 33px 34px);
+    color: var(--ink);
+    border-radius: 6px; padding: 34px 28px 26px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.5);
+    transform: rotateX(80deg) translateY(80px) scale(.6); transform-origin: bottom;
+    transition: transform .8s cubic-bezier(.2,1.2,.4,1);
+    text-align: center; position: relative;
+  }
+  .overlay.show .note { transform: rotate(-1.5deg); }
+  .note::before {
+    content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(2deg);
+    width: 110px; height: 26px; background: rgba(255,143,177,.55);
+  }
+  .note .num { font-family: 'Caveat', cursive; font-size: 1.2rem; color: #9a88b8; }
+  .note .text {
+    font-family: 'Caveat', cursive; font-weight: 500;
+    font-size: clamp(1.7rem, 6.5vw, 2.1rem); line-height: 1.25;
+    margin: 10px 0 22px;
+  }
+  .btn {
+    font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.45rem;
+    border: none; border-radius: 999px; padding: 8px 28px; cursor: pointer;
+    color: #2a1f45; background: var(--warm);
+    box-shadow: 0 6px 20px rgba(255,207,122,.45);
+    transition: transform .2s;
+  }
+  .btn:hover { transform: scale(1.06); }
+
+  /* ---------- Final ---------- */
+  .ending {
+    position: fixed; left: 0; right: 0; bottom: 9vh; z-index: 7;
+    text-align: center; padding: 0 16px;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 2s ease, transform 2s ease;
+    pointer-events: none;
+  }
+  .ending.show { opacity: 1; transform: none; }
+  .ending h2 { font-style: italic; font-weight: 400; font-size: clamp(1.8rem, 7vw, 3rem); color: var(--star); text-shadow: 0 0 20px rgba(255,226,154,.6); }
+  .ending p { margin-top: 10px; font-family: 'Caveat', cursive; font-size: clamp(1.4rem, 5vw, 1.9rem); color: #e8e2ff; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+  #lastBtn {
+    position: fixed; left: 50%; top: 50%; z-index: 8;
+    transform: translate(-50%, -50%) scale(.8);
+    opacity: 0; pointer-events: none;
+    transition: opacity 1s, transform 1s;
+  }
+  #lastBtn.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); animation: pulse 1.8s ease-in-out infinite 1s; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,207,122,.6); } 50% { box-shadow: 0 0 0 16px rgba(255,207,122,0); } }
+
+  body.sky-mode .jar-area, body.sky-mode .header, body.sky-mode .table, body.sky-mode .glow-floor { opacity: 0; pointer-events: none; }
+  body.sky-mode .jar-area { transform: translateX(-50%) translateY(40px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div class="glow-floor"></div>
+<div class="table"></div>
+
+<header class="header">
+  <h1>Un frasco de estrellas para <em>Aoi</em></h1>
+  <p>cada estrella guarda algo que quiero decirte</p>
+  <span class="counter" id="counter"></span>
+</header>
+
+<div class="jar-area" id="jar" role="button" tabindex="0" aria-label="Sacar una estrella del frasco">
+  <div class="jar">
+    <div class="jar-inner-glow"></div>
+    <div class="jar-stars" id="jarStars"></div>
+    <svg viewBox="0 0 240 300" aria-hidden="true">
+      <defs>
+        <linearGradient id="glass" x1="0" x2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity=".22"/>
+          <stop offset=".25" stop-color="#ffffff" stop-opacity=".06"/>
+          <stop offset=".8" stop-color="#ffffff" stop-opacity=".04"/>
+          <stop offset="1" stop-color="#ffffff" stop-opacity=".2"/>
+        </linearGradient>
+        <linearGradient id="lid" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#d9a066"/>
+          <stop offset="1" stop-color="#9c6a3c"/>
+        </linearGradient>
+      </defs>
+      <!-- cuerpo -->
+      <path d="M70 58 L70 78 C30 92 22 120 22 150 L22 262 C22 284 38 296 60 296 L180 296 C202 296 218 284 218 262 L218 150 C218 120 210 92 170 78 L170 58 Z"
+            fill="url(#glass)" stroke="rgba(255,255,255,.55)" stroke-width="3"/>
+      <!-- brillo -->
+      <path d="M44 140 C44 120 52 108 66 100" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M40 170 L40 240" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="6" stroke-linecap="round"/>
+      <!-- tapa -->
+      <rect x="60" y="30" width="120" height="30" rx="7" fill="url(#lid)"/>
+      <rect x="60" y="30" width="120" height="7" rx="3" fill="rgba(255,255,255,.25)"/>
+      <!-- listón -->
+      <path d="M68 66 L172 66" stroke="#ff8fb1" stroke-width="7"/>
+      <path d="M120 66 C100 50 90 80 120 70 C150 80 140 50 120 66 Z" fill="#ff8fb1"/>
+      <path d="M120 70 L110 92 M120 70 L130 92" stroke="#ff8fb1" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="tap" id="tapHint">toca el frasco ✨</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="note">
+    <div class="num" id="noteNum"></div>
+    <div class="text" id="noteText"></div>
+    <button class="btn" id="keepBtn">guardar ♥</button>
+  </div>
+</div>
+
+<button class="btn" id="lastBtn">Abrir el frasco entero ✨</button>
+
+<div class="ending" id="ending">
+  <h2>Eres mi estrella favorita</h2>
+  <p>De todo el universo, la que más brilla eres tú. Te quiero, Aoi.</p>
+</div>
+
+<canvas id="fx"></canvas>
+
+<script>
+/* ================= Notas (edítalas a tu gusto) ================= */
+const NAME = "AOI";
+const NOTES = [
+  "Me encanta cómo te ríes cuando algo te da mucha gracia.",
+  "Contigo aprendí que la calma también puede sentirse como un abrazo.",
+  "Pienso en ti más veces al día de las que admitiría.",
+  "Tu voz es mi sonido favorito del mundo.",
+  "Gracias por quererme incluso en mis días difíciles.",
+  "Cada plan es mejor si tú estás en él.",
+  "Me haces querer ser mejor persona, todos los días.",
+  "Si pudiera elegir otra vez, te elegiría a ti. Siempre."
+];
+
+/* ================= Canvas de fondo (estrellas) ================= */
+const bg = document.getElementById('bg'), bctx = bg.getContext('2d');
+const fx = document.getElementById('fx'), fctx = fx.getContext('2d');
+let W, H, DPR, stars = [];
+const rand = (a, b) => a + Math.random() * (b - a);
+
+function resize() {
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  for (const [c, x] of [[bg, bctx], [fx, fctx]]) {
+    c.width = W * DPR; c.height = H * DPR; x.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  stars = Array.from({ length: Math.floor(W * H / 4000) }, () => ({
+    x: rand(0, W), y: rand(0, H * .9), r: rand(.3, 1.4), p: rand(0, 6), s: rand(.01, .03)
+  }));
+  if (constellation) buildConstellation(false);
+}
+function drawBg() {
+  bctx.clearRect(0, 0, W, H);
+  bctx.fillStyle = '#fff';
+  for (const s of stars) {
+    s.p += s.s;
+    bctx.globalAlpha = .3 + (Math.sin(s.p) + 1) * .3;
+    bctx.beginPath(); bctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); bctx.fill();
+  }
+  bctx.globalAlpha = 1;
+}
+
+/* ================= Estrellas dentro del frasco ================= */
+const jar = document.getElementById('jar');
+const jarStars = document.getElementById('jarStars');
+const counter = document.getElementById('counter');
+let opened = 0;
+const starEls = NOTES.map((_, i) => {
+  const s = document.createElement('span');
+  s.className = 'jstar';
+  s.textContent = '★';
+  s.style.left = rand(0, 78) + '%';
+  s.style.top = rand(0, 78) + '%';
+  s.style.fontSize = rand(16, 26) + 'px';
+  s.style.setProperty('--d', rand(2.2, 4) + 's');
+  s.style.setProperty('--r', rand(-30, 30) + 'deg');
+  s.style.animationDelay = rand(-3, 0) + 's';
+  jarStars.appendChild(s);
+  return s;
+});
+function updateCounter() { counter.textContent = `${opened} / ${NOTES.length} notas abiertas`; }
+updateCounter();
+
+/* ================= Estrellas voladoras (fx) ================= */
+let flyers = [];
+function drawStarShape(ctx, x, y, r, rot) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const rr = i % 2 ? r * .45 : r, a = i * Math.PI / 5 - Math.PI / 2;
+    ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+  }
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+/* ================= Abrir notas ================= */
+const overlay = document.getElementById('overlay');
+let busy = false;
+function takeStar() {
+  if (busy || opened >= NOTES.length) return;
+  busy = true;
+  jar.classList.remove('wiggle'); void jar.offsetWidth; jar.classList.add('wiggle');
+  const el = starEls[opened];
+  const r = el.getBoundingClientRect();
+  el.style.opacity = 0;
+  // la estrella sale volando hacia el centro
+  flyers.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, tx: W / 2, ty: H * .42, t: 0, trail: [] });
+  setTimeout(() => {
+    document.getElementById('noteNum').textContent = `nota ${opened + 1} de ${NOTES.length}`;
+    document.getElementById('noteText').textContent = NOTES[opened];
+    overlay.classList.add('show');
+  }, 750);
+}
+jar.addEventListener('click', takeStar);
+jar.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') takeStar(); });
+
+document.getElementById('keepBtn').addEventListener('click', () => {
+  overlay.classList.remove('show');
+  opened++; updateCounter();
+  sparkle(W / 2, H * .42, 26);
+  busy = false;
+  if (opened === NOTES.length) {
+    document.getElementById('tapHint').textContent = 'queda una última sorpresa…';
+    setTimeout(() => document.getElementById('lastBtn').classList.add('show'), 700);
+  }
+});
+
+/* ================= Chispitas ================= */
+let sparks = [];
+function sparkle(x, y, n) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, Math.PI * 2), v = rand(1, 5);
+    sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, r: rand(2, 5), rot: rand(0, 6) });
+  }
+}
+addEventListener('pointerdown', e => {
+  if (document.body.classList.contains('sky-mode')) sparkle(e.clientX, e.clientY, 14);
+});
+
+/* ================= Constelación con el nombre ================= */
+let constellation = null, skyStart = 0;
+
+// Letras dibujadas como trazos dentro de una caja de ancho "w" y alto 1.4
+function ellipsePts(cx, cy, rx, ry, n) {
+  return Array.from({ length: n + 1 }, (_, i) => {
+    const a = i / n * Math.PI * 2 - Math.PI / 2;
+    return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry];
+  });
+}
+const GLYPHS = {
+  A: { w: 1,   strokes: [[[0, 1.4], [0.5, 0], [1, 1.4]], [[0.214, 0.8], [0.786, 0.8]]] },
+  O: { w: 1.1, strokes: [ellipsePts(0.55, 0.7, 0.55, 0.7, 12)] },
+  I: { w: 0.6, strokes: [[[0.3, 0], [0.3, 1.4]], [[0, 0], [0.6, 0]], [[0, 1.4], [0.6, 1.4]]] }
+};
+
+function buildConstellation(fresh) {
+  const letters = [...NAME].map(ch => GLYPHS[ch]).filter(Boolean);
+  const gap = 0.45;
+  const unitsW = letters.reduce((s, g) => s + g.w, 0) + gap * (letters.length - 1);
+  const s = Math.min(W * .82 / unitsW, H * .38 / 1.4);   // tamaño que siempre cabe
+  const spacing = s * 1.4 / 4;
+  const ox = (W - unitsW * s) / 2, oy = H * .4 - s * .7;
+
+  const pts = [], links = [];
+  const addPt = (x, y) => {
+    const i = pts.findIndex(p => Math.hypot(p.x - x, p.y - y) < spacing * .45);
+    if (i >= 0) return i;
+    pts.push({ x, y });
+    return pts.length - 1;
+  };
+  let cursor = 0;
+  for (const g of letters) {
+    for (const stroke of g.strokes) {
+      let prevIdx = null;
+      for (let k = 0; k < stroke.length - 1; k++) {
+        const [x1, y1] = stroke[k], [x2, y2] = stroke[k + 1];
+        const ax = ox + (cursor + x1) * s, ay = oy + y1 * s;
+        const bx = ox + (cursor + x2) * s, by = oy + y2 * s;
+        const n = Math.max(1, Math.round(Math.hypot(bx - ax, by - ay) / spacing));
+        for (let j = k === 0 ? 0 : 1; j <= n; j++) {
+          const idx = addPt(ax + (bx - ax) * j / n, ay + (by - ay) * j / n);
+          if (prevIdx !== null && prevIdx !== idx) links.push([prevIdx, idx]);
+          prevIdx = idx;
+        }
+      }
+    }
+    cursor += g.w + gap;
+  }
+
+  const jr = jar.getBoundingClientRect();
+  const prev = constellation;
+  constellation = {
+    links,
+    pts: pts.map((p, i) => {
+      const old = !fresh && prev && prev.pts[i];
+      return {
+        tx: p.x, ty: p.y,
+        x: old ? old.x : jr.left + jr.width * rand(.25, .75),
+        y: old ? old.y : jr.top + jr.height * rand(.4, .9),
+        delay: fresh ? rand(0, 1.6) : 0,
+        tw: rand(0, 6)
+      };
+    })
+  };
+}
+
+document.getElementById('lastBtn').addEventListener('click', e => {
+  e.currentTarget.classList.remove('show');
+  document.body.classList.add('sky-mode');
+  buildConstellation(true);
+  skyStart = performance.now();
+  setTimeout(() => document.getElementById('ending').classList.add('show'), 5200);
+});
+
+/* ================= Bucle ================= */
+function loop(now) {
+  drawBg();
+  fctx.clearRect(0, 0, W, H);
+  fctx.fillStyle = '#ffe29a';
+  fctx.shadowColor = 'rgba(255,226,154,.9)';
+
+  // estrella que sale del frasco
+  flyers = flyers.filter(f => f.t < 1);
+  for (const f of flyers) {
+    f.t = Math.min(1, f.t + .025);
+    const e = 1 - Math.pow(1 - f.t, 3);
+    const x = f.x + (f.tx - f.x) * e, y = f.y + (f.ty - f.y) * e - Math.sin(e * Math.PI) * 60;
+    fctx.shadowBlur = 20;
+    drawStarShape(fctx, x, y, 10 + e * 14, e * 6);
+  }
+
+  // chispitas
+  sparks = sparks.filter(s => s.life > 0);
+  fctx.shadowBlur = 8;
+  for (const s of sparks) {
+    s.x += s.vx; s.y += s.vy; s.vy += .05; s.life -= .02;
+    fctx.globalAlpha = s.life;
+    drawStarShape(fctx, s.x, s.y, s.r, s.rot += .1);
+  }
+  fctx.globalAlpha = 1;
+
+  // constelación
+  if (constellation && skyStart) {
+    const t = (now - skyStart) / 1000;
+    const P = constellation.pts;
+    for (const p of P) {
+      if (t < p.delay) continue;
+      p.x += (p.tx - p.x) * .045;
+      p.y += (p.ty - p.y) * .045;
+    }
+    // las líneas se van trazando una tras otra, como si alguien dibujara la constelación
+    const L = constellation.links;
+    const drawn = Math.max(0, Math.min(1, (t - 2.8) / 3.5)) * L.length;
+    if (drawn > 0) {
+      fctx.shadowBlur = 6;
+      fctx.strokeStyle = 'rgba(255,226,154,.55)';
+      fctx.lineWidth = 1.3;
+      fctx.beginPath();
+      for (let i = 0; i < Math.ceil(drawn); i++) {
+        const [a, b] = L[i], f = Math.min(1, drawn - i);
+        fctx.moveTo(P[a].x, P[a].y);
+        fctx.lineTo(P[a].x + (P[b].x - P[a].x) * f, P[a].y + (P[b].y - P[a].y) * f);
+      }
+      fctx.stroke();
+    }
+    fctx.shadowBlur = 12;
+    for (const p of P) {
+      if (t < p.delay) continue;
+      p.tw += .06;
+      fctx.globalAlpha = .65 + Math.sin(p.tw) * .35;
+      fctx.beginPath(); fctx.arc(p.x, p.y, 3, 0, Math.PI * 2); fctx.fill();
+    }
+    fctx.globalAlpha = 1;
+  }
+  fctx.shadowBlur = 0;
+  requestAnimationFrame(loop);
+}
+addEventListener('resize', resize);
+resize();
+requestAnimationFrame(loop);
+</script>
+<a href="index.html" class="back-to-gifts" style="position:fixed;top:12px;left:12px;z-index:1000;padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.35);color:#fff;font:600 14px/1.4 system-ui,sans-serif;text-decoration:none;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25);cursor:pointer">&larr; regalos</a>
+</body>
+</html>

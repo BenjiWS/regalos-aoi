@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aoi & yo · partida bloqueada</title>
+<script>
+  // Momento en que se creó la partida: el cronómetro cuenta desde aquí
+  var CREADO = new Date(2026, 8, 28, 0, 0, 0).getTime();
+  // Frase secreta: mayúsculas, tildes y signos no importan
+  var FRASE = 'hola';
+  var DESTINO = 'juego.html';
+  var KEY = 'aoi-juego-desbloqueado';
+  // Si ya la desbloqueó antes en este dispositivo, directo al juego
+  try { if (localStorage.getItem(KEY) === '1') location.replace(DESTINO); } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #17112b;
+    --panel: #241944;
+    --panel-2: #2f2257;
+    --line: #4d3b8c;
+    --shadow: #0b0718;
+    --ink: #fff3e6;
+    --muted: #b9aee0;
+    --pink: #ff5f9e;
+    --mint: #5ee6c1;
+    --gold: #ffd452;
+    --red: #ff4655;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Rubik', system-ui, sans-serif;
+    font-size: 17px; line-height: 1.55;
+    color: var(--ink);
+    background:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0 / 24px 24px,
+      var(--bg);
+    min-height: 100vh;
+    display: grid; place-items: center; text-align: center;
+    padding: 24px 16px;
+  }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  .box {
+    background: var(--panel);
+    border: 3px solid var(--line);
+    box-shadow: 5px 5px 0 var(--shadow);
+  }
+  .lock-card { max-width: 620px; width: 100%; padding: 30px 20px; transition: opacity .6s, transform .6s; }
+  .lock-card.open { opacity: 0; transform: scale(.96); }
+  .lock-card .pre { font-family: 'Pixelify Sans'; color: var(--mint); font-size: 1.05rem; }
+  .lock-card h1 {
+    font-family: 'Pixelify Sans'; font-weight: 700;
+    font-size: clamp(2.2rem, 9vw, 3.6rem); line-height: 1; margin: 8px 0 14px;
+    text-shadow: 4px 4px 0 var(--pink), 8px 8px 0 var(--shadow);
+  }
+  .lock-card p { color: var(--muted); }
+  .clock { display: flex; justify-content: center; gap: 10px; margin: 24px 0 18px; }
+  .clock div { background: var(--panel-2); border: 3px solid var(--line); box-shadow: 4px 4px 0 var(--shadow); padding: 10px 6px; min-width: 70px; }
+  .clock b { display: block; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: clamp(1.6rem, 7vw, 2.6rem); color: var(--gold); line-height: 1.1; }
+  .clock small { font-family: 'Pixelify Sans'; color: var(--muted); font-size: .85rem; }
+  .blink { font-family: 'Pixelify Sans'; color: var(--ink); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- Frase secreta ---------- */
+  [hidden] { display: none !important; }
+  .pass { margin-top: 22px; }
+  .pass form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .pass input {
+    flex: 1 1 240px; max-width: 360px;
+    font: 600 1.1rem 'JetBrains Mono', monospace; color: var(--ink);
+    background: var(--shadow); border: 3px solid var(--line);
+    padding: 10px 12px; text-align: center; text-transform: uppercase;
+  }
+  .pass input::placeholder { color: #6d5fa6; text-transform: none; }
+  .btn {
+    cursor: pointer;
+    font-family: 'Pixelify Sans'; font-weight: 600; font-size: 1.15rem;
+    color: var(--shadow); background: var(--gold);
+    border: 3px solid var(--shadow); padding: 8px 20px;
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition: transform .08s, box-shadow .08s;
+  }
+  .btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--shadow); }
+  .btn.alt { background: var(--panel-2); color: var(--ink); border-color: var(--line); }
+  .btn.alt.on { background: var(--pink); color: var(--shadow); border-color: var(--shadow); }
+  .mic { margin-top: 14px; }
+  .msg { margin-top: 14px; min-height: 1.6em; font-family: 'Pixelify Sans'; }
+  .msg.bad { color: var(--red); }
+  .msg.ok { color: var(--mint); }
+  .shake { animation: shake .4s steps(6); }
+  @keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
+
+  @media (max-width: 420px) {
+    .clock { gap: 6px; }
+    .clock div { min-width: 0; flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main class="lock-card box" id="card">
+  <p class="pre">Partida guardada · bloqueada</p>
+  <h1>Todavía no, Aoi</h1>
+  <p>Esta partida lleva esperándote:</p>
+  <div class="clock">
+    <div><b id="cdD">00</b><small>días</small></div>
+    <div><b id="cdH">00</b><small>horas</small></div>
+    <div><b id="cdM">00</b><small>min</small></div>
+    <div><b id="cdS">00</b><small>seg</small></div>
+  </div>
+  <p>Falta una llave: <strong style="color:var(--ink)">la frase secreta</strong>. Solo el Jugador 2 la sabe, así que llámalo y pídesela.</p>
+  <div>
+    <div class="pass">
+      <form id="passForm" autocomplete="off">
+        <input id="passInput" type="text" placeholder="Escribe la frase…" aria-label="Frase secreta" autocapitalize="characters" spellcheck="false">
+        <button class="btn" type="submit">Entrar</button>
+      </form>
+      <button class="btn alt mic" id="micBtn" type="button" hidden>🎤 Decirla en voz alta</button>
+      <p class="msg" id="msg" aria-live="polite"></p>
+    </div>
+  </div>
+</main>
+
+<script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    var pad = function (n) { return String(n).padStart(2, '0'); };
+
+    // Normaliza: minúsculas, sin tildes, sin signos, espacios simples
+    function norm(s) {
+      return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9ñ ]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+    var objetivo = norm(FRASE);
+
+    function abrir() {
+      try { localStorage.setItem(KEY, '1'); } catch (e) {}
+      var m = $('msg');
+      m.className = 'msg ok';
+      m.textContent = '▶ ¡Partida desbloqueada!';
+      setTimeout(function () { $('card').classList.add('open'); }, 500);
+      setTimeout(function () { location.replace(DESTINO); }, 1200);
+    }
+
+    function fallo(texto) {
+      var m = $('msg'), card = $('card');
+      m.className = 'msg bad';
+      m.textContent = texto;
+      card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+    }
+
+    // --- Escribir la frase ---
+    $('passForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = norm($('passInput').value);
+      if (!v) return;
+      if (v === objetivo) abrir();
+      else fallo('✖ Esa no es. Pregúntale de nuevo al Jugador 2.');
+    });
+
+    // --- Decir la frase (solo navegadores con reconocimiento de voz) ---
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) {
+      var btn = $('micBtn');
+      btn.hidden = false;
+      var rec = new SR();
+      rec.lang = (navigator.language || '').indexOf('es') === 0 ? navigator.language : 'es-ES';
+      rec.interimResults = false;
+      rec.maxAlternatives = 5;
+      var escuchando = false;
+
+      rec.onresult = function (e) {
+        var oido = '';
+        for (var i = 0; i < e.results[0].length; i++) {
+          var t = norm(e.results[0][i].transcript);
+          if (i === 0) oido = t;
+          if (t.indexOf(objetivo) !== -1) { abrir(); return; }
+        }
+        $('passInput').value = oido;
+        fallo('✖ Escuché "' + oido + '". Intenta otra vez.');
+      };
+      rec.onerror = function (e) {
+        if (e.error === 'not-allowed') fallo('✖ No tengo permiso para el micrófono. Escríbela arriba.');
+        else if (e.error === 'no-speech') fallo('✖ No escuché nada. Intenta otra vez.');
+      };
+      rec.onend = function () {
+        escuchando = false;
+        btn.classList.remove('on');
+        btn.textContent = '🎤 Decirla en voz alta';
+      };
+      btn.addEventListener('click', function () {
+        if (escuchando) { rec.stop(); return; }
+        try {
+          rec.start();
+          escuchando = true;
+          btn.classList.add('on');
+          btn.textContent = '● Escuchando…';
+          $('msg').textContent = '';
+        } catch (err) {}
+      });
+    }
+
+    // --- Cronómetro desde que se creó la partida ---
+    function tick() {
+      var s = Math.max(0, Math.floor((Date.now() - CREADO) / 1000));
+      $('cdD').textContent = pad(Math.floor(s / 86400));
+      $('cdH').textContent = pad(Math.floor(s / 3600) % 24);
+      $('cdM').textContent = pad(Math.floor(s / 60) % 60);
+      $('cdS').textContent = pad(s % 60);
+      setTimeout(tick, 1000);
+    }
+    tick();
+  })();
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #17112b;
@@ -389,20 +389,61 @@
     border: 3px solid var(--shadow); box-shadow: 6px 6px 0 var(--shadow);
   }
   .letter h2 { font-family: 'Pixelify Sans'; font-size: clamp(1.5rem, 4.5vw, 2rem); line-height: 1.15; color: #c2306e; margin-bottom: 18px; }
-  .letter p { font-size: 1.05rem; line-height: 1.75; margin-bottom: 16px; }
-  .letter .lp:not([hidden]) { animation: lpIn .6s ease both; }
-  @keyframes lpIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  .letter .more {
-    display: block; margin: 8px auto 0; cursor: pointer;
-    font-family: 'Pixelify Sans'; font-size: 1.1rem; color: #c2306e;
-    background: none; border: 2px dashed rgba(194,48,110,.5); padding: 8px 18px;
-    animation: moreBob 1.4s ease-in-out infinite;
+  /* texto escrito "a mano", un párrafo a la vez */
+  .hand {
+    min-height: 260px; cursor: pointer;
+    font-family: 'Caveat', cursive; font-weight: 500;
+    font-size: clamp(1.45rem, 4vw, 1.75rem); line-height: 1.45; color: #2c2050;
   }
-  .letter .more:hover { background: rgba(194,48,110,.08); }
-  .letter .more small { font-size: .85rem; opacity: .7; margin-left: 6px; }
-  .letter .more[hidden] { display: none; }
-  @keyframes moreBob { 50% { transform: translateY(3px); } }
-  .letter .sign { text-align: right; font-family: 'Pixelify Sans'; font-size: 1.3rem; color: #c2306e; margin: 24px 0 0; }
+  .hand .pen { display: inline-block; margin-left: 2px; font-size: .8em; animation: pen .5s ease-in-out infinite alternate; }
+  @keyframes pen { to { transform: translate(2px, -3px) rotate(-8deg); } }
+  .hand .sign { display: block; text-align: right; margin-top: 18px; font-weight: 700; font-size: 1.15em; color: #c2306e; }
+  .letter-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 2px dashed rgba(194,48,110,.3); }
+  .letter-nav .count { font-family: 'Pixelify Sans'; color: #8a6f9e; font-size: .95rem; }
+  .letter-nav .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+  .lbtn {
+    cursor: pointer; font-family: 'Pixelify Sans'; font-size: 1.05rem;
+    color: #fff3e6; background: #c2306e; border: 3px solid #3a2a4d; box-shadow: 3px 3px 0 #3a2a4d;
+    padding: 6px 16px; transition: transform .08s, box-shadow .08s;
+  }
+  .lbtn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #3a2a4d; }
+  .lbtn.alt { color: #c2306e; background: transparent; }
+  .lbtn[hidden] { display: none; }
+  .lbtn.pop { animation: lbtnIn .35s steps(4) both; }
+  @keyframes lbtnIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* modal con la carta completa */
+  .letter-modal {
+    margin: auto; width: min(760px, calc(100% - 24px)); max-height: calc(100% - 24px);
+    padding: 0; border: 0; background: transparent; overflow: visible;
+  }
+  .letter-modal:focus, .letter-modal:focus-visible, .lm-paper:focus, .lm-paper:focus-visible { outline: none; }
+  .letter-modal::backdrop { background: rgba(11,7,24,.82); backdrop-filter: blur(3px); }
+  .letter-modal[open] { animation: lmIn .6s cubic-bezier(.2,1.2,.4,1) both; }
+  @keyframes lmIn { from { opacity: 0; transform: translateY(30px) scale(.94) rotate(-1deg); } to { opacity: 1; transform: none; } }
+  .lm-paper {
+    position: relative; max-height: calc(100vh - 24px); overflow-y: auto;
+    padding: clamp(26px, 6vw, 54px) clamp(20px, 6vw, 56px);
+    background: #fff3e6; color: #2c2050; border: 3px solid var(--shadow); box-shadow: 8px 8px 0 var(--shadow);
+  }
+  .lm-paper h2 { font-family: 'Pixelify Sans'; font-size: clamp(1.6rem, 5vw, 2.2rem); line-height: 1.15; color: #c2306e; margin: 0 30px 20px 0; }
+  .lm-paper p {
+    font-family: 'Caveat', cursive; font-size: clamp(1.35rem, 3.6vw, 1.6rem); line-height: 1.45; margin-bottom: 14px;
+    opacity: 0; animation: lmP .8s ease forwards;
+  }
+  @keyframes lmP { from { opacity: 0; transform: translateY(14px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+  .lm-paper .sign { text-align: right; font-weight: 700; font-size: 1.8rem; color: #c2306e; }
+  .lm-close {
+    position: sticky; top: 0; float: right; z-index: 2; margin: -14px -14px 0 8px; width: 38px; height: 38px; cursor: pointer;
+    font-family: 'Pixelify Sans'; font-size: 1.1rem; color: #3a2a4d; background: #fff3e6; border: 3px solid #3a2a4d;
+  }
+  .lm-hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .lm-hearts span { position: absolute; bottom: -40px; color: var(--pink); opacity: 0; animation: heartUp linear infinite; }
+  @keyframes heartUp {
+    0% { opacity: 0; transform: translateY(0) scale(.7); }
+    15% { opacity: .8; }
+    100% { opacity: 0; transform: translateY(-110vh) translateX(30px) scale(1.1); }
+  }
   .speaker { display: flex; align-items: flex-end; gap: 16px; }
   .portrait { width: 110px; height: 110px; flex: none; display: grid; place-items: center; font-size: 3.6rem; background: var(--panel-2); border: 3px solid var(--sky); box-shadow: 5px 5px 0 var(--shadow); }
   .speaker .name { font-family: 'Pixelify Sans'; font-size: 1.3rem; color: var(--sky); padding: 4px 14px; background: var(--panel); border: 3px solid var(--line); border-bottom: none; }
@@ -655,13 +696,32 @@
         <button class="play-btn" id="playBtn" type="button" aria-label="Reproducir música">▶</button>
         <div class="radio-head"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cottonwood · instrumental</div>
       </div>
-      <article class="letter" id="letter"></article>
+      <article class="letter" id="letter">
+        <h2 id="letterTitle"></h2>
+        <div class="hand" id="hand" aria-live="polite" title="Toca para terminar de escribir"></div>
+        <div class="letter-nav">
+          <span class="count" id="partCount"></span>
+          <div class="acts">
+            <button class="lbtn alt" id="againBtn" type="button" hidden>↺ Leer de nuevo</button>
+            <button class="lbtn" id="nextPart" type="button" hidden>Siguiente ▶</button>
+            <button class="lbtn" id="fullBtn" type="button" hidden>📜 Ver carta completa</button>
+          </div>
+        </div>
+      </article>
     </div>
   </section>
 
 </main>
 
 <footer>Hecho a mano para Aoi. Partida guardada automáticamente<span id="footDate"></span>.</footer>
+
+<dialog class="letter-modal" id="letterModal" aria-labelledby="lmTitle">
+  <div class="lm-hearts" id="lmHearts" aria-hidden="true"></div>
+  <div class="lm-paper" id="lmPaper">
+    <button class="lm-close" type="button" data-close aria-label="Cerrar" autofocus>✕</button>
+    <h2 id="lmTitle"></h2>
+  </div>
+</dialog>
 
 <button class="music-fab" id="musicFab" type="button" aria-label="Pausar o reproducir la música" hidden><span class="play-btn" aria-hidden="true">▶</span><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cottonwood</button>
 
@@ -802,7 +862,7 @@ const DIALOG = [
 /* ===================================================================== */
 
 // Carta: canción de fondo (YouTube) y texto, un elemento por párrafo
-const LETTER_MUSIC = { src: "cottonwood.mp3", start: 109 };   // Cottonwood (instrumental), desde el 1:49
+const LETTER_MUSIC = { src: "cottonwood.mp3", start: 109, volume: 0.3 };   // Cottonwood (instrumental), desde el 1:49; volumen de 0 a 1
 const LETTER_TITLE = "Lo mucho que significas para mí";
 const LETTER = [
   "A veces siento que las palabras se quedan pequeñas cuando intento explicar lo mucho que alguien puede llegar a significar. Y contigo me pasa eso. No sé si alguna vez he logrado hacerte entender todo el cariño que te tengo, pero hay algo que sí quiero que quede escrito: eres una persona muy especial para mí.",
@@ -874,7 +934,7 @@ function route() {
   const current = document.querySelector(`nav a[data-view="${view.id}"]`);
   if (current) current.scrollIntoView({ block: 'nearest', inline: 'center' });
   window.scrollTo(0, 0);
-  if (view.id === 'carta') loadRadio();
+  if (view.id === 'carta') { loadRadio(); startLetter(); }
   $('musicFab').classList.toggle('here', view.id === 'carta');   // en la carta ya está el reproductor grande
 
   if (!seen.has(view.id)) {
@@ -953,26 +1013,90 @@ const REGISTRO_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT90scmNuf
     .catch(() => {});
 })();
 /* ---------- Carta ---------- */
-// Se muestra por partes: un párrafo más con cada toque de "Seguir leyendo"
-$('letter').innerHTML =
-  `<h2>${LETTER_TITLE}</h2>` + LETTER.map(p => `<p class="lp" hidden>${p}</p>`).join('') +
-  `<p class="sign lp" hidden>— ${ME}</p>` +
-  `<button class="more" id="moreBtn" type="button">▼ Seguir leyendo <small id="moreCount"></small></button>`;
-let letterShown = 0;
-function showNextParagraph() {
-  const parts = $('letter').querySelectorAll('.lp');
-  const p = parts[letterShown];
-  if (!p) return;
-  p.hidden = false;
-  letterShown++;
-  if (letterShown === LETTER.length) { parts[letterShown].hidden = false; letterShown++; } // último párrafo: aparece la firma
-  const left = LETTER.length - Math.min(letterShown, LETTER.length);
-  $('moreBtn').hidden = left === 0;
-  $('moreCount').textContent = `${Math.min(letterShown, LETTER.length)}/${LETTER.length}`;
-  if (letterShown > 1) $('moreBtn').scrollIntoView({ behavior: 'smooth', block: 'end' });
+// Un párrafo a la vez, escribiéndose letra por letra como a mano.
+// Al terminar aparece "Siguiente"; tocar el texto mientras se escribe lo completa al instante.
+$('letterTitle').textContent = LETTER_TITLE;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const letterState = { part: -1, timer: null, finish: null, started: false };
+
+function typeInto(el, text, done) {
+  clearTimeout(letterState.timer);
+  const typed = document.createElement('span');
+  const pen = document.createElement('span');
+  pen.className = 'pen'; pen.textContent = '✒️'; pen.setAttribute('aria-hidden', 'true');
+  el.append(typed, pen);
+  let i = 0;
+  const end = () => { clearTimeout(letterState.timer); typed.textContent = text; pen.remove(); letterState.finish = null; done(); };
+  letterState.finish = end;
+  if (reduceMotion) return end();
+  (function step() {
+    i++;
+    typed.textContent = text.slice(0, i);
+    if (i >= text.length) return end();
+    const c = text[i - 1];
+    // pausas más largas en signos, como cuando uno escribe a mano
+    const wait = /[.!?]/.test(c) ? 380 : /[,;:]/.test(c) ? 180 : 26 + Math.random() * 30;
+    letterState.timer = setTimeout(step, wait);
+  })();
 }
-$('moreBtn').addEventListener('click', showNextParagraph);
-showNextParagraph();
+
+function showPart(n) {
+  letterState.part = n;
+  const hand = $('hand');
+  hand.innerHTML = '';
+  ['nextPart', 'fullBtn', 'againBtn'].forEach(id => { $(id).hidden = true; $(id).classList.remove('pop'); });
+  $('partCount').textContent = `Parte ${n + 1} de ${LETTER.length}`;
+  const p = document.createElement('p');
+  hand.append(p);
+  typeInto(p, LETTER[n], () => {
+    const last = n === LETTER.length - 1;
+    if (!last) return reveal('nextPart');
+    const sign = document.createElement('span');
+    sign.className = 'sign';
+    hand.append(sign);
+    typeInto(sign, '— ' + ME, () => { reveal('fullBtn'); reveal('againBtn'); });
+  });
+}
+function reveal(id) { $(id).hidden = false; $(id).classList.add('pop'); }
+
+$('hand').addEventListener('click', () => { if (letterState.finish) letterState.finish(); });
+$('nextPart').addEventListener('click', () => {
+  showPart(letterState.part + 1);
+  $('letter').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('againBtn').addEventListener('click', () => showPart(0));
+function startLetter() {
+  if (letterState.started) return;
+  letterState.started = true;
+  showPart(0);
+}
+
+// Carta completa en un modal, con los párrafos apareciendo uno tras otro y corazones flotando
+function openFullLetter() {
+  const paper = $('lmPaper');
+  paper.querySelectorAll('p').forEach(p => p.remove());
+  [...LETTER, '— ' + ME].forEach((t, i) => {
+    const p = document.createElement('p');
+    if (i === LETTER.length) p.className = 'sign';
+    p.textContent = t;
+    p.style.animationDelay = (0.4 + i * 0.35) + 's';
+    paper.append(p);
+  });
+  $('lmTitle').textContent = LETTER_TITLE;
+  paper.scrollTop = 0;
+  const hearts = $('lmHearts');
+  if (!hearts.children.length && !reduceMotion) {
+    hearts.innerHTML = Array.from({ length: 16 }, () =>
+      `<span style="left:${Math.random() * 100}%;font-size:${14 + Math.random() * 18}px;` +
+      `animation-duration:${7 + Math.random() * 7}s;animation-delay:${Math.random() * 8}s">${Math.random() < .7 ? '♥' : '✦'}</span>`
+    ).join('');
+  }
+  $('letterModal').showModal();
+}
+$('fullBtn').addEventListener('click', openFullLetter);
+$('letterModal').addEventListener('click', e => {
+  if (e.target === $('letterModal') || e.target.closest('[data-close]')) $('letterModal').close();
+});
 /* ---------- Música de fondo ----------
    Se carga la primera vez que abre la carta (no antes, para no gastar datos), empieza en
    LETTER_MUSIC.start y al terminar vuelve a ese punto. Sigue sonando aunque cambie de sección. */
@@ -988,6 +1112,7 @@ function getMusic() {
   if (music) return music;
   music = new Audio(LETTER_MUSIC.src + "#t=" + LETTER_MUSIC.start);   // #t= hace que empiece directo en ese segundo
   music.preload = 'auto';
+  music.volume = LETTER_MUSIC.volume;
   music.addEventListener('loadedmetadata', () => { if (music.currentTime < LETTER_MUSIC.start) music.currentTime = LETTER_MUSIC.start; }, { once: true });
   music.addEventListener('ended', () => { music.currentTime = LETTER_MUSIC.start; music.play().catch(() => {}); });
   music.addEventListener('play', () => setPlaying(true));

@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aoi & yo · partida guardada</title>
 <script>
+  // Bloqueo con frase secreta: pon true para volver a pedirla (también en nuestro-juego/index.html)
+  var BLOQUEO_ACTIVO = false;
   // Si alguien entra directo sin haber dicho la frase secreta, vuelve al bloqueo
-  try { if (sessionStorage.getItem('aoi-juego-desbloqueado') !== '1') location.replace('index.html'); }
+  try { if (BLOQUEO_ACTIVO && sessionStorage.getItem('aoi-juego-desbloqueado') !== '1') location.replace('index.html'); }
   catch (e) {} // sin almacenamiento (modo privado): no la dejamos atrapada en un bucle
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">

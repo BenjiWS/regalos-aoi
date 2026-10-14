@@ -15,6 +15,9 @@
     'La conoces mejor que nadie.'
   ];
   var DESTINO = 'juego.html';
+  // Bloqueo con frase secreta: pon true para volver a pedirla (también en juego.html)
+  var BLOQUEO_ACTIVO = false;
+  if (!BLOQUEO_ACTIVO) location.replace(DESTINO);
   var KEY = 'aoi-juego-desbloqueado';
   // Formulario de Google donde se registra cada ingreso (las respuestas van a una hoja de cálculo)
   var REGISTRO_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSdbljS1n5amWZgqiXVErpMfFs5gVNK2A4Ivc13FiZISf5BA0w/formResponse';

@@ -165,7 +165,7 @@
   .curtain.show { opacity: 1; }
   .curtain.game { background: radial-gradient(circle, #2f2257 0%, #17112b 70%); }
 
-  /* ---------- Regalo final: cartucho ---------- */
+  /* ---------- Cartucho que lleva al juego ---------- */
   .bonus {
     margin-top: clamp(44px, 8vh, 76px);
     display: flex; flex-direction: column; align-items: center;
@@ -196,10 +196,6 @@
   .cart-pins {
     position: absolute; left: 20%; right: 20%; bottom: 5%; height: 11%;
     background: repeating-linear-gradient(90deg, #ffd452 0 5px, transparent 5px 9px);
-  }
-  .bonus-tag {
-    margin-top: 16px; font-family: 'Pixelify Sans', monospace; font-weight: 700;
-    font-size: 1.1rem; letter-spacing: .04em; color: var(--rose);
   }
   .bonus:hover .cart, .bonus:focus-visible .cart { transform: translateY(-8px) rotate(-3deg); }
   .bonus:focus-visible { outline: none; }
@@ -232,12 +228,11 @@
 
   <p class="foot">Cuando termines uno, puedes volver y abrir otro.</p>
 
-  <a class="bonus" id="bonus" href="nuestro-juego/index.html"aria-label="Regalo final: nuestro juego">
+  <a class="bonus" id="bonus" href="nuestro-juego/index.html" aria-label="Nuestro juego">
     <span class="cart" aria-hidden="true">
       <span class="cart-label"><b>Aoi &amp; yo</b><small>partida guardada</small></span>
       <span class="cart-pins"></span>
     </span>
-    <span class="bonus-tag" id="bonusTag">★ Regalo final ★</span>
   </a>
 </main>
 
@@ -296,7 +291,7 @@ wrap.addEventListener('click', e => {
   setTimeout(() => { markOpened(g.href); location.href = g.href; }, 2100);
 });
 
-// Regalo final: cartucho que lleva al juego
+// Cartucho que lleva al juego
 const bonus = document.getElementById('bonus');
 bonus.addEventListener('click', e => {
   e.preventDefault();
@@ -309,11 +304,6 @@ bonus.addEventListener('click', e => {
   setTimeout(() => curtain.classList.add('show'), 600);
   setTimeout(() => { markOpened(bonus.getAttribute('href')); location.href = bonus.href; }, 1300);
 });
-function renderBonus() {
-  document.getElementById('bonusTag').textContent =
-    getOpened().includes(bonus.getAttribute('href')) ? '✓ Regalo final' : '★ Regalo final ★';
-}
-renderBonus();
 
 // si vuelve con el botón "atrás", dejar todo como nuevo
 addEventListener('pageshow', () => {
@@ -321,7 +311,6 @@ addEventListener('pageshow', () => {
   const curtain = document.getElementById('curtain');
   curtain.classList.remove('show', 'game');
   render();
-  renderBonus();
 });
 
 /* ================= Fondo: guirnaldas de luces, bokeh y confeti ================= */

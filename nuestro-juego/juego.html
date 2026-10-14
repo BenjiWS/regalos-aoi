@@ -355,6 +355,26 @@
 
   /* ---------- Mensaje ---------- */
   .dialog-scene { max-width: 780px; }
+
+  /* ---------- Carta ---------- */
+  .letter-wrap { max-width: 760px; display: grid; gap: 22px; }
+  .radio { padding: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .radio-head { flex: 1 1 200px; display: flex; align-items: center; gap: 10px; font-family: 'Pixelify Sans'; color: var(--mint); }
+  .eq { display: inline-flex; align-items: flex-end; gap: 3px; height: 16px; }
+  .eq i { width: 4px; background: var(--pink); animation: eq 1s steps(4) infinite alternate; }
+  .eq i:nth-child(1) { height: 40%; } .eq i:nth-child(2) { height: 90%; animation-delay: .2s; }
+  .eq i:nth-child(3) { height: 60%; animation-delay: .4s; } .eq i:nth-child(4) { height: 80%; animation-delay: .1s; }
+  @keyframes eq { to { height: 20%; } }
+  .radio-screen { flex: 0 1 300px; aspect-ratio: 16 / 9; background: var(--shadow); border: 3px solid var(--line); }
+  .radio-screen iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .letter {
+    padding: clamp(22px, 5vw, 44px);
+    background: #fff3e6; color: #3a2a4d;
+    border: 3px solid var(--shadow); box-shadow: 6px 6px 0 var(--shadow);
+  }
+  .letter h2 { font-family: 'Pixelify Sans'; font-size: clamp(1.5rem, 4.5vw, 2rem); line-height: 1.15; color: #c2306e; margin-bottom: 18px; }
+  .letter p { font-size: 1.05rem; line-height: 1.75; margin-bottom: 16px; }
+  .letter .sign { text-align: right; font-family: 'Pixelify Sans'; font-size: 1.3rem; color: #c2306e; margin: 24px 0 0; }
   .speaker { display: flex; align-items: flex-end; gap: 16px; }
   .portrait { width: 110px; height: 110px; flex: none; display: grid; place-items: center; font-size: 3.6rem; background: var(--panel-2); border: 3px solid var(--sky); box-shadow: 5px 5px 0 var(--shadow); }
   .speaker .name { font-family: 'Pixelify Sans'; font-size: 1.3rem; color: var(--sky); padding: 4px 14px; background: var(--panel); border: 3px solid var(--line); border-bottom: none; }
@@ -425,7 +445,7 @@
       <ul id="navList"></ul>
     </nav>
     <div class="xp" aria-live="polite">
-      <span id="xpLabel">Explorado 0/9</span>
+      <span id="xpLabel">Explorado 0/10</span>
       <div class="bar"><i id="xpBar"></i></div>
     </div>
   </div>
@@ -595,6 +615,22 @@
     </div>
   </section>
 
+  <!-- ================= CARTA ================= -->
+  <section class="view" id="v-carta" aria-labelledby="t-carta">
+    <div class="view-head">
+      <div class="zone">Objeto especial</div>
+      <h1 id="t-carta">Una carta para ti</h1>
+      <p>Léela con calma. Si la música no empieza sola, dale play.</p>
+    </div>
+    <div class="letter-wrap">
+      <div class="radio box">
+        <div class="radio-head"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cottonwood · instrumental</div>
+        <div class="radio-screen" id="radioScreen"></div>
+      </div>
+      <article class="letter" id="letter"></article>
+    </div>
+  </section>
+
 </main>
 
 <footer>Hecho a mano para Aoi. Partida guardada automáticamente<span id="footDate"></span>.</footer>
@@ -735,6 +771,22 @@ const DIALOG = [
 
 /* ===================================================================== */
 
+// Carta: canción de fondo (YouTube) y texto, un elemento por párrafo
+const LETTER_VIDEO = { id: "iQRR7_qvsxc", start: 109 };   // Cottonwood (instrumental), desde el 1:49
+const LETTER_TITLE = "Lo mucho que significas para mí";
+const LETTER = [
+  "A veces siento que las palabras se quedan pequeñas cuando intento explicar lo mucho que alguien puede llegar a significar. Y contigo me pasa eso. No sé si alguna vez he logrado hacerte entender todo el cariño que te tengo, pero hay algo que sí quiero que quede escrito: eres una persona muy especial para mí.",
+  "Desde que llegaste a mi vida, muchos momentos sencillos empezaron a tener un significado distinto. Hablar contigo, compartir juegos, reírnos, contarnos cosas o simplemente pasar tiempo juntos se convirtió en algo que esperaba con ilusión. No hacía falta que ocurriera nada extraordinario; muchas veces, tenerte ahí era suficiente para hacer que un día normal se sintiera especial.",
+  "Me gusta poder compartir contigo las cosas que sé, descubrir ideas juntos y pensar en todo lo que podemos crear. Una de las cosas que más ilusión me hacía de nuestro proyecto era que no fuera solamente un trabajo, sino también una oportunidad para aprender, crecer y construir algo de lo que ambos pudiéramos sentirnos orgullosos. Me encanta imaginarte descubriendo nuevas habilidades, ganando confianza y dándote cuenta de todo lo que eres capaz de hacer.",
+  "Quiero que sepas que cuando dedico tiempo a ayudarte, cuando pienso en una idea para nosotros o cuando intento hacer algo bonito por ti, nace del cariño que te tengo. No necesito que hagas algo extraordinario para que me importe cómo estás o para desear que te vaya bien. Me alegra verte avanzar, me importa lo que sueñas y quiero que la vida te dé muchas razones para sentirte orgullosa de ti misma.",
+  "Hay algo muy bonito en encontrar a alguien con quien uno desea compartir no solo los grandes momentos, sino también los pequeños: una conversación sin motivo, una partida de un juego, una ocurrencia que solo nosotros entendemos o un rato en el que el mundo puede esperar. Para mí, esos instantes tienen un valor enorme, porque son los que convierten el tiempo compartido en recuerdos que uno guarda con cariño.",
+  "Te aprecio por mucho más que lo que haces o lo que puedes aportar. Me importa la persona que eres, tu manera de ver las cosas, tus ideas y todo lo que todavía estás descubriendo de ti misma. Me gusta pensar que, de alguna forma, puedo acompañarte en parte de tu camino y que tú también has dejado una huella en el mío.",
+  "No sé si siempre encuentro la manera correcta de demostrarlo, pero deseo que te vaya bien, que tengas oportunidades bonitas, que aprendas todo lo que quieras aprender y que nunca te falten motivos para creer en ti. Quiero verte cumplir tus metas y sentir que puedes llegar mucho más lejos de lo que a veces imaginas.",
+  "Si tuviera que resumir lo que significas para mí, diría que eres alguien con quien me nació compartir tiempo, sueños, ideas y una parte muy sincera de mí. Alguien que hizo que muchas cosas cotidianas se volvieran memorables y con quien me ilusionaba construir algo que tuviera un significado especial.",
+  "Gracias por los momentos que hemos compartido, por las conversaciones, las risas, las ideas y por todo lo que, quizá sin darte cuenta, has aportado a mi vida. Me alegra haberte conocido y que seas parte de mi historia. Hay personas que llegan y dejan recuerdos; tú, para mí, también has dejado ilusión, aprendizaje y un cariño difícil de explicar en pocas palabras.",
+  "Quiero que, cuando leas esto, recuerdes simplemente lo importante que eres para mí. No por lo que puedas darme ni por lo que hagas, sino por ser tú. Te tengo muchísimo cariño, y me siento afortunado de haber podido compartir contigo tantos momentos que guardo de una manera muy especial."
+];
+
 const VIEWS = [
   { id: "inicio",   label: "Inicio",    icon: "🏠" },
   { id: "historia", label: "Historia",  icon: "📜" },
@@ -744,7 +796,8 @@ const VIEWS = [
   { id: "codigo",   label: "Código",    icon: "💻" },
   { id: "pc",       label: "Misión PC", icon: "🖥️" },
   { id: "logros",   label: "Logros",    icon: "🏆" },
-  { id: "mensaje",  label: "Mensaje",   icon: "💌" }
+  { id: "mensaje",  label: "Mensaje",   icon: "💌" },
+  { id: "carta",    label: "Carta",     icon: "✉️" }
 ];
 
 const $ = id => document.getElementById(id);
@@ -791,6 +844,7 @@ function route() {
   const current = document.querySelector(`nav a[data-view="${view.id}"]`);
   if (current) current.scrollIntoView({ block: 'nearest', inline: 'center' });
   window.scrollTo(0, 0);
+  if (view.id === 'carta') loadRadio();
 
   if (!seen.has(view.id)) {
     seen.add(view.id); saveSeen(seen);
@@ -867,6 +921,16 @@ const REGISTRO_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT90scmNuf
     })
     .catch(() => {});
 })();
+/* ---------- Carta ---------- */
+$('letter').innerHTML =
+  `<h2>${LETTER_TITLE}</h2>` + LETTER.map(p => `<p>${p}</p>`).join('') + `<p class="sign">— ${ME}</p>`;
+// El reproductor se carga la primera vez que abre la carta (no antes, para no gastar datos)
+function loadRadio() {
+  if ($('radioScreen').firstChild) return;
+  $('radioScreen').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${LETTER_VIDEO.id}?start=${LETTER_VIDEO.start}&autoplay=1&rel=0&modestbranding=1&playsinline=1"
+    title="Cottonwood (instrumental)" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+}
+
 (function created() {
   const c = new Date(CREATED_DATE + 'T00:00:00');
   const fecha = c.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' });

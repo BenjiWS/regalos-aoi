@@ -8,7 +8,12 @@
   // Momento en que se creó la partida: el cronómetro cuenta desde aquí
   var CREADO = new Date(2026, 8, 28, 0, 0, 0).getTime();
   // Frase secreta: mayúsculas, tildes y signos no importan
-  var FRASE = 'hola';
+  var FRASE = 'lumina';
+  // Pistas que se revelan de a una con el botón "¿Una pista?"
+  var PISTAS = [
+    'Viene de la luz… y no es cualquier luz.',
+    'La conoces mejor que nadie.'
+  ];
   var DESTINO = 'juego.html';
   var KEY = 'aoi-juego-desbloqueado';
   // Formulario de Google donde se registra cada ingreso (las respuestas van a una hoja de cálculo)
@@ -105,6 +110,20 @@
   .btn.alt.on { background: var(--pink); color: var(--shadow); border-color: var(--shadow); }
   .mic { margin-top: 14px; }
   .msg { margin-top: 14px; min-height: 1.6em; font-family: 'Pixelify Sans'; }
+  .hint-btn {
+    margin-top: 4px; cursor: pointer; background: none; border: none;
+    font-family: 'Pixelify Sans'; font-size: 1rem; color: var(--gold);
+    text-decoration: underline dotted; text-underline-offset: 4px;
+  }
+  .hint-btn:hover { color: var(--ink); }
+  .hints { list-style: none; margin: 10px auto 0; max-width: 440px; display: grid; gap: 8px; }
+  .hints li {
+    padding: 8px 12px; text-align: left; font-size: .98rem; color: var(--ink);
+    background: var(--panel-2); border-left: 4px solid var(--gold);
+    animation: hintIn .3s steps(4) both;
+  }
+  .hints li b { font-family: 'Pixelify Sans'; color: var(--gold); margin-right: 6px; }
+  @keyframes hintIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .msg.bad { color: var(--red); }
   .msg.ok { color: var(--mint); }
   .shake { animation: shake .4s steps(6); }
@@ -133,7 +152,7 @@
     <div><b id="cdM">00</b><small>min</small></div>
     <div><b id="cdS">00</b><small>seg</small></div>
   </div>
-  <p>Falta una llave: <strong style="color:var(--ink)">la frase secreta</strong>. Solo el Jugador 2 la sabe, así que llámalo y pídesela.</p>
+  <p>Para continuar, escribe <strong style="color:var(--ink)">la frase secreta</strong>.</p>
   <div>
     <div class="pass">
       <form id="passForm" autocomplete="off">
@@ -142,6 +161,8 @@
       </form>
       <button class="btn alt mic" id="micBtn" type="button" hidden>🎤 Decirla en voz alta</button>
       <p class="msg" id="msg" aria-live="polite"></p>
+      <button class="hint-btn" id="hintBtn" type="button">💡 ¿Una pista?</button>
+      <ol class="hints" id="hints" aria-live="polite"></ol>
     </div>
   </div>
 </main>
@@ -156,7 +177,8 @@
       return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9ñ ]/g, ' ').replace(/\s+/g, ' ').trim();
     }
-    var objetivo = norm(FRASE);
+    var junto = function (s) { return s.replace(/ /g, ''); }; // los espacios no importan
+    var objetivo = junto(norm(FRASE));
 
     function abrir() {
       try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
@@ -187,13 +209,23 @@
       card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     }
 
+    // --- Pistas: una por clic ---
+    var pistaN = 0;
+    $('hintBtn').addEventListener('click', function () {
+      if (pistaN >= PISTAS.length) return;
+      $('hints').insertAdjacentHTML('beforeend', '<li><b>Pista ' + (pistaN + 1) + '</b>' + PISTAS[pistaN] + '</li>');
+      pistaN++;
+      if (pistaN < PISTAS.length) $('hintBtn').textContent = '💡 ¿Otra pista?';
+      else $('hintBtn').hidden = true;
+    });
+
     // --- Escribir la frase ---
     $('passForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      var v = norm($('passInput').value);
+      var v = junto(norm($('passInput').value));
       if (!v) return;
       if (v === objetivo) abrir();
-      else fallo('✖ Esa no es. Pregúntale de nuevo al Jugador 2.');
+      else fallo('✖ Esa no es. Intenta otra vez.');
     });
 
     // --- Decir la frase (solo navegadores con reconocimiento de voz) ---
@@ -210,7 +242,7 @@
       rec.onresult = function (e) {
         var oido = '';
         for (var i = 0; i < e.results[0].length; i++) {
-          var t = norm(e.results[0][i].transcript);
+          var t = junto(norm(e.results[0][i].transcript));
           if (i === 0) oido = t;
           if (t.indexOf(objetivo) !== -1) { abrir(); return; }
         }

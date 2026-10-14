@@ -852,7 +852,7 @@ const REGISTRO_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT90scmNuf
       const remote = csv.split(/\r?\n/).slice(1).map(line => {
         const [fecha = '', ingreso = ''] = line.split(',');
         const t = parseFecha(fecha);
-        if (isNaN(t) || ingreso.trim().toLowerCase() === 'prueba') return null;
+        if (isNaN(t)) return null;   // para ocultar un ingreso, borra su fila en la hoja
         const m = ingreso.match(/(\d{12,})\s+(\w+)/);   // "1760490180000 Celular"
         return { t, orig: m ? +m[1] : null, d: m ? m[2] : null };
       }).filter(Boolean);

@@ -13,7 +13,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #17112b;
@@ -29,7 +29,7 @@
     --red: #ff4655;
     --sky: #7cc4ff;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-variant-ligatures: none; } /* sin ligaduras: en Pixelify "fi" parece una "A" */
   html { scroll-behavior: smooth; }
   body {
     font-family: 'Rubik', system-ui, sans-serif;
@@ -56,8 +56,7 @@
   /* ---------- Barra superior ---------- */
   .topbar {
     position: sticky; top: 0; z-index: 30;
-    background: rgba(23,17,43,.94);
-    backdrop-filter: blur(6px);
+    background: rgba(23,17,43,.97);
     border-bottom: 3px solid var(--line);
   }
   .topbar-inner {
@@ -95,15 +94,17 @@
   nav a[aria-current="page"]::before { opacity: 1; }
   nav a .dot { width: 7px; height: 7px; background: var(--gold); display: inline-block; }
   nav a.seen .dot { display: none; }
+  nav a.locked { opacity: .5; cursor: not-allowed; }
+  nav a.locked .dot { display: none; }
 
   .xp { grid-row: 1; grid-column: 2; width: 150px; font-family: 'Pixelify Sans'; font-size: .92rem; color: var(--muted); }
   .xp .bar { height: 10px; margin-top: 3px; background: var(--shadow); border: 2px solid var(--line); }
-  .xp .bar i { display: block; height: 100%; width: 0; background: var(--mint); transition: width .6s steps(8); }
+  .xp .bar i { display: block; height: 100%; width: 0; background: var(--mint); transition: width .6s cubic-bezier(.2,.8,.2,1); }
 
   /* ---------- Vistas ---------- */
   main { flex: 1 0 auto; width: 100%; max-width: 1160px; margin: 0 auto; padding: 40px 16px 90px; }
   .view { display: none; }
-  .view.active { display: block; animation: enter .35s steps(5) both; }
+  .view.active { display: block; animation: enter .3s cubic-bezier(.2,.8,.2,1) both; }
   @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
   .view-head { margin-bottom: 30px; max-width: 68ch; }
@@ -242,7 +243,7 @@
     border: 3px solid var(--gold); box-shadow: 6px 6px 0 var(--shadow);
   }
   .hint-modal::backdrop { background: rgba(11,7,24,.75); }
-  .hint-modal[open] { animation: enter .3s steps(5) both; }
+  .hint-modal[open] { animation: enter .25s cubic-bezier(.2,.8,.2,1) both; }
   .hint-modal .in { padding: 26px 22px 22px; text-align: center; }
   .hint-modal .big { font-size: 3.2rem; line-height: 1; }
   .hint-modal .big.shadow {
@@ -336,7 +337,7 @@
   .mission { padding: 22px; }
   .mission .pct { font-family: 'Pixelify Sans'; font-size: 3.2rem; line-height: 1; color: var(--gold); }
   .mission .pbar { height: 22px; margin: 10px 0 6px; background: var(--shadow); border: 3px solid var(--line); }
-  .mission .pbar i { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--gold) 0 14px, #e5b930 14px 18px); width: 0; transition: width 1.2s steps(12); }
+  .mission .pbar i { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--gold) 0 14px, #e5b930 14px 18px); width: 0; transition: width 1s cubic-bezier(.2,.8,.2,1); }
   .mission .pbar-label { color: var(--muted); font-size: .95rem; }
   .parts { list-style: none; margin-top: 18px; display: grid; gap: 8px; }
   .parts li { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; background: var(--panel-2); }
@@ -356,12 +357,21 @@
   .ach-summary { margin-bottom: 20px; font-family: 'Pixelify Sans'; font-size: 1.2rem; color: var(--gold); }
 
   /* ---------- Mensaje ---------- */
-  .dialog-scene { max-width: 780px; }
 
   /* ---------- Carta ---------- */
-  .letter-wrap { max-width: 760px; display: grid; gap: 22px; }
-  .radio { padding: 12px 14px; display: flex; align-items: center; gap: 14px; }
-  .radio-head { flex: 1; display: flex; align-items: center; gap: 10px; font-family: 'Pixelify Sans'; color: var(--mint); }
+  #v-carta .view-head, #v-mensaje .view-head { margin-left: auto; margin-right: auto; text-align: center; }
+  #v-mensaje .dialog-hint { text-align: center; }
+  .letter-wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 22px; }
+  .radio { padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; }
+  .radio-head { flex: 1 1 180px; display: flex; align-items: center; gap: 10px; font-family: 'Pixelify Sans'; color: var(--mint); }
+  .vol { display: flex; align-items: center; gap: 8px; flex: 0 1 200px; }
+  .vol span { font-size: 1.1rem; width: 1.4em; text-align: center; }
+  .vol input { flex: 1; min-width: 90px; height: 24px; appearance: none; -webkit-appearance: none; background: transparent; cursor: pointer; }
+  .vol input::-webkit-slider-runnable-track { height: 8px; background: linear-gradient(90deg, var(--pink) var(--v, 15%), var(--shadow) var(--v, 15%)); border: 2px solid var(--line); }
+  .vol input::-moz-range-track { height: 4px; background: var(--shadow); border: 2px solid var(--line); }
+  .vol input::-moz-range-progress { height: 4px; background: var(--pink); }
+  .vol input::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; background: var(--gold); border: 3px solid var(--shadow); }
+  .vol input::-moz-range-thumb { width: 12px; height: 12px; border-radius: 0; background: var(--gold); border: 3px solid var(--shadow); }
   .play-btn {
     flex-shrink: 0; width: 44px; height: 44px; cursor: pointer;
     font-size: 1.1rem; color: var(--shadow); background: var(--gold);
@@ -392,12 +402,12 @@
   /* texto escrito "a mano", un párrafo a la vez */
   .hand {
     min-height: 260px; cursor: pointer;
-    font-family: 'Caveat', cursive; font-weight: 500;
-    font-size: clamp(1.45rem, 4vw, 1.75rem); line-height: 1.45; color: #2c2050;
+    font-family: 'Patrick Hand', cursive; font-weight: 400;
+    font-size: clamp(1.2rem, 3.4vw, 1.4rem); line-height: 1.6; color: #2c2050;
   }
   .hand .pen { display: inline-block; margin-left: 2px; font-size: .8em; animation: pen .5s ease-in-out infinite alternate; }
   @keyframes pen { to { transform: translate(2px, -3px) rotate(-8deg); } }
-  .hand .sign { display: block; text-align: right; margin-top: 18px; font-weight: 700; font-size: 1.15em; color: #c2306e; }
+  .hand .sign { display: block; text-align: right; margin-top: 18px; font-size: 1.2em; color: #c2306e; }
   .letter-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 2px dashed rgba(194,48,110,.3); }
   .letter-nav .count { font-family: 'Pixelify Sans'; color: #8a6f9e; font-size: .95rem; }
   .letter-nav .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
@@ -409,16 +419,17 @@
   .lbtn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #3a2a4d; }
   .lbtn.alt { color: #c2306e; background: transparent; }
   .lbtn[hidden] { display: none; }
-  .lbtn.pop { animation: lbtnIn .35s steps(4) both; }
+  .credits-btn { margin-top: 14px; }
+  .lbtn.pop { animation: lbtnIn .3s cubic-bezier(.2,.8,.2,1) both; }
   @keyframes lbtnIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
   /* modal con la carta completa */
   .letter-modal {
-    margin: auto; width: min(760px, calc(100% - 24px)); max-height: calc(100% - 24px);
+    margin: auto; width: min(1180px, calc(100% - 24px)); max-height: calc(100% - 24px);
     padding: 0; border: 0; background: transparent; overflow: visible;
   }
   .letter-modal:focus, .letter-modal:focus-visible, .lm-paper:focus, .lm-paper:focus-visible { outline: none; }
-  .letter-modal::backdrop { background: rgba(11,7,24,.82); backdrop-filter: blur(3px); }
+  .letter-modal::backdrop { background: rgba(11,7,24,.9); }
   .letter-modal[open] { animation: lmIn .6s cubic-bezier(.2,1.2,.4,1) both; }
   @keyframes lmIn { from { opacity: 0; transform: translateY(30px) scale(.94) rotate(-1deg); } to { opacity: 1; transform: none; } }
   .lm-paper {
@@ -428,26 +439,143 @@
   }
   .lm-paper h2 { font-family: 'Pixelify Sans'; font-size: clamp(1.6rem, 5vw, 2.2rem); line-height: 1.15; color: #c2306e; margin: 0 30px 20px 0; }
   .lm-paper p {
-    font-family: 'Caveat', cursive; font-size: clamp(1.35rem, 3.6vw, 1.6rem); line-height: 1.45; margin-bottom: 14px;
-    opacity: 0; animation: lmP .8s ease forwards;
+    font-family: 'Patrick Hand', cursive; font-size: clamp(1.15rem, 3.2vw, 1.35rem); line-height: 1.6; margin-bottom: 14px;
+    opacity: 0; animation: lmP .5s ease forwards; break-inside: avoid;
   }
-  @keyframes lmP { from { opacity: 0; transform: translateY(14px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
-  .lm-paper .sign { text-align: right; font-weight: 700; font-size: 1.8rem; color: #c2306e; }
+  @keyframes lmP { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  .lm-paper .sign { text-align: right; font-size: 1.6rem; color: #c2306e; }
+  @media (min-width: 900px) { .lm-body { columns: 2; column-gap: 48px; column-rule: 2px dashed rgba(194,48,110,.25); } }
   .lm-close {
     position: sticky; top: 0; float: right; z-index: 2; margin: -14px -14px 0 8px; width: 38px; height: 38px; cursor: pointer;
     font-family: 'Pixelify Sans'; font-size: 1.1rem; color: #3a2a4d; background: #fff3e6; border: 3px solid #3a2a4d;
   }
+  .lm-close:focus { outline: none; }
+
+  /* ---------- Créditos finales ---------- */
+  .credits {
+    position: fixed; inset: 0; z-index: 80; overflow: hidden; color: var(--ink); text-align: center;
+    background: linear-gradient(180deg, #07051a 0%, #0f0b2e 45%, #2a1d5c 85%, #3d2a72 100%);
+    animation: crIn 1.2s ease both;
+  }
+  .credits[hidden] { display: none; }
+  /* cielo de noche: estrellas fijas (canvas dibujado una vez), algunas que titilan, luna y estrella fugaz */
+  .cr-sky { position: absolute; inset: 0; pointer-events: none; }
+  .cr-sky canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .cr-twinkle i { position: absolute; background: #fff; animation: twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
+  .cr-moon { position: absolute; top: 9%; right: 11%; width: 64px; height: 64px; }
+  .cr-moon::before { content: ""; position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, rgba(255,240,200,.22) 0%, transparent 65%); }
+  .cr-moon::after {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 34% 40%, #e9dcb4 0 9%, transparent 10%), radial-gradient(circle at 64% 66%, #e9dcb4 0 7%, transparent 8%), radial-gradient(circle at 62% 30%, #e9dcb4 0 5%, transparent 6%), #fff6dc;
+    clip-path: polygon(25% 0, 75% 0, 75% 12.5%, 87.5% 12.5%, 87.5% 25%, 100% 25%, 100% 75%, 87.5% 75%, 87.5% 87.5%, 75% 87.5%, 75% 100%, 25% 100%, 25% 87.5%, 12.5% 87.5%, 12.5% 75%, 0 75%, 0 25%, 12.5% 25%, 12.5% 12.5%, 25% 12.5%);
+  }
+  .cr-shoot { position: absolute; top: 14%; left: 8%; width: 120px; height: 2px; background: linear-gradient(90deg, transparent, #fff); transform: rotate(18deg); opacity: 0; animation: shoot 9s ease-in 3s infinite; }
+  @keyframes shoot { 0% { opacity: 0; translate: 0 0; } 2% { opacity: 1; } 8% { opacity: 0; translate: 420px 140px; } 100% { opacity: 0; translate: 420px 140px; } }
+  @media (max-width: 600px) { .cr-moon { width: 44px; height: 44px; top: 7%; right: 8%; } }
+  @keyframes crIn { from { opacity: 0; } to { opacity: 1; } }
+  .cr-roll {
+    position: absolute; left: 50%; top: 100%; width: min(560px, calc(100% - 40px));
+    transform: translateX(-50%); will-change: transform;
+  }
+  .credits.rolling .cr-roll { animation: crRoll var(--roll, 62s) linear forwards; }
+  @keyframes crRoll { to { transform: translate(-50%, calc(-100% - 100vh)); } }
+  .cr-roll h1 { font-family: 'Pixelify Sans'; font-size: clamp(2.6rem, 9vw, 4rem); line-height: 1; text-shadow: 4px 4px 0 var(--pink); margin-bottom: 8px; }
+  .cr-roll .tag { font-family: 'Pixelify Sans'; color: var(--muted); margin-bottom: 70px; }
+  .cr-roll section { margin-bottom: 54px; }
+  .cr-roll h3 { font-family: 'Pixelify Sans'; font-size: .95rem; letter-spacing: .14em; text-transform: uppercase; color: var(--mint); margin-bottom: 10px; }
+  .cr-roll p { font-size: 1.15rem; line-height: 1.6; }
+  .cr-roll p small { color: var(--muted); font-size: .9rem; }
+  .cr-end {
+    position: absolute; inset: 0; display: grid; place-content: center; gap: 10px; padding: 20px;
+    opacity: 0; pointer-events: none; transition: opacity 2.5s ease;
+  }
+  .credits.ended .cr-end { opacity: 1; pointer-events: auto; }
+  .cr-end h2 { font-family: 'Pixelify Sans'; font-size: clamp(1.8rem, 6vw, 2.8rem); line-height: 1.1; }
+  .cr-end p { font-family: 'Patrick Hand', cursive; }
+  .cr-end .cr-msg { max-width: 34ch; margin: 6px auto 0; font-size: clamp(1.15rem, 3.4vw, 1.4rem); line-height: 1.5; color: var(--muted); }
+  /* "Te quiero" con el mismo estilo retro del título de inicio */
+  .cr-end .cr-love {
+    margin: 22px 0 10px; font-family: 'Pixelify Sans', monospace; font-weight: 700;
+    font-size: clamp(2.8rem, 11vw, 5.2rem); line-height: 1; color: var(--ink);
+    text-shadow: 5px 5px 0 var(--pink), 10px 10px 0 var(--shadow);
+  }
+  .cr-end .cr-love .hrt { color: var(--pink); text-shadow: 5px 5px 0 var(--shadow); }
+  .cr-end .cr-cont { font-size: 1.2rem; color: var(--muted); opacity: .8; }
+  /* el mensaje aparece por partes: primero el agradecimiento, luego el te quiero */
+  .cr-end > * { opacity: 0; transform: translateY(8px); transition: opacity 1.6s ease, transform 1.6s ease; }
+  .credits.ended .cr-end > * { opacity: 1; transform: none; }
+  .credits.ended .cr-end .cr-msg { transition-delay: 1.2s; }
+  .credits.ended .cr-end .cr-love { transition-delay: 3s; }
+  .credits.ended .cr-end .cr-cont { transition-delay: 5s; }
+  .credits.ended .cr-end .cr-end-btns { transition-delay: 6s; }
+  .cr-end-btns { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .cr-end .lbtn.alt { color: var(--ink); border-color: var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+  .cr-skip {
+    position: absolute; top: 14px; right: 14px; z-index: 2; cursor: pointer;
+    font-family: 'Pixelify Sans'; font-size: .95rem; color: var(--muted);
+    background: rgba(36,25,68,.8); border: 2px solid var(--line); padding: 4px 12px;
+  }
+  .cr-skip:hover { color: var(--ink); }
+  .credits .radio { position: absolute; left: 14px; bottom: 14px; z-index: 2; width: min(420px, calc(100% - 28px)); padding: 8px 10px; background: rgba(36,25,68,.85); }
+  .credits .radio .play-btn { width: 36px; height: 36px; }
+  .credits .radio-head { font-size: .9rem; }
+  .lm-close:hover { background: #c2306e; color: #fff3e6; }
   .lm-hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
-  .lm-hearts span { position: absolute; bottom: -40px; color: var(--pink); opacity: 0; animation: heartUp linear infinite; }
+  .lm-hearts span { position: absolute; bottom: -40px; color: var(--pink); opacity: 0; animation: heartUp linear infinite; will-change: transform, opacity; }
   @keyframes heartUp {
     0% { opacity: 0; transform: translateY(0) scale(.7); }
     15% { opacity: .8; }
     100% { opacity: 0; transform: translateY(-110vh) translateX(30px) scale(1.1); }
   }
-  .speaker { display: flex; align-items: flex-end; gap: 16px; }
-  .portrait { width: 110px; height: 110px; flex: none; display: grid; place-items: center; font-size: 3.6rem; background: var(--panel-2); border: 3px solid var(--sky); box-shadow: 5px 5px 0 var(--shadow); }
-  .speaker .name { font-family: 'Pixelify Sans'; font-size: 1.3rem; color: var(--sky); padding: 4px 14px; background: var(--panel); border: 3px solid var(--line); border-bottom: none; }
-  .dialog { position: relative; padding: 22px 24px 42px; min-height: 170px; font-size: 1.3rem; line-height: 1.55; }
+  /* escena estilo Stardew: personaje pixel con su nube de diálogo */
+  .npc-scene {
+    position: relative; max-width: 680px; margin: 0 auto; padding: 26px 18px 0;
+    display: flex; flex-direction: column; align-items: center;
+    background: linear-gradient(180deg, #2b2160 0%, #3b2f7a 70%);
+    border: 3px solid var(--line); box-shadow: 5px 5px 0 var(--shadow); overflow: hidden;
+  }
+  .bubble {
+    position: relative; width: 100%; padding: 26px 22px 40px; min-height: 150px; cursor: pointer;
+    background: #fff3e6; color: #2c2050; border: 3px solid var(--shadow); border-radius: 18px;
+    box-shadow: 4px 4px 0 rgba(11,7,24,.6);
+    font-family: 'Patrick Hand', cursive; font-size: clamp(1.25rem, 3.6vw, 1.5rem); line-height: 1.45;
+  }
+  .bubble::after {   /* colita de la nube apuntando al personaje */
+    content: ""; position: absolute; left: 50%; bottom: -19px; width: 26px; height: 26px; margin-left: -13px;
+    background: #fff3e6; border-right: 3px solid var(--shadow); border-bottom: 3px solid var(--shadow);
+    transform: rotate(45deg);
+  }
+  .bubble-name {
+    position: absolute; top: -16px; left: 18px; padding: 2px 12px;
+    font-family: 'Pixelify Sans'; font-size: 1.1rem; color: var(--ink);
+    background: var(--sky); border: 3px solid var(--shadow); color: var(--shadow);
+  }
+  .bubble .next { color: #c2306e !important; }
+  .npc { width: 176px; margin-top: 26px; position: relative; z-index: 1; }
+  .npc svg { display: block; width: 100%; height: auto; animation: npcIdle 1.2s steps(2) infinite; }
+  @keyframes npcIdle { 50% { transform: translateY(3px); } }
+  .npc .eye { transform-box: fill-box; transform-origin: center; animation: npcBlink 4s infinite; }
+  @keyframes npcBlink { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.15); } }
+  .npc .mouth { transform-box: fill-box; transform-origin: top; }
+  .npc.talking svg { animation: npcTalk .26s steps(2) infinite; }   /* sin boca en el dibujo: al hablar da saltitos */
+  @keyframes npcTalk { 50% { transform: translateY(-4px); } }
+  /* ráfagas de viento (la habilidad de Jett) */
+  .wind { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .wind i { position: absolute; left: -30%; height: 3px; width: 70px; background: rgba(238,243,250,.55); animation: gust 3.2s linear infinite; will-change: transform; }
+  .wind i::after { content: ""; position: absolute; right: -26px; top: 0; width: 18px; height: 3px; background: inherit; }
+  .wind i:nth-child(1) { top: 62%; animation-delay: 0s; }
+  .wind i:nth-child(2) { top: 72%; width: 46px; animation-delay: 1.3s; animation-duration: 2.6s; }
+  .wind i:nth-child(3) { top: 82%; width: 90px; animation-delay: 2.1s; animation-duration: 3.8s; }
+  @keyframes gust { from { transform: translateX(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } to { transform: translateX(900px); opacity: 0; } }
+  .ground {
+    width: calc(100% + 36px); height: 34px; margin-top: -6px;
+    background:
+      repeating-linear-gradient(90deg, #4c9a52 0 12px, #438a49 12px 24px) top / 100% 8px no-repeat,
+      #3a7a40;
+    border-top: 3px solid var(--shadow);
+  }
+  .dialog { position: relative; }
   .dialog .next {
     position: absolute; right: 18px; bottom: 12px; font-family: 'Pixelify Sans'; color: var(--gold);
     background: none; border: none; cursor: pointer; font-size: 1.05rem;
@@ -461,7 +589,7 @@
     position: fixed; right: 16px; bottom: 16px; z-index: 50;
     display: flex; gap: 12px; align-items: center; padding: 12px 16px; max-width: min(360px, calc(100vw - 32px));
     background: var(--panel); border: 3px solid var(--gold); box-shadow: 5px 5px 0 var(--shadow);
-    transform: translateY(140%); transition: transform .35s steps(6);
+    transform: translateY(140%); transition: transform .35s cubic-bezier(.2,.8,.2,1);
   }
   .toast.show { transform: none; }
   .toast .ti { font-size: 1.8rem; }
@@ -491,8 +619,7 @@
     .levels::before { left: 24px; }
     .level { grid-template-columns: 52px 1fr; gap: 12px; }
     .level .badge { width: 52px; height: 52px; font-size: 1.5rem; }
-    .portrait { width: 80px; height: 80px; font-size: 2.6rem; }
-    .dialog { font-size: 1.15rem; }
+    .npc { width: 144px; }
     .achs { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -670,18 +797,18 @@
       <div class="zone">Diálogo</div>
       <h1 id="t-mensaje">Un mensaje para ti</h1>
     </div>
-    <div class="dialog-scene">
-      <div class="speaker">
-        <div class="portrait" aria-hidden="true">🎮</div>
-        <div class="name" id="speakerName"></div>
-      </div>
-      <div class="dialog box">
+    <div class="npc-scene">
+      <div class="dialog bubble" aria-live="polite">
+        <div class="bubble-name" id="speakerName"></div>
         <p id="dialogText"></p>
         <div class="choices" id="choices"></div>
-        <button class="next" id="nextBtn">▼ siguiente</button>
+        <button class="next" id="nextBtn" aria-label="Siguiente">▼</button>
       </div>
-      <p class="dialog-hint">Toca el cuadro de diálogo o el botón para avanzar.</p>
+      <div class="wind" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="npc" id="npc" aria-hidden="true"></div>
+      <div class="ground" aria-hidden="true"></div>
     </div>
+    <p class="dialog-hint">Toca la nube para avanzar.</p>
   </section>
 
   <!-- ================= CARTA ================= -->
@@ -689,13 +816,10 @@
     <div class="view-head">
       <div class="zone">Objeto especial</div>
       <h1 id="t-carta">Una carta para ti</h1>
-      <p>Léela con calma. Si la música no empieza sola, dale play.</p>
+      <p>Léela con calma.</p>
+      <button class="lbtn credits-btn" id="creditsBtn" type="button" hidden>🎬 Ver créditos</button>
     </div>
     <div class="letter-wrap">
-      <div class="radio box" id="radio">
-        <button class="play-btn" id="playBtn" type="button" aria-label="Reproducir música">▶</button>
-        <div class="radio-head"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cottonwood · instrumental</div>
-      </div>
       <article class="letter" id="letter">
         <h2 id="letterTitle"></h2>
         <div class="hand" id="hand" aria-live="polite" title="Toca para terminar de escribir"></div>
@@ -704,7 +828,8 @@
           <div class="acts">
             <button class="lbtn alt" id="againBtn" type="button" hidden>↺ Leer de nuevo</button>
             <button class="lbtn" id="nextPart" type="button" hidden>Siguiente ▶</button>
-            <button class="lbtn" id="fullBtn" type="button" hidden>📜 Ver carta completa</button>
+            <button class="lbtn alt" id="fullBtn" type="button" hidden>📜 Ver carta completa</button>
+            <button class="lbtn" id="endBtn" type="button" hidden>🎬 Ver final</button>
           </div>
         </div>
       </article>
@@ -715,11 +840,42 @@
 
 <footer>Hecho a mano para Aoi. Partida guardada automáticamente<span id="footDate"></span>.</footer>
 
+<!-- Créditos finales: suben con la música al terminar la carta -->
+<div class="credits" id="credits" role="dialog" aria-modal="true" aria-label="Créditos finales" hidden>
+  <div class="cr-sky" aria-hidden="true">
+    <canvas id="crStars"></canvas>
+    <div class="cr-twinkle" id="crTwinkle"></div>
+    <div class="cr-moon"></div>
+    <i class="cr-shoot"></i>
+  </div>
+  <button class="cr-skip" id="crSkip" type="button">Saltar ✕</button>
+  <div class="cr-roll" id="crRoll"></div>
+  <div class="cr-end" id="crEnd">
+    <h2>Gracias por jugar conmigo.</h2>
+    <p class="cr-msg">Por cada partida, cada risa y cada día que decidiste compartir conmigo.<br>Contigo, hasta las derrotas se sienten como victorias.</p>
+    <p class="cr-love">Te quiero, Aoi <span class="hrt">♥</span></p>
+    <p class="cr-cont">Continuará…</p>
+    <div class="cr-end-btns">
+      <button class="lbtn alt" id="crAgain" type="button">↺ Ver de nuevo</button>
+      <button class="lbtn" id="crBack" type="button">Volver</button>
+    </div>
+  </div>
+  <div class="radio box" id="radio">
+    <button class="play-btn" id="playBtn" type="button" aria-label="Reproducir música">▶</button>
+    <div class="radio-head"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cottonwood · instrumental</div>
+    <label class="vol" title="Volumen">
+      <span id="volIcon" aria-hidden="true">🔉</span>
+      <input type="range" id="volRange" min="0" max="100" step="1" aria-label="Volumen">
+    </label>
+  </div>
+</div>
+
 <dialog class="letter-modal" id="letterModal" aria-labelledby="lmTitle">
   <div class="lm-hearts" id="lmHearts" aria-hidden="true"></div>
   <div class="lm-paper" id="lmPaper">
     <button class="lm-close" type="button" data-close aria-label="Cerrar" autofocus>✕</button>
     <h2 id="lmTitle"></h2>
+    <div class="lm-body" id="lmBody"></div>
   </div>
 </dialog>
 
@@ -851,27 +1007,28 @@ const ACHIEVEMENTS = [
   { icon: "🔒", name: "???", text: "Logro secreto. Todavía estamos en eso.", on: false }
 ];
 
+// Lo que dice el personaje en "Mensaje": corto y juguetón; al final la manda a la carta
 const DIALOG = [
-  "Aoi, gracias por aceptar aquella partida.",
-  "Desde entonces, jugar dejó de ser solo jugar: ahora es pasar tiempo contigo.",
-  "Me encanta cómo compites, cómo te ríes cuando fallamos una jugada y cómo nunca te rindes.",
-  "Quiero seguir sumando partidas, cenas, proyectos y piezas para tu PC.",
-  "Te quiero mucho. ¿Jugamos otra?"
+  "¡Hola, Aoi! Qué bueno que llegaste hasta aquí.",
+  "Recorriste toda nuestra partida: los juegos, las cenas, los regalos… hasta la misión de tu PC.",
+  "Pero todavía queda un objeto especial que no aparece en ningún inventario.",
+  "Lo escribí pensando en ti, así que léelo con calma.",
+  "Toma, es para ti."
 ];
 
 /* ===================================================================== */
 
 // Carta: canción de fondo (YouTube) y texto, un elemento por párrafo
-const LETTER_MUSIC = { src: "cottonwood.mp3", start: 109, volume: 0.3 };   // Cottonwood (instrumental), desde el 1:49; volumen de 0 a 1
+const LETTER_MUSIC = { src: "cottonwood.mp3", start: 109, volume: 0.10 };   // Cottonwood (instrumental) desde el 1:49 (suena en los créditos finales); volumen inicial de 0 a 1
 const LETTER_TITLE = "Lo mucho que significas para mí";
 const LETTER = [
   "A veces siento que las palabras se quedan pequeñas cuando intento explicar lo mucho que alguien puede llegar a significar. Y contigo me pasa eso. No sé si alguna vez he logrado hacerte entender todo el cariño que te tengo, pero hay algo que sí quiero que quede escrito: eres una persona muy especial para mí.",
   "Desde que llegaste a mi vida, muchos momentos sencillos empezaron a tener un significado distinto. Hablar contigo, compartir juegos, reírnos, contarnos cosas o simplemente pasar tiempo juntos se convirtió en algo que esperaba con ilusión. No hacía falta que ocurriera nada extraordinario; muchas veces, tenerte ahí era suficiente para hacer que un día normal se sintiera especial.",
-  "Me gusta poder compartir contigo las cosas que sé, descubrir ideas juntos y pensar en todo lo que podemos crear. Una de las cosas que más ilusión me hacía de nuestro proyecto era que no fuera solamente un trabajo, sino también una oportunidad para aprender, crecer y construir algo de lo que ambos pudiéramos sentirnos orgullosos. Me encanta imaginarte descubriendo nuevas habilidades, ganando confianza y dándote cuenta de todo lo que eres capaz de hacer.",
+  "Me gusta poder compartir contigo las cosas que sé, descubrir ideas juntos y pensar en todo lo que podemos crear. Una de las cosas que más ilusión me hacía de nuestro proyecto era que no fuera solamente un trabajo, sino también una oportunidad para aprender, crecer y construir algo de lo que ambos pudiéramos sentirnos orgullosos.",
   "Quiero que sepas que cuando dedico tiempo a ayudarte, cuando pienso en una idea para nosotros o cuando intento hacer algo bonito por ti, nace del cariño que te tengo. No necesito que hagas algo extraordinario para que me importe cómo estás o para desear que te vaya bien. Me alegra verte avanzar, me importa lo que sueñas y quiero que la vida te dé muchas razones para sentirte orgullosa de ti misma.",
   "Hay algo muy bonito en encontrar a alguien con quien uno desea compartir no solo los grandes momentos, sino también los pequeños: una conversación sin motivo, una partida de un juego, una ocurrencia que solo nosotros entendemos o un rato en el que el mundo puede esperar. Para mí, esos instantes tienen un valor enorme, porque son los que convierten el tiempo compartido en recuerdos que uno guarda con cariño.",
   "Te aprecio por mucho más que lo que haces o lo que puedes aportar. Me importa la persona que eres, tu manera de ver las cosas, tus ideas y todo lo que todavía estás descubriendo de ti misma. Me gusta pensar que, de alguna forma, puedo acompañarte en parte de tu camino y que tú también has dejado una huella en el mío.",
-  "No sé si siempre encuentro la manera correcta de demostrarlo, pero deseo que te vaya bien, que tengas oportunidades bonitas, que aprendas todo lo que quieras aprender y que nunca te falten motivos para creer en ti. Quiero verte cumplir tus metas y sentir que puedes llegar mucho más lejos de lo que a veces imaginas.",
+  "No sé si siempre encuentro la manera correcta de demostrarlo, pero deseo que te vaya bien, que tengas oportunidades bonitas, que aprendas todo lo que quieras aprender y que nunca te falten motivos para creer en ti. Quiero verte cumplir tus metas y poder acompañarte en ese proceso.",
   "Si tuviera que resumir lo que significas para mí, diría que eres alguien con quien me nació compartir tiempo, sueños, ideas y una parte muy sincera de mí. Alguien que hizo que muchas cosas cotidianas se volvieran memorables y con quien me ilusionaba construir algo que tuviera un significado especial.",
   "Gracias por los momentos que hemos compartido, por las conversaciones, las risas, las ideas y por todo lo que, quizá sin darte cuenta, has aportado a mi vida. Me alegra haberte conocido y que seas parte de mi historia. Hay personas que llegan y dejan recuerdos; tú, para mí, también has dejado ilusión, aprendizaje y un cariño difícil de explicar en pocas palabras.",
   "Quiero que, cuando leas esto, recuerdes simplemente lo importante que eres para mí. No por lo que puedas darme ni por lo que hagas, sino por ser tú. Te tengo muchísimo cariño, y me siento afortunado de haber podido compartir contigo tantos momentos que guardo de una manera muy especial."
@@ -887,7 +1044,7 @@ const VIEWS = [
   { id: "pc",       label: "Misión PC", icon: "🖥️" },
   { id: "logros",   label: "Logros",    icon: "🏆" },
   { id: "mensaje",  label: "Mensaje",   icon: "💌" },
-  { id: "carta",    label: "Carta",     icon: "✉️" }
+  { id: "carta",    label: "Final",     icon: "🏁" }   // bloqueada hasta terminar el Mensaje
 ];
 
 const $ = id => document.getElementById(id);
@@ -904,8 +1061,21 @@ function saveSeen(set) {
 let seen = loadSeen();
 
 /* ---------- Navegación ---------- */
-$('navList').innerHTML = VIEWS.map(v =>
-  `<li><a href="#${v.id}" data-view="${v.id}"><span aria-hidden="true">${v.icon}</span>${v.label}<i class="dot" aria-hidden="true"></i></a></li>`).join('');
+// Banderas que se recuerdan en este navegador
+function getFlag(k) { try { return localStorage.getItem(k) === '1'; } catch (e) { return false; } }
+function setFlag(k) { try { localStorage.setItem(k, '1'); } catch (e) {} }
+const FINAL_KEY = 'aoi-final-desbloqueado';   // se activa al terminar el Mensaje
+const CREDITS_KEY = 'aoi-creditos-vistos';    // se activa la primera vez que ve los créditos
+const isLocked = id => id === 'carta' && !getFlag(FINAL_KEY);
+
+function renderNav() {
+  $('navList').innerHTML = VIEWS.map(v => {
+    const locked = isLocked(v.id);
+    return `<li><a href="#${v.id}" data-view="${v.id}"${locked ? ' class="locked" aria-disabled="true" title="Primero escucha el mensaje"' : ''}>` +
+      `<span aria-hidden="true">${locked ? '🔒' : v.icon}</span>${v.label}<i class="dot" aria-hidden="true"></i></a></li>`;
+  }).join('');
+}
+renderNav();
 
 function updateXP() {
   $('xpLabel').textContent = `Explorado ${seen.size}/${VIEWS.length}`;
@@ -926,6 +1096,11 @@ function toast(icon, title, text) {
 const onEnter = {};
 function route() {
   const id = (location.hash || '#inicio').slice(1);
+  if (isLocked(id)) {   // el Final se abre recién después de escuchar el Mensaje
+    toast('🔒', 'Todavía no', 'Primero escucha el mensaje.');
+    location.replace('#mensaje');
+    return;
+  }
   const view = VIEWS.find(v => v.id === id) || VIEWS[0];
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + view.id));
   document.querySelectorAll('nav a').forEach(a => {
@@ -935,7 +1110,7 @@ function route() {
   if (current) current.scrollIntoView({ block: 'nearest', inline: 'center' });
   window.scrollTo(0, 0);
   if (view.id === 'carta') { loadRadio(); startLetter(); }
-  $('musicFab').classList.toggle('here', view.id === 'carta');   // en la carta ya está el reproductor grande
+
 
   if (!seen.has(view.id)) {
     seen.add(view.id); saveSeen(seen);
@@ -1044,7 +1219,7 @@ function showPart(n) {
   letterState.part = n;
   const hand = $('hand');
   hand.innerHTML = '';
-  ['nextPart', 'fullBtn', 'againBtn'].forEach(id => { $(id).hidden = true; $(id).classList.remove('pop'); });
+  ['nextPart', 'fullBtn', 'againBtn', 'endBtn'].forEach(id => { $(id).hidden = true; $(id).classList.remove('pop'); });
   $('partCount').textContent = `Parte ${n + 1} de ${LETTER.length}`;
   const p = document.createElement('p');
   hand.append(p);
@@ -1054,7 +1229,7 @@ function showPart(n) {
     const sign = document.createElement('span');
     sign.className = 'sign';
     hand.append(sign);
-    typeInto(sign, '— ' + ME, () => { reveal('fullBtn'); reveal('againBtn'); });
+    typeInto(sign, '— ' + ME, () => { reveal('againBtn'); reveal('fullBtn'); reveal('endBtn'); });
   });
 }
 function reveal(id) { $(id).hidden = false; $(id).classList.add('pop'); }
@@ -1074,19 +1249,20 @@ function startLetter() {
 // Carta completa en un modal, con los párrafos apareciendo uno tras otro y corazones flotando
 function openFullLetter() {
   const paper = $('lmPaper');
-  paper.querySelectorAll('p').forEach(p => p.remove());
+  const body = $('lmBody');
+  body.innerHTML = '';
   [...LETTER, '— ' + ME].forEach((t, i) => {
     const p = document.createElement('p');
     if (i === LETTER.length) p.className = 'sign';
     p.textContent = t;
-    p.style.animationDelay = (0.4 + i * 0.35) + 's';
-    paper.append(p);
+    p.style.animationDelay = (0.25 + i * 0.12) + 's';
+    body.append(p);
   });
   $('lmTitle').textContent = LETTER_TITLE;
   paper.scrollTop = 0;
   const hearts = $('lmHearts');
   if (!hearts.children.length && !reduceMotion) {
-    hearts.innerHTML = Array.from({ length: 16 }, () =>
+    hearts.innerHTML = Array.from({ length: 10 }, () =>
       `<span style="left:${Math.random() * 100}%;font-size:${14 + Math.random() * 18}px;` +
       `animation-duration:${7 + Math.random() * 7}s;animation-delay:${Math.random() * 8}s">${Math.random() < .7 ? '♥' : '✦'}</span>`
     ).join('');
@@ -1112,22 +1288,156 @@ function getMusic() {
   if (music) return music;
   music = new Audio(LETTER_MUSIC.src + "#t=" + LETTER_MUSIC.start);   // #t= hace que empiece directo en ese segundo
   music.preload = 'auto';
-  music.volume = LETTER_MUSIC.volume;
+  music.volume = musicVol;
   music.addEventListener('loadedmetadata', () => { if (music.currentTime < LETTER_MUSIC.start) music.currentTime = LETTER_MUSIC.start; }, { once: true });
-  music.addEventListener('ended', () => { music.currentTime = LETTER_MUSIC.start; music.play().catch(() => {}); });
+  // al terminar no se repite: se apaga junto con la carta; si toca ▶ de nuevo, vuelve a empezar desde el 1:49
+  music.addEventListener('ended', () => { music.currentTime = LETTER_MUSIC.start; });
   music.addEventListener('play', () => setPlaying(true));
   music.addEventListener('pause', () => setPlaying(false));
   return music;
 }
 function toggleMusic() {
   const m = getMusic();
+  m.volume = musicVol;
   if (m.paused) m.play().catch(() => {}); else m.pause();
 }
-function loadRadio() {
-  if (music) return;   // ya cargada: no la reinicia al volver a la carta
-  getMusic().play().catch(() => {});   // si el navegador bloquea el inicio automático, queda el botón ▶
+// Al abrir la carta solo se precarga: la música suena en los créditos finales
+function loadRadio() { getMusic(); }
+// Sube (o baja) el volumen poco a poco; "then" se llama al terminar
+let fadeId = 0;
+function fadeMusic(to, ms, then) {
+  const m = getMusic(), from = m.volume, t0 = performance.now(), id = ++fadeId;
+  (function step() {
+    if (id !== fadeId) return;   // otro fundido empezó: este se cancela
+    // performance.now() y no el tiempo que da requestAnimationFrame: ese puede ser anterior a t0,
+    // daría un volumen negativo y el navegador lo rechaza con un error (la música quedaba muda)
+    const k = Math.min(1, Math.max(0, (performance.now() - t0) / ms));
+    m.volume = Math.min(1, Math.max(0, from + (to - from) * k));
+    // setTimeout y no requestAnimationFrame: este se pausa si la pestaña no está visible y el volumen quedaría congelado
+    if (k < 1) setTimeout(step, 50); else if (then) then();
+  })();
 }
+
+/* ---------- Créditos finales ---------- */
+const CREDITS_ROLL_SECONDS = 62;   // lo que tardan en subir; la canción desde el 1:49 dura ~79 s
+// Datos extra para los créditos. "more" es una lista de [título, texto]: agrega o quita las que quieras
+const CREDITS_EXTRA = {
+  firstGame: "Ravenswatch",
+  word: "Lumina",
+  more: [
+    ["Violinista oficial del equipo", "Aoi"],
+    ["Proyectos juntos", "Varios, y contando"]
+  ]
+};
+function creditsHTML() {
+  const start = new Date(START_DATE);
+  const days = Math.max(0, Math.floor((Date.now() - start) / 86400000));
+  const fecha = start.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' });
+  const cenas = DINNERS.filter(d => !d.ej);
+  const piezas = PC_PARTS.filter(p => p.have).length;
+  const sec = (title, lines) => `<section><h3>${title}</h3>${lines.map(l => `<p>${l}</p>`).join('')}</section>`;
+  return `
+    <h1>Aoi &amp; yo</h1>
+    <p class="tag">una partida de ${ME} para Aoi</p>
+    ${sec('Jugadora 1', ['Aoi'])}
+    ${sec('Jugador 2', [ME])}
+    ${sec('Presentados por', ['Un 🦴'])}
+    ${sec('Primera conversación', [fecha])}
+    ${sec('Días de partida', [days.toLocaleString('es') + ' y contando'])}
+    ${sec('Primer juego regalado', [CREDITS_EXTRA.firstGame])}
+    ${sec('Juegos jugados', GAMES.map(g => g.name))}
+    ${sec('Regalos entregados', GIFTS.map(g => g.name))}
+    ${SOON_GIFTS.length ? sec('Próximamente', [`${SOON_GIFTS.length} regalos en camino`]) : ''}
+    ${cenas.length ? sec('Misiones de cena', cenas.map(d => d.title)) : ''}
+    ${sec('Misión en curso', [`Tu PC <small>(${piezas} de ${PC_PARTS.length} piezas)</small>`])}
+    ${sec('Logros desbloqueados', [`${ACHIEVEMENTS.filter(a => a.on).length} de ${ACHIEVEMENTS.length} <small>(los demás, pronto)</small>`])}
+    ${CREDITS_EXTRA.more.map(([t, v]) => sec(t, [v])).join('')}
+    ${sec('Una palabra que te define', [CREDITS_EXTRA.word])}
+    ${sec('Banda sonora', ['Cottonwood <small>(instrumental)</small>', '<small>Twenty One Pilots</small>'])}
+    ${sec('Hecho a mano por', [ME])}`;
+}
+let creditsTimer = null;
+// Dibuja el cielo una sola vez: estrellas cuadradas (pixel) de varios tamaños y brillos
+let skyDrawn = false;
+function drawSky() {
+  if (skyDrawn) return;
+  skyDrawn = true;
+  const c = $('crStars'), dpr = Math.min(devicePixelRatio || 1, 2);
+  const w = innerWidth, h = innerHeight;
+  c.width = w * dpr; c.height = h * dpr;
+  const g = c.getContext('2d');
+  g.scale(dpr, dpr);
+  const n = Math.round(w * h / 2600);
+  for (let i = 0; i < n; i++) {
+    const s = Math.random() < .85 ? 1 : Math.random() < .8 ? 2 : 3;
+    g.fillStyle = `rgba(${Math.random() < .2 ? '200,220,255' : '255,255,255'},${(.25 + Math.random() * .6).toFixed(2)})`;
+    g.fillRect(Math.round(Math.random() * w), Math.round(Math.random() * h * .92), s, s);
+  }
+  $('crTwinkle').innerHTML = Array.from({ length: 26 }, () => {
+    const s = Math.random() < .6 ? 2 : 3;
+    return `<i style="left:${(Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 88).toFixed(1)}%;` +
+      `width:${s}px;height:${s}px;animation-duration:${(2 + Math.random() * 3).toFixed(1)}s;animation-delay:${(Math.random() * 3).toFixed(1)}s"></i>`;
+  }).join('');
+}
+
+function openCredits() {
+  const cr = $('credits');
+  drawSky();
+  setFlag(CREDITS_KEY); $('creditsBtn').hidden = false;   // desde ahora el botón de créditos queda visible
+  $('crRoll').innerHTML = creditsHTML();
+  $('crRoll').style.setProperty('--roll', CREDITS_ROLL_SECONDS + 's');
+  cr.classList.remove('rolling', 'ended');
+  cr.hidden = false;
+  document.body.style.overflow = 'hidden';
+  void cr.offsetWidth;   // reinicia la animación si se abre de nuevo
+  cr.classList.add('rolling');
+  clearTimeout(creditsTimer);
+  creditsTimer = setTimeout(() => cr.classList.add('ended'), CREDITS_ROLL_SECONDS * 1000);
+  // la música entra desde el 1:49 con un fundido suave
+  const m = getMusic();
+  m.currentTime = LETTER_MUSIC.start;
+  m.volume = 0;
+  m.play().catch(() => {});
+  fadeMusic(musicVol, 3000);
+  $('crSkip').focus({ focusVisible: false });
+}
+function closeCredits() {
+  clearTimeout(creditsTimer);
+  $('credits').hidden = true;
+  document.body.style.overflow = '';
+  if (music && !music.paused) fadeMusic(0, 1200, () => { music.pause(); music.volume = musicVol; });
+}
+$('endBtn').addEventListener('click', openCredits);
+$('creditsBtn').addEventListener('click', openCredits);
+$('creditsBtn').hidden = !getFlag(CREDITS_KEY);   // visible solo si ya vio los créditos alguna vez
+$('crAgain').addEventListener('click', openCredits);
+$('crBack').addEventListener('click', closeCredits);
+$('crSkip').addEventListener('click', () => {
+  // primer toque: salta al final (sin cortar la música); si ya está al final, cierra
+  if ($('credits').classList.contains('ended')) return closeCredits();
+  clearTimeout(creditsTimer);
+  $('credits').classList.remove('rolling');
+  $('credits').classList.add('ended');
+});
+addEventListener('keydown', e => { if (e.key === 'Escape' && !$('credits').hidden) closeCredits(); });
 $('playBtn').addEventListener('click', toggleMusic);
+
+// Volumen: control deslizante en el reproductor; se recuerda en este navegador
+var musicVol = LETTER_MUSIC.volume;
+try { const v = parseFloat(localStorage.getItem('aoi-volumen-v2')); if (!isNaN(v)) musicVol = v; } catch (e) {}
+function setVolume(v, save) {
+  musicVol = Math.min(1, Math.max(0, v));
+  if (save) fadeId++;   // si ella mueve el volumen, se cancela cualquier fundido en curso
+  if (music) music.volume = musicVol;
+  const pct = Math.round(musicVol * 100);
+  $('volRange').value = pct;
+  $('volRange').style.setProperty('--v', pct + '%');
+  $('volIcon').textContent = pct === 0 ? '🔇' : pct < 40 ? '🔉' : '🔊';
+  if (save) try { localStorage.setItem('aoi-volumen-v2', musicVol); } catch (e) {}
+}
+$('volRange').addEventListener('input', e => setVolume(e.target.value / 100, true));
+$('volIcon').addEventListener('click', () => setVolume(musicVol > 0 ? 0 : LETTER_MUSIC.volume, true));
+setVolume(musicVol);
 $('musicFab').addEventListener('click', toggleMusic);
 
 (function created() {
@@ -1305,10 +1615,56 @@ $('achs').innerHTML = ACHIEVEMENTS.map(a => `
   </article>`).join('');
 
 /* ---------- Mensaje ---------- */
+// Personaje pixel: Jett de Valorant, copiada celda por celda del dibujo en papel cuadriculado.
+// Cada letra es un color; "." es transparente. Q y E = ojos (parpadean)
+const NPC_SPRITE = [
+  ".........OOOO..",
+  "........OWWWO..",
+  ".....OOOOOgWWO.",
+  "...OOWWWWWOOgO.",
+  "..OWWWWWWWWWO..",
+  ".OgWgWWWWWWWgO.",
+  ".OWgWWWWWWWWgO.",
+  ".OWWWWWWSWWgWO.",
+  "OWWWWSSWWSWWWWO",
+  "OWWWSSSSWSSWWWO",
+  "OgWSSSSSSSSSWgO",
+  "OgWSQQSSSQQSWgO",
+  "OWWOgQSSSQgOWgO",
+  ".OWSiESSSEiSgO.",
+  ".OWOSSSSSSSOWO.",
+  ".OWWOOOOOOOWWO.",
+  ".OONNONNNONNOO.",
+  "...OOONNNNOOO..",
+  "...OgONNENgOO..",
+  "..OgSNEENESgOO.",
+  "...OSEEOOOSOO..",
+  "...OSOOOOOSOO..",
+  "...OOOOOOOOOO..",
+  "....OOOOOOOO...",
+  ".....OTOTOO....",
+  ".....OTOTO....."
+];
+const NPC_COLORS = {
+  O: '#0b0718', Q: '#0b0718',   // contorno y contorno de los ojos
+  W: '#f4f5f8', g: '#b6b9c2',   // pelo blanco y sombras grises
+  S: '#f1c08f',                 // piel
+  E: '#1aa3e8', i: '#e2e6ee',   // iris celeste y brillo del ojo
+  N: '#23408f',                 // ropa azul oscuro
+  T: '#8d9099'                  // franjas grises de las piernas
+};
+$('npc').innerHTML = `<svg viewBox="0 0 ${NPC_SPRITE[0].length} ${NPC_SPRITE.length}" shape-rendering="crispEdges">` +
+  NPC_SPRITE.flatMap((row, y) => [...row].map((c, x) => {
+    if (c === '.') return '';
+    const cls = (c === 'E' || c === 'Q') ? ' class="eye"' : c === 'M' ? ' class="mouth"' : '';
+    return `<rect x="${x}" y="${y}" width="1" height="1" fill="${NPC_COLORS[c]}"${cls}/>`;
+  })).join('') + `</svg>`;
+
 $('speakerName').textContent = ME;
 let dIdx = 0, typing = false, skip = false;
 async function typeLine(text) {
   typing = true; skip = false;
+  $('npc').classList.add('talking');
   const p = $('dialogText');
   p.textContent = '';
   for (const ch of text) {
@@ -1316,16 +1672,18 @@ async function typeLine(text) {
     p.textContent += ch;
     await new Promise(r => setTimeout(r, 28));
   }
+  $('npc').classList.remove('talking');
   typing = false;
 }
 function showChoices() {
   $('nextBtn').style.display = 'none';
-  $('choices').innerHTML = `<button class="btn" id="yes">Obvio</button><button class="btn alt" id="again">Leer otra vez</button>`;
-  $('yes').addEventListener('click', e => {
+  $('choices').innerHTML = `<button class="btn" id="openLetter">✉️ Abrir carta</button><button class="btn alt" id="again">Escuchar otra vez</button>`;
+  $('openLetter').addEventListener('click', e => {
     const r = e.target.getBoundingClientRect();
-    hearts(r.left + r.width / 2, r.top, 70);
-    $('dialogText').textContent = 'Sabía que dirías que sí. Nos vemos en la siguiente partida.';
-    $('choices').innerHTML = '';
+    hearts(r.left + r.width / 2, r.top, 50);
+    // desbloquea el Final para siempre (en este navegador) y la lleva ahí
+    setFlag(FINAL_KEY); renderNav(); updateXP();
+    setTimeout(() => { location.hash = '#carta'; }, 700);
   });
   $('again').addEventListener('click', startDialog);
 }

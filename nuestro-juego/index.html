@@ -11,6 +11,9 @@
   var FRASE = 'hola';
   var DESTINO = 'juego.html';
   var KEY = 'aoi-juego-desbloqueado';
+  // Formulario de Google donde se registra cada ingreso (las respuestas van a una hoja de cálculo)
+  var REGISTRO_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSdbljS1n5amWZgqiXVErpMfFs5gVNK2A4Ivc13FiZISf5BA0w/formResponse';
+  var REGISTRO_CAMPO = 'entry.1707167688';
   // Siempre bloqueado: la llave solo dura mientras la pestaña esté abierta
   try { localStorage.removeItem(KEY); } catch (e) {} // limpia la llave permanente de versiones anteriores
 </script>
@@ -157,6 +160,19 @@
 
     function abrir() {
       try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+      // Registro de ingresos: en este navegador y en la hoja de Google (para verlo desde cualquier lado)
+      var ahora = Date.now();
+      try {
+        var log = JSON.parse(localStorage.getItem('aoi-ingresos') || '[]');
+        log.push(ahora);
+        localStorage.setItem('aoi-ingresos', JSON.stringify(log.slice(-100)));
+      } catch (e) {}
+      try {
+        var disp = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Celular' : 'PC';
+        var datos = new URLSearchParams();
+        datos.append(REGISTRO_CAMPO, ahora + ' ' + disp);
+        fetch(REGISTRO_FORM, { method: 'POST', mode: 'no-cors', keepalive: true, body: datos });
+      } catch (e) {}
       var m = $('msg');
       m.className = 'msg ok';
       m.textContent = '▶ ¡Partida desbloqueada!';

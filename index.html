@@ -6,7 +6,7 @@
 <title>Regalos para Aoi 🎁</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Pixelify+Sans:wght@500;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-1: #fff6ee;
@@ -163,6 +163,55 @@
     opacity: 0; transition: opacity .7s ease;
   }
   .curtain.show { opacity: 1; }
+  .curtain.game { background: radial-gradient(circle, #2f2257 0%, #17112b 70%); }
+
+  /* ---------- Regalo final: cartucho ---------- */
+  .bonus {
+    margin-top: clamp(44px, 8vh, 76px);
+    display: flex; flex-direction: column; align-items: center;
+    text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent;
+    animation: fadeUp .9s ease 1.7s both;
+  }
+  .cart {
+    position: relative; display: block;
+    width: clamp(118px, 26vw, 150px); aspect-ratio: 5 / 6;
+    background: #2f2257; border: 4px solid #0b0718; border-radius: 6px 6px 3px 3px;
+    box-shadow: 6px 6px 0 rgba(11,7,24,.3);
+    animation: float 3s ease-in-out infinite, glow 3s ease-in-out infinite;
+    transition: transform .25s;
+  }
+  .cart::before {          /* estrías de agarre */
+    content: ""; position: absolute; left: 14%; right: 14%; top: 7%; height: 12%;
+    background: repeating-linear-gradient(180deg, #4d3b8c 0 3px, transparent 3px 6px);
+  }
+  .cart-label {
+    position: absolute; left: 11%; right: 11%; top: 25%; bottom: 23%;
+    display: grid; place-content: center; gap: 2px;
+    background: linear-gradient(160deg, #ff5f9e, #ffd452);
+    border: 3px solid #0b0718;
+    font-family: 'Pixelify Sans', monospace; color: #0b0718; line-height: 1.05;
+  }
+  .cart-label b { font-weight: 700; font-size: clamp(1.05rem, 3.8vw, 1.3rem); }
+  .cart-label small { font-weight: 500; font-size: .68rem; }
+  .cart-pins {
+    position: absolute; left: 20%; right: 20%; bottom: 5%; height: 11%;
+    background: repeating-linear-gradient(90deg, #ffd452 0 5px, transparent 5px 9px);
+  }
+  .bonus-tag {
+    margin-top: 16px; font-family: 'Pixelify Sans', monospace; font-weight: 700;
+    font-size: 1.1rem; letter-spacing: .04em; color: var(--rose);
+  }
+  .bonus:hover .cart, .bonus:focus-visible .cart { transform: translateY(-8px) rotate(-3deg); }
+  .bonus:focus-visible { outline: none; }
+  .bonus:focus-visible .cart { outline: 3px solid var(--rose); outline-offset: 4px; }
+  @keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+  @keyframes glow {
+    0%, 100% { box-shadow: 6px 6px 0 rgba(11,7,24,.3), 0 0 0 rgba(255,95,158,0); }
+    50% { box-shadow: 6px 6px 0 rgba(11,7,24,.3), 0 0 32px rgba(255,95,158,.55); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cart { animation: none; }
+  }
 
   .foot { margin-top: clamp(36px, 7vh, 64px); font-size: .98rem; color: rgba(155,77,104,.75); animation: fadeUp 1s ease 1.8s both; }
 
@@ -182,6 +231,14 @@
   <div class="gifts" id="gifts"></div>
 
   <p class="foot">Cuando termines uno, puedes volver y abrir otro.</p>
+
+  <a class="bonus" id="bonus" href="nuestro-juego/index.html"aria-label="Regalo final: nuestro juego">
+    <span class="cart" aria-hidden="true">
+      <span class="cart-label"><b>Aoi &amp; yo</b><small>partida guardada</small></span>
+      <span class="cart-pins"></span>
+    </span>
+    <span class="bonus-tag" id="bonusTag">★ Regalo final ★</span>
+  </a>
 </main>
 
 <div class="curtain" id="curtain"></div>
@@ -239,11 +296,32 @@ wrap.addEventListener('click', e => {
   setTimeout(() => { markOpened(g.href); location.href = g.href; }, 2100);
 });
 
+// Regalo final: cartucho que lleva al juego
+const bonus = document.getElementById('bonus');
+bonus.addEventListener('click', e => {
+  e.preventDefault();
+  if (busy) return;
+  busy = true;
+  const r = bonus.querySelector('.cart').getBoundingClientRect();
+  sparkle(r.left + r.width / 2, r.top + r.height / 2, 60);
+  const curtain = document.getElementById('curtain');
+  curtain.classList.add('game');
+  setTimeout(() => curtain.classList.add('show'), 600);
+  setTimeout(() => { markOpened(bonus.getAttribute('href')); location.href = bonus.href; }, 1300);
+});
+function renderBonus() {
+  document.getElementById('bonusTag').textContent =
+    getOpened().includes(bonus.getAttribute('href')) ? '✓ Regalo final' : '★ Regalo final ★';
+}
+renderBonus();
+
 // si vuelve con el botón "atrás", dejar todo como nuevo
 addEventListener('pageshow', () => {
   busy = false;
-  document.getElementById('curtain').classList.remove('show');
+  const curtain = document.getElementById('curtain');
+  curtain.classList.remove('show', 'game');
   render();
+  renderBonus();
 });
 
 /* ================= Fondo: guirnaldas de luces, bokeh y confeti ================= */

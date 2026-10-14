@@ -11,8 +11,8 @@
   var FRASE = 'hola';
   var DESTINO = 'juego.html';
   var KEY = 'aoi-juego-desbloqueado';
-  // Si ya la desbloqueó antes en este dispositivo, directo al juego
-  try { if (localStorage.getItem(KEY) === '1') location.replace(DESTINO); } catch (e) {}
+  // Siempre bloqueado: la llave solo dura mientras la pestaña esté abierta
+  try { localStorage.removeItem(KEY); } catch (e) {} // limpia la llave permanente de versiones anteriores
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +66,18 @@
   .blink { font-family: 'Pixelify Sans'; color: var(--ink); animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
 
+  .back {
+    position: fixed; top: 14px; left: 14px; z-index: 5;
+    padding: 4px 10px; text-decoration: none;
+    font-family: 'Pixelify Sans'; font-size: .95rem; color: var(--muted);
+    background: var(--panel-2); border: 2px solid var(--line);
+    box-shadow: 3px 3px 0 var(--shadow);
+    transition: transform .08s, box-shadow .08s, color .15s;
+  }
+  .back:hover { color: var(--ink); border-color: var(--pink); }
+  .back:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--shadow); }
+  @media (max-width: 520px) { body { padding-top: 64px; } }
+
   /* ---------- Frase secreta ---------- */
   [hidden] { display: none !important; }
   .pass { margin-top: 22px; }
@@ -106,6 +118,8 @@
 </head>
 <body>
 
+<a class="back" href="../index.html" aria-label="Volver a los regalos">◀ Regalos</a>
+
 <main class="lock-card box" id="card">
   <p class="pre">Partida guardada · bloqueada</p>
   <h1>Todavía no, Aoi</h1>
@@ -142,7 +156,7 @@
     var objetivo = norm(FRASE);
 
     function abrir() {
-      try { localStorage.setItem(KEY, '1'); } catch (e) {}
+      try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
       var m = $('msg');
       m.className = 'msg ok';
       m.textContent = '▶ ¡Partida desbloqueada!';

@@ -856,9 +856,12 @@ const REGISTRO_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT90scmNuf
         const m = ingreso.match(/(\d{12,})\s+(\w+)/);   // "1760490180000 Celular"
         return { t, orig: m ? +m[1] : null, d: m ? m[2] : null };
       }).filter(Boolean);
-      // Ingresos de este navegador que la hoja todavía no muestra (Google tarda ~5 min)
+      // Ingresos recientes de este navegador que la hoja todavía no muestra (Google tarda ~5 min).
+      // Los más viejos ya no se agregan: si no están en la hoja es porque se borraron.
       const enHoja = new Set(remote.map(r => r.orig));
-      render([...remote, ...local.filter(l => !enHoja.has(l.orig))]);
+      const pendientes = local.filter(l => !enHoja.has(l.orig) && Date.now() - l.orig < 15 * 60 * 1000);
+      if (remote.length || pendientes.length) render([...remote, ...pendientes]);
+      else $('loadLog').hidden = true;
     })
     .catch(() => {});
 })();

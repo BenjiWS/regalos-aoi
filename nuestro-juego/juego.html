@@ -360,15 +360,29 @@
 
   /* ---------- Carta ---------- */
   .letter-wrap { max-width: 760px; display: grid; gap: 22px; }
-  .radio { padding: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
-  .radio-head { flex: 1 1 200px; display: flex; align-items: center; gap: 10px; font-family: 'Pixelify Sans'; color: var(--mint); }
+  .radio { padding: 12px 14px; display: flex; align-items: center; gap: 14px; }
+  .radio-head { flex: 1; display: flex; align-items: center; gap: 10px; font-family: 'Pixelify Sans'; color: var(--mint); }
+  .play-btn {
+    flex-shrink: 0; width: 44px; height: 44px; cursor: pointer;
+    font-size: 1.1rem; color: var(--shadow); background: var(--gold);
+    border: 3px solid var(--shadow); box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .play-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--shadow); }
   .eq { display: inline-flex; align-items: flex-end; gap: 3px; height: 16px; }
-  .eq i { width: 4px; background: var(--pink); animation: eq 1s steps(4) infinite alternate; }
-  .eq i:nth-child(1) { height: 40%; } .eq i:nth-child(2) { height: 90%; animation-delay: .2s; }
-  .eq i:nth-child(3) { height: 60%; animation-delay: .4s; } .eq i:nth-child(4) { height: 80%; animation-delay: .1s; }
+  .eq i { width: 4px; height: 25%; background: var(--pink); }
+  .playing .eq i { animation: eq 1s steps(4) infinite alternate; }
+  .playing .eq i:nth-child(1) { height: 40%; } .playing .eq i:nth-child(2) { height: 90%; animation-delay: .2s; }
+  .playing .eq i:nth-child(3) { height: 60%; animation-delay: .4s; } .playing .eq i:nth-child(4) { height: 80%; animation-delay: .1s; }
   @keyframes eq { to { height: 20%; } }
-  .radio-screen { flex: 0 1 300px; aspect-ratio: 16 / 9; background: var(--shadow); border: 3px solid var(--line); }
-  .radio-screen iframe { display: block; width: 100%; height: 100%; border: 0; }
+  /* mini reproductor flotante: para pausar la música desde cualquier sección */
+  .music-fab {
+    position: fixed; left: 16px; bottom: 16px; z-index: 40;
+    display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; cursor: pointer;
+    font-family: 'Pixelify Sans'; font-size: .95rem; color: var(--ink);
+    background: var(--panel); border: 3px solid var(--line); box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .music-fab .play-btn { width: 34px; height: 34px; font-size: .9rem; box-shadow: none; pointer-events: none; }
+  .music-fab[hidden], .music-fab.here { display: none; }
   .letter {
     padding: clamp(22px, 5vw, 44px);
     background: #fff3e6; color: #3a2a4d;
@@ -376,6 +390,18 @@
   }
   .letter h2 { font-family: 'Pixelify Sans'; font-size: clamp(1.5rem, 4.5vw, 2rem); line-height: 1.15; color: #c2306e; margin-bottom: 18px; }
   .letter p { font-size: 1.05rem; line-height: 1.75; margin-bottom: 16px; }
+  .letter .lp:not([hidden]) { animation: lpIn .6s ease both; }
+  @keyframes lpIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .letter .more {
+    display: block; margin: 8px auto 0; cursor: pointer;
+    font-family: 'Pixelify Sans'; font-size: 1.1rem; color: #c2306e;
+    background: none; border: 2px dashed rgba(194,48,110,.5); padding: 8px 18px;
+    animation: moreBob 1.4s ease-in-out infinite;
+  }
+  .letter .more:hover { background: rgba(194,48,110,.08); }
+  .letter .more small { font-size: .85rem; opacity: .7; margin-left: 6px; }
+  .letter .more[hidden] { display: none; }
+  @keyframes moreBob { 50% { transform: translateY(3px); } }
   .letter .sign { text-align: right; font-family: 'Pixelify Sans'; font-size: 1.3rem; color: #c2306e; margin: 24px 0 0; }
   .speaker { display: flex; align-items: flex-end; gap: 16px; }
   .portrait { width: 110px; height: 110px; flex: none; display: grid; place-items: center; font-size: 3.6rem; background: var(--panel-2); border: 3px solid var(--sky); box-shadow: 5px 5px 0 var(--shadow); }
@@ -625,9 +651,9 @@
       <p>Léela con calma. Si la música no empieza sola, dale play.</p>
     </div>
     <div class="letter-wrap">
-      <div class="radio box">
+      <div class="radio box" id="radio">
+        <button class="play-btn" id="playBtn" type="button" aria-label="Reproducir música">▶</button>
         <div class="radio-head"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cottonwood · instrumental</div>
-        <div class="radio-screen" id="radioScreen"></div>
       </div>
       <article class="letter" id="letter"></article>
     </div>
@@ -636,6 +662,8 @@
 </main>
 
 <footer>Hecho a mano para Aoi. Partida guardada automáticamente<span id="footDate"></span>.</footer>
+
+<button class="music-fab" id="musicFab" type="button" aria-label="Pausar o reproducir la música" hidden><span class="play-btn" aria-hidden="true">▶</span><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cottonwood</button>
 
 <div class="toast" id="toast" role="status"><div class="ti">🗺️</div><div><b id="toastTitle"></b><span id="toastText"></span></div></div>
 <dialog class="hint-modal" id="hintModal" aria-labelledby="hintTitle">
@@ -774,7 +802,7 @@ const DIALOG = [
 /* ===================================================================== */
 
 // Carta: canción de fondo (YouTube) y texto, un elemento por párrafo
-const LETTER_VIDEO = { id: "iQRR7_qvsxc", start: 109 };   // Cottonwood (instrumental), desde el 1:49
+const LETTER_MUSIC = { src: "cottonwood.mp3", start: 109 };   // Cottonwood (instrumental), desde el 1:49
 const LETTER_TITLE = "Lo mucho que significas para mí";
 const LETTER = [
   "A veces siento que las palabras se quedan pequeñas cuando intento explicar lo mucho que alguien puede llegar a significar. Y contigo me pasa eso. No sé si alguna vez he logrado hacerte entender todo el cariño que te tengo, pero hay algo que sí quiero que quede escrito: eres una persona muy especial para mí.",
@@ -847,6 +875,7 @@ function route() {
   if (current) current.scrollIntoView({ block: 'nearest', inline: 'center' });
   window.scrollTo(0, 0);
   if (view.id === 'carta') loadRadio();
+  $('musicFab').classList.toggle('here', view.id === 'carta');   // en la carta ya está el reproductor grande
 
   if (!seen.has(view.id)) {
     seen.add(view.id); saveSeen(seen);
@@ -924,14 +953,57 @@ const REGISTRO_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT90scmNuf
     .catch(() => {});
 })();
 /* ---------- Carta ---------- */
+// Se muestra por partes: un párrafo más con cada toque de "Seguir leyendo"
 $('letter').innerHTML =
-  `<h2>${LETTER_TITLE}</h2>` + LETTER.map(p => `<p>${p}</p>`).join('') + `<p class="sign">— ${ME}</p>`;
-// El reproductor se carga la primera vez que abre la carta (no antes, para no gastar datos)
-function loadRadio() {
-  if ($('radioScreen').firstChild) return;
-  $('radioScreen').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${LETTER_VIDEO.id}?start=${LETTER_VIDEO.start}&autoplay=1&rel=0&modestbranding=1&playsinline=1"
-    title="Cottonwood (instrumental)" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  `<h2>${LETTER_TITLE}</h2>` + LETTER.map(p => `<p class="lp" hidden>${p}</p>`).join('') +
+  `<p class="sign lp" hidden>— ${ME}</p>` +
+  `<button class="more" id="moreBtn" type="button">▼ Seguir leyendo <small id="moreCount"></small></button>`;
+let letterShown = 0;
+function showNextParagraph() {
+  const parts = $('letter').querySelectorAll('.lp');
+  const p = parts[letterShown];
+  if (!p) return;
+  p.hidden = false;
+  letterShown++;
+  if (letterShown === LETTER.length) { parts[letterShown].hidden = false; letterShown++; } // último párrafo: aparece la firma
+  const left = LETTER.length - Math.min(letterShown, LETTER.length);
+  $('moreBtn').hidden = left === 0;
+  $('moreCount').textContent = `${Math.min(letterShown, LETTER.length)}/${LETTER.length}`;
+  if (letterShown > 1) $('moreBtn').scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
+$('moreBtn').addEventListener('click', showNextParagraph);
+showNextParagraph();
+/* ---------- Música de fondo ----------
+   Se carga la primera vez que abre la carta (no antes, para no gastar datos), empieza en
+   LETTER_MUSIC.start y al terminar vuelve a ese punto. Sigue sonando aunque cambie de sección. */
+var music = null;   // var (no let): show() puede llamar a loadRadio() antes de llegar a esta línea
+function setPlaying(on) {
+  [$('radio'), $('musicFab')].forEach(el => el.classList.toggle('playing', on));
+  $('playBtn').textContent = on ? '❚❚' : '▶';
+  $('musicFab').querySelector('.play-btn').textContent = on ? '❚❚' : '▶';
+  $('playBtn').setAttribute('aria-label', on ? 'Pausar música' : 'Reproducir música');
+  if (on) $('musicFab').hidden = false;
+}
+function getMusic() {
+  if (music) return music;
+  music = new Audio(LETTER_MUSIC.src + "#t=" + LETTER_MUSIC.start);   // #t= hace que empiece directo en ese segundo
+  music.preload = 'auto';
+  music.addEventListener('loadedmetadata', () => { if (music.currentTime < LETTER_MUSIC.start) music.currentTime = LETTER_MUSIC.start; }, { once: true });
+  music.addEventListener('ended', () => { music.currentTime = LETTER_MUSIC.start; music.play().catch(() => {}); });
+  music.addEventListener('play', () => setPlaying(true));
+  music.addEventListener('pause', () => setPlaying(false));
+  return music;
+}
+function toggleMusic() {
+  const m = getMusic();
+  if (m.paused) m.play().catch(() => {}); else m.pause();
+}
+function loadRadio() {
+  if (music) return;   // ya cargada: no la reinicia al volver a la carta
+  getMusic().play().catch(() => {});   // si el navegador bloquea el inicio automático, queda el botón ▶
+}
+$('playBtn').addEventListener('click', toggleMusic);
+$('musicFab').addEventListener('click', toggleMusic);
 
 (function created() {
   const c = new Date(CREATED_DATE + 'T00:00:00');

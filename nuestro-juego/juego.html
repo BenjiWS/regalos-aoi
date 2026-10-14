@@ -859,7 +859,9 @@ const REGISTRO_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT90scmNuf
       // Ingresos recientes de este navegador que la hoja todavía no muestra (Google tarda ~5 min).
       // Los más viejos ya no se agregan: si no están en la hoja es porque se borraron.
       const enHoja = new Set(remote.map(r => r.orig));
-      const pendientes = local.filter(l => !enHoja.has(l.orig) && Date.now() - l.orig < 15 * 60 * 1000);
+      // Pendiente = no está en la hoja, es de los últimos 15 min y es más nuevo que todo lo que ya llegó a la hoja
+      const ultimoEnHoja = Math.max(0, ...remote.map(r => r.orig || 0));
+      const pendientes = local.filter(l => !enHoja.has(l.orig) && l.orig > ultimoEnHoja && Date.now() - l.orig < 15 * 60 * 1000);
       if (remote.length || pendientes.length) render([...remote, ...pendientes]);
       else $('loadLog').hidden = true;
     })

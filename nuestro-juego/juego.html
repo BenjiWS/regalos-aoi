@@ -619,11 +619,11 @@
   .scene { padding: 12px; margin-bottom: 26px; }
   .scene svg { display: block; width: 100%; height: auto; max-height: 460px; }
   .scene .it { cursor: pointer; transition: filter .2s; outline: none; }
-  .scene .it.pending { filter: grayscale(1) contrast(.75); opacity: .45; }
+  .scene .it.pending { opacity: .5; }
   .scene .it:hover, .scene .it:focus-visible { filter: brightness(1.25) drop-shadow(0 0 1.2px var(--gold)); }
-  .scene .it.pending:hover, .scene .it.pending:focus-visible { filter: grayscale(1) contrast(.75) drop-shadow(0 0 1.2px var(--gold)); opacity: .8; }
+  .scene .it.pending:hover, .scene .it.pending:focus-visible { filter: drop-shadow(0 0 1.2px var(--gold)); opacity: .8; }
   .scene .it.sel { filter: drop-shadow(0 0 .8px var(--gold)) drop-shadow(0 0 .8px var(--gold)); }
-  .scene .it.pending.sel { filter: grayscale(1) contrast(.75) drop-shadow(0 0 .8px var(--gold)) drop-shadow(0 0 .8px var(--gold)); opacity: .85; }
+  .scene .it.pending.sel { filter: drop-shadow(0 0 .8px var(--gold)) drop-shadow(0 0 .8px var(--gold)); opacity: .85; }
   .scene .badge { pointer-events: none; font-family: 'Pixelify Sans', monospace; font-size: 5px; font-weight: 700; }
   .scene-hint { margin-top: 8px; text-align: center; color: var(--muted); font-size: .9rem; }
   .item-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
@@ -1171,7 +1171,7 @@
     </div>
     <div class="scene box">
       <svg id="setupSvg" viewBox="0 0 160 100" shape-rendering="crispEdges" role="group" aria-label="Setup: toca cada parte"></svg>
-      <p class="scene-hint">✓ conseguido · ? pendiente · toca cualquier parte</p>
+      <p class="scene-hint">✓ conseguido · + a medias · … en camino · ? pendiente · toca cualquier parte</p>
     </div>
     <div class="pc">
       <div class="case box" id="itemCard" aria-live="polite"></div>
@@ -2212,15 +2212,15 @@ $('projects').innerHTML = PROJECTS.map(p => `<li><b>${p.name}${ej(p)}</b><span>$
 // Cada parte es un grupo que se puede tocar. [x, y, ancho, alto, color]; los primeros rectángulos son contornos suaves
 const OL = '#9fb2c8';   // contorno
 const SETUP_ART = {
-  desk: { badge: [126, 70], r: [[17,59,126,6,OL],[18,60,124,3,'#e9cfa6'],[18,63,124,2,'#d4b083'],[21,65,6,24,OL],[133,65,6,24,OL],[22,65,4,23,'#f3f6f9'],[134,65,4,23,'#f3f6f9'],[105,65,28,12,OL],[106,65,26,11,'#f7f9fb'],[116,70,6,1,'#9fd3ff']] },
-  monitor: { badge: [99, 23], r: [[49,19,54,33,OL],[50,20,52,31,'#fbfcfd'],[53,23,46,25,'#111018'],[53,23,46,2,'#1d1b26'],[54,23,2,2,'#eb0029'],[90,23.5,8,1,'#3a3848'],[53,25,9,23,'#18161f'],[55,27,5,5,'#ff4655'],[55,34,5,5,'#c8aa6e'],[55,41,5,5,'#3a3848'],[54,27,1,5,'#fff3e6'],[63,26,35,14,'#3b1220'],[63,26,35,2,'#ff4655'],[86,28,10,12,'#5a1a2c'],[89,30,4,8,'#ff4655'],[66,30,14,2,'#fff3e6'],[66,33,10,1,'#d9b6c0'],[66,35,12,1,'#d9b6c0'],[63,42,17,5,'#eb0029'],[66,44,11,1,'#fff3e6'],[82,42,16,5,'#1d1b26'],[84,44,8,1,'#5a5870'],[73,51,6,8,OL],[74,51,4,7,'#fbfcfd'],[67,57,18,3,OL],[68,58,16,2,'#fbfcfd']] },
-  pc: { badge: [127, 31], r: [[105,29,24,32,OL],[106,30,22,30,'#fdfeff'],[108,32,18,26,'#eef3f9'],[111,34,6,6,'#9fd3ff'],[113,36,2,2,'#e3f3ff'],[118,34,6,6,'#9be7d0'],[120,36,2,2,'#e2fbf3'],[110,45,15,4,'#cbbdf7'],[110,45,15,1,'#e6defc'],[110,51,15,5,'#e6ebf1'],[124,33,1,2,'#9be7d0'],[107,60,3,1,OL],[124,60,3,1,OL]] },
-  keyboard: { badge: [50, 53], r: [[43,55,28,5,OL],[44,56,26,4,'#ffffff'],[45,57,24,1,'#eef2f6'],[45,58,24,1,'#e3e9ef'],[46,57,2,1,'#9fd3ff'],[66,58,3,1,'#9be7d0']] },
-  mousepad: { badge: [84, 55], r: [[79,57,26,3,OL],[80,58,24,2,'#cbbdf7'],[80,58,24,1,'#ddd5fa']] },
-  mouse: { badge: [97, 51], r: [[90,54,8,4,OL],[91,55,6,3,'#ffffff'],[93,55,2,1,'#9fd3ff']] },
-  tablet: { badge: [41, 53], r: [[21,56,22,4,OL],[22,57,20,3,'#3a3550'],[24,57,14,2,'#5a5570'],[39,54,1,5,'#ffffff']] },
-  headset: { badge: [39, 40], r: [[29,45,4,12,OL],[30,46,2,10,'#f3f6f9'],[26,55,10,2,OL],[27,56,8,1,'#f3f6f9'],[25,40,14,4,OL],[26,41,12,2,'#ffffff'],[25,43,2,6,'#ffffff'],[37,43,2,6,'#ffffff'],[23,46,6,8,OL],[35,46,6,8,OL],[24,47,4,6,'#bfe0ff'],[36,47,4,6,'#bfe0ff']] },
-  chair: { badge: [156, 44], r: [[141,44,18,28,OL],[144,45,12,4,'#ffffff'],[142,49,16,22,'#ffffff'],[148,50,4,20,'#9fd3ff'],[145,53,10,5,'#e9f4ff'],[137,69,24,7,OL],[138,70,22,5,'#f7f9fb'],[138,66,3,5,'#e3e9ef'],[157,66,3,5,'#e3e9ef'],[147,75,6,10,'#d6dbe2'],[139,85,22,2,'#d6dbe2'],[139,87,2,2,'#aeb6c2'],[149,87,2,2,'#aeb6c2'],[159,87,2,2,'#aeb6c2']] }
+  desk: { badge: [124, 67], r: [[17,59,126,6,OL],[18,60,124,3,'#e9cfa6'],[18,63,124,2,'#d4b083'],[21,65,6,24,OL],[133,65,6,24,OL],[22,65,4,23,'#f3f6f9'],[134,65,4,23,'#f3f6f9'],[105,65,28,12,OL],[106,65,26,11,'#f7f9fb'],[116,70,6,1,'#9fd3ff']] },
+  monitor: { badge: [96, 16], r: [[49,19,54,33,OL],[50,20,52,31,'#fbfcfd'],[53,23,46,25,'#111018'],[53,23,46,2,'#1d1b26'],[54,23,2,2,'#eb0029'],[90,23.5,8,1,'#3a3848'],[53,25,9,23,'#18161f'],[55,27,5,5,'#ff4655'],[55,34,5,5,'#c8aa6e'],[55,41,5,5,'#3a3848'],[54,27,1,5,'#fff3e6'],[63,26,35,14,'#3b1220'],[63,26,35,2,'#ff4655'],[86,28,10,12,'#5a1a2c'],[89,30,4,8,'#ff4655'],[66,30,14,2,'#fff3e6'],[66,33,10,1,'#d9b6c0'],[66,35,12,1,'#d9b6c0'],[63,42,17,5,'#eb0029'],[66,44,11,1,'#fff3e6'],[82,42,16,5,'#1d1b26'],[84,44,8,1,'#5a5870'],[73,51,6,8,OL],[74,51,4,7,'#fbfcfd'],[67,57,18,3,OL],[68,58,16,2,'#fbfcfd']] },
+  pc: { badge: [124, 27], r: [[105,29,24,32,OL],[106,30,22,30,'#fdfeff'],[108,32,18,26,'#eef3f9'],[111,34,6,6,'#9fd3ff'],[113,36,2,2,'#e3f3ff'],[118,34,6,6,'#9be7d0'],[120,36,2,2,'#e2fbf3'],[110,45,15,4,'#cbbdf7'],[110,45,15,1,'#e6defc'],[110,51,15,5,'#e6ebf1'],[124,33,1,2,'#9be7d0'],[107,60,3,1,OL],[124,60,3,1,OL]] },
+  keyboard: { badge: [53, 61], r: [[43,55,28,5,OL],[44,56,26,4,'#ffffff'],[45,57,24,1,'#eef2f6'],[45,58,24,1,'#e3e9ef'],[46,57,2,1,'#9fd3ff'],[66,58,3,1,'#9be7d0']] },
+  mousepad: { badge: [82, 61], r: [[79,57,26,3,OL],[80,58,24,2,'#cbbdf7'],[80,58,24,1,'#ddd5fa']] },
+  mouse: { badge: [98, 51], r: [[90,54,8,4,OL],[91,55,6,3,'#ffffff'],[93,55,2,1,'#9fd3ff']] },
+  tablet: { badge: [24, 61], r: [[21,56,22,4,OL],[22,57,20,3,'#3a3550'],[24,57,14,2,'#5a5570'],[39,54,1,5,'#ffffff']] },
+  headset: { badge: [36, 35], r: [[29,45,4,12,OL],[30,46,2,10,'#f3f6f9'],[26,55,10,2,OL],[27,56,8,1,'#f3f6f9'],[25,40,14,4,OL],[26,41,12,2,'#ffffff'],[25,43,2,6,'#ffffff'],[37,43,2,6,'#ffffff'],[23,46,6,8,OL],[35,46,6,8,OL],[24,47,4,6,'#bfe0ff'],[36,47,4,6,'#bfe0ff']] },
+  chair: { badge: [152, 40], r: [[141,44,18,28,OL],[144,45,12,4,'#ffffff'],[142,49,16,22,'#ffffff'],[148,50,4,20,'#9fd3ff'],[145,53,10,5,'#e9f4ff'],[137,69,24,7,OL],[138,70,22,5,'#f7f9fb'],[138,66,3,5,'#e3e9ef'],[157,66,3,5,'#e3e9ef'],[147,75,6,10,'#d6dbe2'],[139,85,22,2,'#d6dbe2'],[139,87,2,2,'#aeb6c2'],[149,87,2,2,'#aeb6c2'],[159,87,2,2,'#aeb6c2']] }
 };
 const pcFrac = () => PC_PARTS.filter(p => p.have).length / PC_PARTS.length;
 const itemFrac = it => it.id === 'pc' ? pcFrac() : it.have ? 1 : 0;
@@ -2231,6 +2231,20 @@ function itemStatus(it) {
     return n === PC_PARTS.length ? '✓ Completado' : `${n} de ${PC_PARTS.length} piezas`;
   }
   return it.have ? '✓ Completado' : it.soon ? 'En camino' : 'Pendiente';
+}
+// Insignias pixel art (7×7) sobre cada parte: ✓ conseguido · + a medio camino · … en camino · ? pendiente
+const BADGE_GLYPH = {
+  ok:   ['....#', '...#.', '#.#..', '.#...', '.....'],
+  prog: ['..#..', '..#..', '#####', '..#..', '..#..'],
+  soon: ['.....', '.....', '#.#.#', '.....', '.....'],
+  no:   ['.###.', '#...#', '..##.', '.....', '..#..']
+};
+const BADGE_COLOR = { ok: ['#5ee6c1', '#14343a'], prog: ['#ffd452', '#4a3410'], soon: ['#ffd452', '#4a3410'], no: ['#cbbdf7', '#3a3550'] };
+function badgeSvg(x, y, st) {
+  const [bg, fg] = BADGE_COLOR[st];
+  let out = `<rect x="${x + 1}" y="${y + 1}" width="7" height="7" fill="rgba(42,51,72,.35)"/><rect x="${x}" y="${y}" width="7" height="7" fill="${bg}"/>`;
+  BADGE_GLYPH[st].forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') out += `<rect x="${x + 1 + i}" y="${y + 1 + j}" width="1" height="1" fill="${fg}"/>`; }));
+  return `<g class="badge">${out}</g>`;
 }
 // Escena: habitación clara (pared, piso de madera, ventana de día, decoración) + cada parte del setup
 const rectsSvg = list => list.map(([x, y, w, h, c]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`).join('');
@@ -2254,8 +2268,7 @@ $('setupSvg').innerHTML = rectsSvg(ROOM) +
     if (!a) return '';
     const st = itemState(it);
     const [bx, by] = a.badge;
-    const badge = st === 'ok' ? `<rect class="badge" x="${bx - 3}" y="${by - 4}" width="6" height="6" fill="#5ee6c1"/><text class="badge" x="${bx}" y="${by + .8}" text-anchor="middle" fill="#0b0508">✓</text>`
-      : `<rect class="badge" x="${bx - 3}" y="${by - 4}" width="6" height="6" fill="${st === 'no' ? '#8a94a6' : '#ffd452'}"/><text class="badge" x="${bx}" y="${by + .8}" text-anchor="middle" fill="${st === 'no' ? '#fff3e6' : '#0b0508'}">${st === 'prog' ? '+' : '?'}</text>`;
+    const badge = badgeSvg(bx, by, st);
     return `<g class="it${st === 'ok' || st === 'prog' ? '' : ' pending'}" data-id="${it.id}" tabindex="0" role="button" aria-label="${it.name}: ${itemStatus(it)}">` +
       a.r.map(([x, y, w, h, c]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`).join('') + `</g>` + badge;
   }).join('');

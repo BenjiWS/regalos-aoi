@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aoi & yo · partida guardada</title>
+<title>Aoi & Benja · partida guardada</title>
 <script>
   // Bloqueo con frase secreta: pon true para volver a pedirla (también en nuestro-juego/index.html)
   var BLOQUEO_ACTIVO = false;
@@ -16,13 +16,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #17112b;
-    --panel: #241944;
-    --panel-2: #2f2257;
-    --line: #4d3b8c;
-    --shadow: #0b0718;
+    --bg: #1a0f14;
+    --panel: #2a161e;
+    --panel-2: #381d29;
+    --line: #6a2a3c;
+    --shadow: #0b0508;
     --ink: #fff3e6;
-    --muted: #b9aee0;
+    --muted: #d9b6c0;
     --pink: #ff5f9e;
     --mint: #5ee6c1;
     --gold: #ffd452;
@@ -56,7 +56,7 @@
   /* ---------- Barra superior ---------- */
   .topbar {
     position: sticky; top: 0; z-index: 30;
-    background: rgba(23,17,43,.97);
+    background: rgba(26,15,20,.97);
     border-bottom: 3px solid var(--line);
   }
   .topbar-inner {
@@ -65,6 +65,7 @@
   }
   .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; font-family: 'Pixelify Sans'; font-weight: 700; font-size: 1.3rem; white-space: nowrap; }
   .logo .heart { color: var(--pink); font-size: 1.4rem; line-height: 1; }
+  .logo .amp { font-size: .86em; color: var(--muted); }
   .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .back {
     display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
@@ -141,10 +142,11 @@
   .savefile b { color: var(--gold); font-weight: 600; }
   .title-screen h1 {
     font-family: 'Pixelify Sans'; font-weight: 700;
-    font-size: clamp(3.6rem, 15vw, 8.5rem); line-height: .95; margin: 8px 0 10px;
+    font-size: clamp(2.6rem, 12vw, 8.5rem);   /* "Aoi & Benja" debe caber en celular */ line-height: .95; margin: 8px 0 10px;
     color: var(--ink);
     text-shadow: 5px 5px 0 var(--pink), 10px 10px 0 var(--shadow);
   }
+  .title-screen h1 .amp { font-size: .68em; vertical-align: .12em; margin: 0 .05em; text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 var(--shadow); }
   .title-screen .sub { font-size: 1.15rem; color: var(--muted); }
   .press {
     margin-top: 22px; font-family: 'Pixelify Sans'; font-size: 1.2rem; color: var(--gold);
@@ -157,17 +159,37 @@
   .player .tag { font-family: 'Pixelify Sans'; font-size: 1rem; color: var(--muted); }
   .player h2 { font-family: 'Pixelify Sans'; font-size: 2.4rem; line-height: 1; margin: 2px 0 4px; }
   .player .cls { color: var(--mint); font-weight: 500; }
-  .player.p1 { border-color: var(--pink); }
-  .player.p1 h2 { color: var(--pink); }
+  .player.p1 { border-color: var(--mint); }
+  .player.p1 h2 { color: var(--mint); }
   .player.p2 { border-color: var(--sky); }
   .player.p2 h2 { color: var(--sky); }
   .stat { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 10px; font-size: .97rem; }
   .stat .meter { grid-column: 1 / -1; height: 10px; background: var(--shadow); border: 2px solid var(--line); }
   .stat .meter i { display: block; height: 100%; }
-  .p1 .meter i { background: var(--pink); }
+  .p1 .meter i { background: var(--mint); }
   .p2 .meter i { background: var(--sky); }
   .vs { font-family: 'Pixelify Sans'; font-size: 2.2rem; color: var(--gold); text-align: center; line-height: 1; }
   .vs small { display: block; font-size: .95rem; color: var(--muted); margin-top: 4px; }
+  /* personajes sobre las tarjetas del inicio (Sage y Jett) */
+  .player { position: relative; padding-right: 116px; }
+  .player .agent { position: absolute; right: 14px; top: -34px; height: 150px; transition: transform .2s; }   /* misma altura para Sage y Jett */
+  .player .agent svg { display: block; height: 100%; width: auto; animation: npcIdle 1.2s steps(2) infinite; }
+  .player .agent .eye { transform-box: fill-box; transform-origin: center; animation: npcBlink 4s infinite; }
+  .player.p2 .agent .eye { animation-delay: 1.3s; }
+  .player:hover .agent { animation: agentJump .5s cubic-bezier(.3,1.4,.5,1); }
+  @keyframes agentJump { 40% { transform: translateY(-16px); } }
+  @media (max-width: 760px) { .player { padding-right: 20px; padding-top: 70px; } .player .agent { height: 114px; top: -28px; } }
+  /* entrada estilo pantalla de versus */
+  .players.play .p1 { animation: vsLeft .6s cubic-bezier(.2,1.2,.4,1) backwards; }
+  .players.play .p2 { animation: vsRight .6s cubic-bezier(.2,1.2,.4,1) .12s backwards; }
+  .players.play .vs { animation: badgePop .5s cubic-bezier(.2,1.6,.4,1) .55s backwards; }
+  .players.play .agent { animation: agentDrop .55s cubic-bezier(.3,1.5,.5,1) .5s backwards; }
+  .players.play .p2 .agent { animation-delay: .62s; }
+  .players.play .meter i { animation: meterFill 1s cubic-bezier(.2,.8,.2,1) .7s backwards; transform-origin: left; }
+  @keyframes vsLeft { from { opacity: 0; transform: translateX(-120px); } to { opacity: 1; transform: none; } }
+  @keyframes vsRight { from { opacity: 0; transform: translateX(120px); } to { opacity: 1; transform: none; } }
+  @keyframes agentDrop { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: none; } }
+  @keyframes meterFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
   .counter { margin: 40px auto 0; max-width: 900px; padding: 20px; display: flex; flex-wrap: wrap; gap: 14px 30px; align-items: center; justify-content: space-between; }
   .counter .num { font-family: 'Pixelify Sans'; font-size: clamp(2.6rem, 9vw, 4rem); line-height: 1; color: var(--gold); }
@@ -199,9 +221,19 @@
   .level .lv { font-family: 'Pixelify Sans'; color: var(--mint); }
   .level.current .lv { color: var(--gold); }
   .level h3 { font-family: 'Pixelify Sans'; font-size: 1.6rem; line-height: 1.1; margin: 2px 0 6px; }
-  .level p { color: #e6dcf5; }
+  .level p { color: #f2dde3; }
   .level .reward { margin-top: 10px; font-size: .95rem; color: var(--muted); }
   .level .reward b { color: var(--gold); font-weight: 500; }
+  /* al entrar a Historia: la línea se dibuja y los niveles caen uno tras otro */
+  .levels::before { transform-origin: top; }
+  .levels.play::before { animation: lineGrow 1.8s ease-out both; }
+  @keyframes lineGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .levels.play .level { animation: levelDrop .6s cubic-bezier(.2,1.35,.4,1) both; animation-delay: calc(var(--i) * .22s); }
+  @keyframes levelDrop { from { opacity: 0; transform: translateY(-46px); } to { opacity: 1; transform: none; } }
+  .levels.play .level .badge { animation: badgePop .45s cubic-bezier(.2,1.6,.4,1) both; animation-delay: calc(var(--i) * .22s + .3s); }
+  .levels.play .level.current .badge { animation: badgePop .45s cubic-bezier(.2,1.6,.4,1) both, goldFlash 1s ease-out, bob 1.4s steps(2) infinite; animation-delay: calc(var(--i) * .22s + .3s), calc(var(--i) * .22s + .55s), calc(var(--i) * .22s + 1.4s); }
+  @keyframes badgePop { from { transform: scale(0) rotate(-30deg); } to { transform: none; } }
+  @keyframes goldFlash { 0% { box-shadow: 0 0 0 0 rgba(255,212,82,.9); } 100% { box-shadow: 0 0 0 22px rgba(255,212,82,0); } }
 
   /* ---------- Juegos ---------- */
   .library { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 24px; }
@@ -218,6 +250,122 @@
   .game .meta { font-size: .92rem; color: var(--muted); }
   .game .note { font-size: 1rem; }
   .game .ach { margin-top: auto; padding-top: 8px; font-size: .92rem; color: var(--gold); }
+  /* cartas coleccionables */
+  .library { perspective: 1200px; }
+  .gcard { --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 50%; height: 340px; cursor: pointer; outline: none; }
+  .gc-inner {
+    position: relative; height: 100%; transform-style: preserve-3d;
+    transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .gcard:hover .gc-inner { transition: transform .12s linear; }
+  .gcard.flipped .gc-inner { transform: rotateX(var(--rx)) rotateY(calc(var(--ry) + 180deg)); transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+  .gcard:focus-visible .gc-face { border-color: var(--gold); }
+  .gc-face {
+    position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--panel); border: 3px solid var(--line); box-shadow: 5px 5px 0 var(--shadow);
+  }
+  .gcard:hover .gc-face { border-color: var(--c); }
+  .gc-front .cover { position: relative; }
+  .gc-no { position: absolute; top: 8px; right: 10px; z-index: 2; font-family: 'Pixelify Sans'; font-size: .85rem; color: #fff; text-shadow: 2px 2px 0 rgba(0,0,0,.4); }
+  .holo {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .25s; mix-blend-mode: color-dodge;
+    background:
+      radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.55), transparent 42%),
+      linear-gradient(115deg, transparent 15%, rgba(160,120,255,.35) 35%, rgba(90,240,255,.35) 50%, rgba(255,240,90,.35) 65%, transparent 85%);
+    background-size: 100% 100%, 220% 220%; background-position: center, calc(var(--mx) * 1.2) calc(var(--my) * 1.2);
+  }
+  .gcard:hover .holo { opacity: 1; }
+  .gc-front .info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .gc-front h3 { font-family: 'Pixelify Sans'; font-size: 1.45rem; line-height: 1.1; }
+  .gc-front .meta { font-size: .92rem; color: var(--muted); }
+  .gc-hint { margin-top: auto; font-family: 'Pixelify Sans'; font-size: .85rem; color: var(--muted); opacity: .8; }
+  .gc-back { transform: rotateY(180deg); padding: 0 0 14px; gap: 10px; }
+  .gc-band { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--c); font-family: 'Pixelify Sans'; font-size: 1.2rem; color: #fff; text-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+  .gc-band span { font-size: 1.6rem; }
+  .gc-back .note, .gc-back .gc-row, .gc-back .ach, .gc-back .gc-foot { padding: 0 16px; }
+  .gc-back .note { font-size: 1rem; line-height: 1.5; }
+  .gc-back .gc-row { color: var(--muted); font-size: .92rem; }
+  .gc-back .ach { color: var(--gold); font-size: .92rem; }
+  .gc-back .gc-foot { margin-top: auto; font-family: 'Pixelify Sans'; font-size: .8rem; color: var(--muted); text-align: right; }
+  /* al entrar: las cartas se reparten */
+  .library.play .gcard { animation: dealIn .55s cubic-bezier(.2,1.25,.4,1) backwards; animation-delay: calc(var(--i) * .07s); }
+  @keyframes dealIn { from { opacity: 0; transform: translate(-30px, -80px) rotate(-18deg) scale(.7); } to { opacity: 1; transform: none; } }
+
+  /* ---------- Rango de práctica (mini juego) ---------- */
+  .range { padding: 16px; max-width: 900px; }
+  .range-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; margin-bottom: 12px; }
+  .range-head h2 { font-family: 'Pixelify Sans'; font-size: 1.5rem; }
+  .range-head p { color: var(--muted); font-size: 1rem; }
+  .range-head b { color: var(--ink); }
+  .range-stats { display: flex; gap: 10px; }
+  .range-stats span { display: grid; min-width: 70px; padding: 4px 10px; text-align: center; font-family: 'Pixelify Sans'; font-size: .85rem; color: var(--muted); background: var(--shadow); border: 2px solid var(--line); }
+  .range-stats b { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; color: var(--gold); }
+  .arena {
+    position: relative; height: clamp(300px, 52vh, 420px); overflow: hidden; cursor: crosshair;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none;
+    background:
+      linear-gradient(rgba(255,70,85,.08) 1px, transparent 1px) 0 0 / 40px 40px,
+      linear-gradient(90deg, rgba(255,70,85,.08) 1px, transparent 1px) 0 0 / 40px 40px,
+      linear-gradient(180deg, #160a0f 0%, #241018 100%);
+    border: 3px solid var(--line);
+  }
+  .arena.playing { cursor: crosshair; }
+  .arena-msg { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; gap: 10px; padding: 16px; text-align: center; background: rgba(11,5,8,.72); }
+  .arena-msg[hidden] { display: none; }
+  .arena-msg .px { font-size: 1.3rem; }
+  .arena-msg .rank { font-family: 'Pixelify Sans'; font-weight: 700; font-size: clamp(2.2rem, 8vw, 3.4rem); line-height: 1; text-shadow: 4px 4px 0 var(--shadow); }
+  .arena-msg .detail { color: var(--muted); font-size: .95rem; }
+  .arena-msg .rec { font-family: 'Pixelify Sans'; color: var(--mint); }
+  .arena-msg .btn { justify-self: center; }
+  .tgt {
+    position: absolute; z-index: 1; padding: 0; border: 3px solid #0b0718; border-radius: 50%; cursor: crosshair;
+    background: radial-gradient(circle, #ff4655 0 15%, #fff3e6 16% 32%, #ff4655 33% 50%, #fff3e6 51% 68%, #ff4655 69%);
+    box-shadow: 3px 3px 0 rgba(0,0,0,.35);
+    animation: tgtIn .14s ease-out both;
+  }
+  @keyframes tgtIn { from { transform: scale(.2); } to { transform: scale(1); } }
+  .tgt.out { animation: tgtOut .16s ease-in forwards; }
+  @keyframes tgtOut { to { transform: scale(0); opacity: 0; } }
+  .hitfx { position: absolute; z-index: 2; pointer-events: none; font-family: 'Pixelify Sans'; font-weight: 700; font-size: 1.1rem; color: var(--gold); text-shadow: 2px 2px 0 var(--shadow); animation: hitUp .6s ease-out forwards; }
+  .hitfx.hs { color: var(--pink); font-size: 1.3rem; }
+  @keyframes hitUp { to { transform: translateY(-34px); opacity: 0; } }
+
+  /* ---------- Minijuegos: selector y trivia ---------- */
+  .modes { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .mode {
+    cursor: pointer; font-family: 'Pixelify Sans'; font-size: 1.05rem; color: var(--muted);
+    background: var(--panel); border: 3px solid var(--line); padding: 8px 16px; box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .mode:hover { color: var(--ink); }
+  .mode.on { color: var(--shadow); background: var(--gold); border-color: var(--shadow); }
+  .trivia { padding: 20px; max-width: 900px; }
+  .trivia[hidden], .range[hidden] { display: none; }
+  .tv-top { display: flex; justify-content: space-between; font-family: 'Pixelify Sans'; color: var(--muted); }
+  .tv-top span:last-child { color: var(--gold); }
+  .tv-bar { height: 10px; margin: 8px 0 18px; background: var(--shadow); border: 2px solid var(--line); }
+  .tv-bar i { display: block; height: 100%; width: 0; background: var(--mint); transition: width .4s cubic-bezier(.2,.8,.2,1); }
+  .tv-q { font-family: 'Pixelify Sans'; font-size: clamp(1.3rem, 4vw, 1.7rem); line-height: 1.25; margin-bottom: 16px; }
+  .tv-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 560px) { .tv-opts { grid-template-columns: 1fr; } }
+  .tv-opt {
+    cursor: pointer; text-align: left; font: inherit; font-size: 1.05rem; color: var(--ink);
+    background: var(--panel-2); border: 3px solid var(--line); padding: 12px 14px; box-shadow: 3px 3px 0 var(--shadow);
+    transition: transform .08s, border-color .15s, background .15s;
+  }
+  .tv-opt:hover:not(:disabled) { border-color: var(--sky); }
+  .tv-opt:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--shadow); }
+  .tv-opt:disabled { cursor: default; opacity: .6; }
+  .tv-opt.right { opacity: 1; background: #1f5a48; border-color: var(--mint); }
+  .tv-opt.wrong { opacity: 1; background: #5a1f33; border-color: var(--red); }
+  .tv-fb { min-height: 1.6em; margin-top: 14px; font-family: 'Pixelify Sans'; font-size: 1.1rem; }
+  .tv-fb.ok { color: var(--mint); } .tv-fb.no { color: var(--red); }
+  .tv-fb small { display: block; margin-top: 4px; font-family: 'Rubik', sans-serif; font-size: .95rem; color: var(--muted); }
+  .tv-next { margin-top: 10px; }
+  .tv-end { text-align: center; padding: 10px 0; }
+  .tv-end .big { font-family: 'Pixelify Sans'; font-weight: 700; font-size: clamp(2.6rem, 10vw, 4rem); line-height: 1; color: var(--gold); text-shadow: 4px 4px 0 var(--shadow); }
+  .tv-end h3 { font-family: 'Pixelify Sans'; font-size: 1.5rem; margin: 10px 0 6px; }
+  .tv-end p { color: var(--muted); margin-bottom: 16px; }
 
   /* ---------- Regalos ---------- */
   .inventory { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 26px; align-items: start; }
@@ -228,7 +376,7 @@
     font-family: inherit; color: inherit;
   }
   .slot:hover { border-color: var(--muted); }
-  .slot[aria-pressed="true"] { border-color: var(--gold); background: #1c1436; }
+  .slot[aria-pressed="true"] { border-color: var(--gold); background: #22111a; }
   .slot .r { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 4px; }
   .slot.locked { cursor: default; color: var(--line); font-family: 'Pixelify Sans'; font-size: 1.6rem; }
   .slot.locked.soon { border-style: dashed; border-color: var(--gold); animation: soon 1.6s steps(4) infinite alternate; }
@@ -242,7 +390,7 @@
     color: var(--ink); background: var(--panel);
     border: 3px solid var(--gold); box-shadow: 6px 6px 0 var(--shadow);
   }
-  .hint-modal::backdrop { background: rgba(11,7,24,.75); }
+  .hint-modal::backdrop { background: rgba(11,5,8,.75); }
   .hint-modal[open] { animation: enter .25s cubic-bezier(.2,.8,.2,1) both; }
   .hint-modal .in { padding: 26px 22px 22px; text-align: center; }
   .hint-modal .big { font-size: 3.2rem; line-height: 1; }
@@ -269,6 +417,44 @@
   .detail dl { margin-top: 14px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: .97rem; }
   .detail dt { color: var(--muted); }
   .detail .desc { margin-top: 14px; padding-top: 14px; border-top: 2px dashed var(--line); }
+  /* ---------- Regalos con vida ---------- */
+  .slot { overflow: hidden; transition: transform .18s, border-color .15s; }
+  .slot > span { display: inline-block; }
+  .slot:not(.locked) > span { animation: giftFloat 2.8s ease-in-out infinite; animation-delay: calc(var(--d, 0s) * -1); }
+  @keyframes giftFloat { 50% { transform: translateY(-5px) rotate(-4deg); } }
+  .slot::after {   /* brillo que recorre la casilla */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.16) 50%, transparent 60%);
+    transform: translateX(-130%); animation: slotShine 5s ease-in-out infinite; animation-delay: var(--d, 0s);
+  }
+  .slot.locked::after { display: none; }
+  @keyframes slotShine { 0%, 70% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+  .slot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+  .slot.rare-legendario::before { box-shadow: inset 0 0 18px rgba(255,212,82,.75); animation: rarePulse 2.2s ease-in-out infinite; }
+  .slot.rare-epico::before { box-shadow: inset 0 0 16px rgba(180,124,255,.7); animation: rarePulse 2.6s ease-in-out infinite; }
+  @keyframes rarePulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  .slot:not(.locked):hover, .slot.locked.soon:hover { transform: translateY(-4px) rotate(-2deg); }
+  .slot.locked:not(.soon):hover > span { animation: lockShake .35s ease; }
+  @keyframes lockShake { 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+  .slot.bump { animation: slotBump .35s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes slotBump { 40% { transform: scale(.88); } 100% { transform: none; } }
+  /* al entrar a la sección: el inventario se abre casilla por casilla */
+  .slots.play .slot { animation: slotPop .38s cubic-bezier(.2,1.5,.4,1) backwards; animation-delay: calc(var(--i, 0) * .06s); }
+  .slots.play .slot.locked.soon { animation: slotPop .38s cubic-bezier(.2,1.5,.4,1) backwards, soon 1.6s steps(4) infinite alternate; animation-delay: calc(var(--i, 0) * .06s), 0s; }
+  @keyframes slotPop { from { transform: scale(0) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  /* detalle del regalo elegido */
+  .detail .big-wrap { position: relative; display: inline-block; }
+  .detail.enter .big { animation: giftIn .6s cubic-bezier(.2,1.6,.4,1) both; }
+  @keyframes giftIn { from { transform: scale(0) rotate(-200deg); } to { transform: none; } }
+  .detail .sparks { position: absolute; left: 50%; top: 50%; pointer-events: none; }
+  .detail .sparks i { position: absolute; font-style: normal; color: var(--gold); font-size: 1rem; opacity: 0; }
+  .detail.enter .sparks i { animation: spark .7s ease-out both; }
+  @keyframes spark { 0% { opacity: 1; transform: translate(-50%, -50%) scale(.4); } 100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.2); } }
+  .detail.enter h3, .detail.enter .rarity, .detail.enter dl, .detail.enter .desc { animation: lpIn .45s ease both; }
+  .detail.enter h3 { animation-delay: .15s; } .detail.enter .rarity { animation-delay: .25s; }
+  .detail.enter dl { animation-delay: .35s; } .detail.enter .desc { animation-delay: .45s; }
+  .detail .rarity { animation: rarityGlow 2s ease-in-out infinite !important; }
+  @keyframes rarityGlow { 50% { text-shadow: 0 0 12px currentColor; } }
   .inv-note { margin-top: 14px; color: var(--muted); font-size: .97rem; }
 
   /* ---------- Cenas ---------- */
@@ -276,11 +462,47 @@
   .quest { display: grid; grid-template-columns: 70px 1fr auto; gap: 16px; align-items: center; padding: 16px 18px; }
   .quest .ico { font-size: 2.6rem; text-align: center; }
   .quest h3 { font-family: 'Pixelify Sans'; font-size: 1.4rem; line-height: 1.15; }
-  .quest p { color: #e6dcf5; font-size: 1rem; }
+  .quest p { color: #f2dde3; font-size: 1rem; }
   .quest .done { font-family: 'Pixelify Sans'; color: var(--mint); white-space: nowrap; text-align: right; }
   .quest .done small { display: block; color: var(--gold); font-size: .9rem; }
   .quest.next { border-style: dashed; background: transparent; box-shadow: none; }
   .quest.next .done { color: var(--gold); }
+  .quest[data-i] { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .quest[data-i]:hover, .quest[data-i]:focus-visible { transform: translateY(-3px); box-shadow: 6px 8px 0 var(--shadow); outline: none; border-color: var(--gold); }
+  .quest[data-i]:active { transform: translateY(1px); }
+  /* repetición de cena a pantalla completa */
+  .dinfx { position: fixed; inset: 0; z-index: 55; overflow: hidden; cursor: pointer; background: radial-gradient(circle at 50% 42%, #4a1d2e 0%, #1a0f14 55%, #0b0508 100%); animation: crIn .35s ease both; }
+  .dinfx[hidden] { display: none; }
+  .dinfx.closing { animation: fxOut .4s ease forwards; }
+  .dinfx .rays {
+    position: absolute; left: 50%; top: 42%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax;
+    background: repeating-conic-gradient(rgba(255,212,82,.13) 0 9deg, transparent 9deg 18deg);
+    -webkit-mask: radial-gradient(circle, #000 0, transparent 40%); mask: radial-gradient(circle, #000 0, transparent 40%);
+    animation: raysSpin 22s linear infinite; will-change: transform;
+  }
+  @keyframes raysSpin { to { transform: rotate(360deg); } }
+  .dinfx .rain span { position: absolute; top: -12%; animation: foodFall linear forwards; will-change: transform; }
+  @keyframes foodFall { to { transform: translateY(125vh) rotate(var(--rot)); } }
+  .din-card { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 6px; padding: 20px; text-align: center; }
+  .din-card .food { font-size: clamp(6rem, 24vw, 10rem); line-height: 1; filter: drop-shadow(0 10px 0 rgba(0,0,0,.35)); animation: foodIn .9s cubic-bezier(.2,1.6,.4,1) both, foodFloat 2.4s ease-in-out .9s infinite; }
+  .din-card .food.spin { animation: foodIn .9s cubic-bezier(.2,1.6,.4,1) both, foodSpin 1.6s ease-in-out .9s infinite; }
+  @keyframes foodIn { from { transform: scale(0) rotate(-40deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes foodFloat { 50% { transform: translateY(-12px) rotate(4deg); } }
+  @keyframes foodSpin { 50% { transform: rotateY(180deg); } }
+  .din-card .stamp {
+    margin-top: 10px; padding: 4px 16px; font-family: 'Pixelify Sans'; font-weight: 700; font-size: clamp(1.6rem, 6.5vw, 2.8rem);
+    color: var(--gold); border: 4px solid var(--gold); text-shadow: 3px 3px 0 var(--shadow); box-shadow: 4px 4px 0 var(--shadow);
+    transform: rotate(-4deg); animation: stampIn .45s cubic-bezier(.3,1.5,.5,1) .75s both;
+  }
+  @keyframes stampIn { 0% { transform: scale(3) rotate(-12deg); opacity: 0; } 70% { transform: scale(.92) rotate(-3deg); opacity: 1; } 85% { transform: scale(1.05) rotate(-5deg); } 100% { transform: rotate(-4deg); } }
+  .din-card h3, .din-card p { opacity: 0; animation: lpIn .6s ease forwards; }
+  .din-card h3 { margin-top: 12px; font-family: 'Pixelify Sans'; font-size: clamp(1.5rem, 5vw, 2.2rem); animation-delay: 1.1s; }
+  .din-card .place { color: var(--muted); animation-delay: 1.25s; }
+  .din-card .quote { max-width: 32ch; font-size: 1.15rem; animation-delay: 1.4s; }
+  .din-card .din-xp { margin-top: 6px; font-family: 'Pixelify Sans'; font-size: clamp(1.4rem, 5vw, 2rem); color: var(--mint); text-shadow: 0 0 14px rgba(94,230,193,.5); animation-delay: 1.5s; }
+  .din-card .tap { margin-top: 14px; font-family: 'Pixelify Sans'; color: var(--muted); font-size: .95rem; animation: lpIn .6s ease 2.4s forwards, blink 1s step-end 3s infinite; }
+  @keyframes lpIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .dinfx .rain, .dinfx .rays { display: none; } }
 
   /* ---------- Código ---------- */
   .dev { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 26px; align-items: start; }
@@ -292,11 +514,35 @@
   .editor .tabs span { padding: 2px 10px; background: var(--panel); color: var(--ink); }
   pre.code { font-family: 'JetBrains Mono', monospace; font-size: .92rem; line-height: 1.7; padding: 16px 0; overflow-x: auto; counter-reset: ln; }
   pre.code .l { display: block; padding: 0 16px 0 0; white-space: pre; }
-  pre.code .l::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 3.2em; padding-right: 1em; text-align: right; color: #5d4e96; }
-  .k { color: var(--pink); } .s { color: var(--mint); } .c { color: #8a7fb8; font-style: italic; } .f { color: var(--sky); } .n { color: var(--gold); }
+  pre.code .l::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 3.2em; padding-right: 1em; text-align: right; color: #8a4a5c; }
+  .k { color: var(--pink); } .s { color: var(--mint); } .c { color: #a8798a; font-style: italic; } .f { color: var(--sky); } .n { color: var(--gold); }
   .runbar { display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-top: 3px solid var(--line); background: var(--panel-2); }
   .console { font-family: 'JetBrains Mono', monospace; font-size: .88rem; line-height: 1.7; padding: 14px 16px; min-height: 150px; background: var(--shadow); color: #d9cff5; }
   .console .ok { color: var(--mint); } .console .warn { color: var(--gold); }
+  /* ejecución: la línea activa se ilumina */
+  pre.code .l { transition: background .15s; }
+  pre.code .l.exec { background: rgba(94,230,193,.22); box-shadow: inset 3px 0 0 var(--mint); }
+  pre.code .l.done { background: rgba(94,230,193,.06); }
+  .runbar .btn:disabled { opacity: .6; cursor: progress; }
+  /* gran final: lluvia de código + corazón de letras */
+  .runfx { position: fixed; inset: 0; z-index: 55; background: #0b0508; cursor: pointer; animation: crIn .4s ease both; }
+  .runfx[hidden] { display: none; }
+  .runfx.closing { animation: fxOut .4s ease forwards; }
+  @keyframes fxOut { to { opacity: 0; } }
+  .runfx canvas { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 1.2s; }
+  .runfx canvas.fade { opacity: .18; }
+  .runfx-card { position: absolute; inset: 0; display: grid; place-content: center; gap: 6px; padding: 16px; text-align: center; opacity: 0; transition: opacity .6s; }
+  .runfx-card.show { opacity: 1; }
+  .ascii-heart {
+    margin: 0 auto; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+    font-size: clamp(.8rem, 3.4vw, 1.35rem); line-height: 1.05; letter-spacing: .12em;
+    color: var(--red); text-shadow: 0 0 10px rgba(255,70,85,.75), 0 0 22px rgba(255,70,85,.35);
+  }
+  .runfx-card .build, .runfx-card .forever, .runfx-card .tap { opacity: 0; transform: translateY(8px); transition: opacity .8s, transform .8s; }
+  .runfx-card.done .build, .runfx-card.done .forever, .runfx-card.done .tap { opacity: 1; transform: none; }
+  .runfx-card .build { margin-top: 18px; font-family: 'Pixelify Sans'; font-weight: 700; font-size: clamp(1.8rem, 7vw, 3rem); color: var(--mint); text-shadow: 4px 4px 0 var(--shadow), 0 0 18px rgba(94,230,193,.5); }
+  .runfx-card .forever { font-family: 'JetBrains Mono', monospace; font-size: clamp(.9rem, 3vw, 1.1rem); color: var(--gold); transition-delay: .6s; }
+  .runfx-card .tap { margin-top: 16px; font-family: 'Pixelify Sans'; color: var(--muted); font-size: .95rem; transition-delay: 1.4s; animation: blink 1s step-end infinite 2.2s; }
   .projects { padding: 20px; }
   .projects h3 { font-family: 'Pixelify Sans'; font-size: 1.5rem; margin-bottom: 10px; }
   .projects ul { list-style: none; display: grid; gap: 12px; }
@@ -305,17 +551,39 @@
   .projects li span { color: var(--muted); font-size: .95rem; }
 
   /* ---------- Misión PC ---------- */
+  .scene { padding: 12px; margin-bottom: 26px; }
+  .scene svg { display: block; width: 100%; height: auto; max-height: 460px; }
+  .scene .it { cursor: pointer; transition: filter .2s; outline: none; }
+  .scene .it.pending { filter: grayscale(1) contrast(.75); opacity: .45; }
+  .scene .it:hover, .scene .it:focus-visible { filter: brightness(1.25) drop-shadow(0 0 1.2px var(--gold)); }
+  .scene .it.pending:hover, .scene .it.pending:focus-visible { filter: grayscale(1) contrast(.75) drop-shadow(0 0 1.2px var(--gold)); opacity: .8; }
+  .scene .it.sel { filter: drop-shadow(0 0 .8px var(--gold)) drop-shadow(0 0 .8px var(--gold)); }
+  .scene .it.pending.sel { filter: grayscale(1) contrast(.75) drop-shadow(0 0 .8px var(--gold)) drop-shadow(0 0 .8px var(--gold)); opacity: .85; }
+  .scene .badge { pointer-events: none; font-family: 'Pixelify Sans', monospace; font-size: 5px; font-weight: 700; }
+  .scene-hint { margin-top: 8px; text-align: center; color: var(--muted); font-size: .9rem; }
+  .item-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .item-head .ic { font-size: 2.6rem; line-height: 1; }
+  .item-head h3 { font-family: 'Pixelify Sans'; font-size: 1.6rem; line-height: 1.1; }
+  .pill { display: inline-block; margin-top: 4px; padding: 2px 10px; font-family: 'Pixelify Sans'; font-size: .9rem; border: 2px solid; }
+  .pill.ok { color: var(--mint); border-color: var(--mint); }
+  .pill.no { color: var(--muted); border-color: var(--line); }
+  .pill.soon, .pill.prog { color: var(--gold); border-color: var(--gold); }
+  .item-note { font-size: 1.05rem; margin-bottom: 14px; }
+  .setup-list li { cursor: pointer; }
+  .setup-list li:hover { outline: 2px solid var(--line); }
+  .setup-list li.sel { outline: 2px solid var(--gold); }
+  .setup-list li.soon .st, .setup-list li.prog .st { color: var(--gold); }
   .pc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 30px; align-items: start; }
   .case { padding: 26px; }
   .tower {
     position: relative; width: min(260px, 100%); aspect-ratio: 3 / 4; margin: 0 auto;
-    background: #120c24; border: 4px solid var(--line); box-shadow: inset 0 0 0 6px #1c1436;
+    background: #150a0f; border: 4px solid var(--line); box-shadow: inset 0 0 0 6px #22111a;
   }
-  .tower .glass { position: absolute; inset: 14px 14px 14px 14px; border: 2px solid #3a2d6b; }
+  .tower .glass { position: absolute; inset: 14px 14px 14px 14px; border: 2px solid #4a2433; }
   .part {
     position: absolute; display: grid; place-items: center;
-    font-size: 1.1rem; color: #5d4e96; text-align: center; line-height: 1;
-    border: 2px dashed #3a2d6b; background: transparent;
+    font-size: 1.1rem; color: #8a4a5c; text-align: center; line-height: 1;
+    border: 2px dashed #4a2433; background: transparent;
     transition: background .4s, border-color .4s, color .4s, box-shadow .4s;
   }
   .part { filter: grayscale(1) opacity(.45); }
@@ -355,6 +623,41 @@
   .ach-card.locked { opacity: .55; }
   .ach-card.locked .ai { border-color: var(--line); filter: grayscale(1); }
   .ach-summary { margin-bottom: 20px; font-family: 'Pixelify Sans'; font-size: 1.2rem; color: var(--gold); }
+  /* vitrina de logros */
+  .vitrina { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 30px; padding: 20px 24px; margin-bottom: 24px; max-width: 900px; }
+  .ring { position: relative; width: 140px; height: 140px; flex: none; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 12; }
+  .ring-bg { stroke: var(--shadow); }
+  .ring-fg { --p: 0; stroke: var(--gold); stroke-linecap: butt; stroke-dasharray: 314.16; stroke-dashoffset: calc(314.16 * (1 - var(--p))); filter: drop-shadow(0 0 6px rgba(255,212,82,.5)); }
+  .ring-fg.play { animation: ringFill 1.4s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes ringFill { from { stroke-dashoffset: 314.16; } }
+  .ring-txt { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+  .ring-txt b { font-family: 'Pixelify Sans'; font-size: 2rem; line-height: 1; color: var(--gold); }
+  .ring-txt span { font-size: .85rem; color: var(--muted); }
+  .vit-info h2 { font-family: 'Pixelify Sans'; font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 1.1; margin: 2px 0 12px; }
+  .tiers { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tier-chip { padding: 4px 10px; font-family: 'Pixelify Sans'; font-size: .9rem; background: var(--shadow); border: 2px solid var(--line); }
+  .tier-chip b { margin-left: 4px; color: var(--ink); }
+  .t-bronce { --tc: #d08b54; } .t-plata { --tc: #cfd8e3; } .t-oro { --tc: #ffd452; } .t-platino { --tc: #9fe8ff; }
+  .tier-chip { border-color: var(--tc); color: var(--tc); }
+  /* tarjetas de logro con marco según rareza */
+  .ach-card { position: relative; overflow: hidden; border-color: var(--tc, var(--line)); }
+  .ach-card .ai { border-color: var(--tc) !important; }
+  .ach-card .tier { font-family: 'Pixelify Sans'; font-size: .8rem; color: var(--tc); }
+  .ach-card:not(.locked)::after {   /* brillo que pasa sobre los desbloqueados */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.12) 50%, transparent 60%);
+    transform: translateX(-130%); animation: slotShine 6s ease-in-out infinite; animation-delay: calc(var(--i) * .4s);
+  }
+  .ach-card.locked { opacity: .6; border-style: dashed; }
+  .ach-card.locked p { color: var(--gold); }
+  .ach-card.plat { grid-column: 1 / -1; background: linear-gradient(120deg, #1b2a3a, #2a1d3d 50%, #15303a); }
+  .ach-card.plat:not(.locked) { box-shadow: 0 0 22px rgba(159,232,255,.45), 5px 5px 0 var(--shadow); }
+  .ach-card.plat h3 { font-size: 1.5rem; }
+  /* entrada en cascada */
+  .achs.play .ach-card { animation: lpIn .45s ease backwards; animation-delay: calc(var(--i) * .07s); }
+  .achs.play .ach-card:not(.locked) .ai { animation: badgePop .45s cubic-bezier(.2,1.6,.4,1) backwards; animation-delay: calc(var(--i) * .07s + .2s); }
 
   /* ---------- Mensaje ---------- */
 
@@ -409,7 +712,7 @@
   @keyframes pen { to { transform: translate(2px, -3px) rotate(-8deg); } }
   .hand .sign { display: block; text-align: right; margin-top: 18px; font-size: 1.2em; color: #c2306e; }
   .letter-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 2px dashed rgba(194,48,110,.3); }
-  .letter-nav .count { font-family: 'Pixelify Sans'; color: #8a6f9e; font-size: .95rem; }
+  .letter-nav .count { font-family: 'Pixelify Sans'; color: #9a6f80; font-size: .95rem; }
   .letter-nav .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
   .lbtn {
     cursor: pointer; font-family: 'Pixelify Sans'; font-size: 1.05rem;
@@ -429,7 +732,7 @@
     padding: 0; border: 0; background: transparent; overflow: visible;
   }
   .letter-modal:focus, .letter-modal:focus-visible, .lm-paper:focus, .lm-paper:focus-visible { outline: none; }
-  .letter-modal::backdrop { background: rgba(11,7,24,.9); }
+  .letter-modal::backdrop { background: rgba(11,5,8,.9); }
   .letter-modal[open] { animation: lmIn .6s cubic-bezier(.2,1.2,.4,1) both; }
   @keyframes lmIn { from { opacity: 0; transform: translateY(30px) scale(.94) rotate(-1deg); } to { opacity: 1; transform: none; } }
   .lm-paper {
@@ -514,10 +817,10 @@
   .cr-skip {
     position: absolute; top: 14px; right: 14px; z-index: 2; cursor: pointer;
     font-family: 'Pixelify Sans'; font-size: .95rem; color: var(--muted);
-    background: rgba(36,25,68,.8); border: 2px solid var(--line); padding: 4px 12px;
+    background: rgba(42,22,30,.8); border: 2px solid var(--line); padding: 4px 12px;
   }
   .cr-skip:hover { color: var(--ink); }
-  .credits .radio { position: absolute; left: 14px; bottom: 14px; z-index: 2; width: min(420px, calc(100% - 28px)); padding: 8px 10px; background: rgba(36,25,68,.85); }
+  .credits .radio { position: absolute; left: 14px; bottom: 14px; z-index: 2; width: min(420px, calc(100% - 28px)); padding: 8px 10px; background: rgba(42,22,30,.85); }
   .credits .radio .play-btn { width: 36px; height: 36px; }
   .credits .radio-head { font-size: .9rem; }
   .lm-close:hover { background: #c2306e; color: #fff3e6; }
@@ -532,13 +835,13 @@
   .npc-scene {
     position: relative; max-width: 680px; margin: 0 auto; padding: 26px 18px 0;
     display: flex; flex-direction: column; align-items: center;
-    background: linear-gradient(180deg, #2b2160 0%, #3b2f7a 70%);
+    background: linear-gradient(180deg, #2a1220 0%, #4a1d2e 70%);
     border: 3px solid var(--line); box-shadow: 5px 5px 0 var(--shadow); overflow: hidden;
   }
   .bubble {
     position: relative; width: 100%; padding: 26px 22px 40px; min-height: 150px; cursor: pointer;
     background: #fff3e6; color: #2c2050; border: 3px solid var(--shadow); border-radius: 18px;
-    box-shadow: 4px 4px 0 rgba(11,7,24,.6);
+    box-shadow: 4px 4px 0 rgba(11,5,8,.6);
     font-family: 'Patrick Hand', cursive; font-size: clamp(1.25rem, 3.6vw, 1.5rem); line-height: 1.45;
   }
   .bubble::after {   /* colita de la nube apuntando al personaje */
@@ -635,13 +938,13 @@
   <div class="topbar-inner">
     <div class="brand">
       <a class="back" href="../index.html" aria-label="Volver a los regalos">◀ <span>Regalos</span></a>
-      <a class="logo" href="#inicio"><span class="heart">♥</span>Aoi &amp; yo</a>
+      <a class="logo" href="#inicio"><span class="heart">♥</span>Aoi <span class="amp">&amp;</span> Benja</a>
     </div>
     <nav aria-label="Secciones">
       <ul id="navList"></ul>
     </nav>
     <div class="xp" aria-live="polite">
-      <span id="xpLabel">Explorado 0/10</span>
+      <span id="xpLabel">Explorado 0/11</span>
       <div class="bar"><i id="xpBar"></i></div>
     </div>
   </div>
@@ -654,13 +957,14 @@
     <div class="title-screen">
       <p class="pre">Partida guardada encontrada</p>
       <p class="savefile" id="saveFile"></p>
-      <h1 id="t-inicio">Aoi &amp; yo</h1>
+      <h1 id="t-inicio">Aoi <span class="amp">&amp;</span> Benja</h1>
       <p class="sub">Modo cooperativo desde el día en que un amigo nos invitó al mismo lobby.</p>
       <p class="press">▶ Elige una sección para continuar</p>
     </div>
 
     <div class="players">
       <article class="player p1 box">
+        <div class="agent" id="p1agent" aria-hidden="true"></div>
         <div class="tag">Jugadora 1</div>
         <h2>Aoi</h2>
         <div class="cls" id="p1class"></div>
@@ -668,6 +972,7 @@
       </article>
       <div class="vs">&amp;<small>dúo</small></div>
       <article class="player p2 box">
+        <div class="agent" id="p2agent" aria-hidden="true"></div>
         <div class="tag">Jugador 2</div>
         <h2 id="p2name"></h2>
         <div class="cls" id="p2class"></div>
@@ -707,7 +1012,42 @@
       <h1 id="t-juegos">Los juegos que jugamos</h1>
       <p>Todos son buenos juegos, pero ninguno sería lo mismo sin mi dúo.</p>
     </div>
+
     <div class="library" id="library"></div>
+  </section>
+
+  <!-- ================= PRÁCTICA (mini juego estilo Valorant) ================= -->
+  <section class="view" id="v-practica" aria-labelledby="t-practica">
+    <div class="view-head">
+      <div class="zone">Sala de juegos</div>
+      <h1 id="t-practica">Minijuegos</h1>
+      <p>Elige uno. Cada juego tiene un logro escondido.</p>
+    </div>
+    <div class="modes" role="tablist" aria-label="Minijuegos">
+      <button class="mode on" type="button" role="tab" aria-selected="true" data-mode="range">🎯 Rango de práctica</button>
+      <button class="mode" type="button" role="tab" aria-selected="false" data-mode="trivia">❓ Trivia</button>
+    </div>
+
+    <!-- Trivia sobre nosotros -->
+    <div class="trivia box" id="trivia" hidden>
+      <div class="tv-top"><span id="tvCount"></span><span id="tvScore"></span></div>
+      <div class="tv-bar"><i id="tvBar"></i></div>
+      <div id="tvBody"></div>
+    </div>
+
+    <div class="range box" id="range">
+      <div class="range-head">
+        <p>30 segundos. El centro rojo es <b>headshot</b> y vale doble.<br>Llega a <b>Diamante</b> para desbloquear un logro.</p>
+        <div class="range-stats">
+          <span>Tiempo<b id="rgTime">30</b></span>
+          <span>Puntos<b id="rgScore">0</b></span>
+          <span>Mejor<b id="rgBest">0</b></span>
+        </div>
+      </div>
+      <div class="arena" id="arena">
+        <div class="arena-msg" id="arenaMsg"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ================= REGALOS ================= -->
@@ -748,7 +1088,7 @@
         <div class="tabs"><b></b><b></b><b></b><span>nuestro-equipo.js</span></div>
         <pre class="code" id="code"></pre>
         <div class="runbar"><button class="btn" id="runBtn">▶ Ejecutar</button><span class="px" style="color:var(--muted)" id="runState">listo</span></div>
-        <div class="console" id="console" aria-live="polite"><span style="color:#5d4e96">// la salida aparece aquí</span></div>
+        <div class="console" id="console" aria-live="polite"><span style="color:#8a4a5c">// la salida aparece aquí</span></div>
       </div>
       <aside class="projects box">
         <h3>Proyectos juntos</h3>
@@ -761,20 +1101,20 @@
   <section class="view" id="v-pc" aria-labelledby="t-pc">
     <div class="view-head">
       <div class="zone">Misión principal · en progreso</div>
-      <h1 id="t-pc">Misión: tu PC</h1>
-      <p>Nuestra meta actual, pieza por pieza. Cada una que consigamos se enciende aquí.</p>
+      <h1 id="t-pc">Misión: tu setup</h1>
+      <p>Nuestra meta actual, pieza por pieza. Toca cada parte del setup para ver cómo va.</p>
+    </div>
+    <div class="scene box">
+      <svg id="setupSvg" viewBox="0 0 160 100" shape-rendering="crispEdges" role="group" aria-label="Setup: toca cada parte"></svg>
+      <p class="scene-hint">✓ conseguido · ? pendiente · toca cualquier parte</p>
     </div>
     <div class="pc">
-      <div class="case box">
-        <div class="tower" id="tower" role="img" aria-label="Gabinete de la PC con las piezas conseguidas encendidas">
-          <div class="glass"></div>
-        </div>
-      </div>
+      <div class="case box" id="itemCard" aria-live="polite"></div>
       <div class="mission box">
         <div class="pct" id="pct">0%</div>
         <div class="pbar"><i id="pbar"></i></div>
         <div class="pbar-label" id="pbarLabel"></div>
-        <ul class="parts" id="parts"></ul>
+        <ul class="parts setup-list" id="parts"></ul>
         <p class="promise" id="promise"></p>
       </div>
     </div>
@@ -787,7 +1127,20 @@
       <h1 id="t-logros">Logros desbloqueados</h1>
       <p>Todo lo que hemos conseguido juntos. Y los que faltan, también los vamos a sacar.</p>
     </div>
-    <div class="ach-summary" id="achSummary"></div>
+    <div class="vitrina box">
+      <div class="ring">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="50" class="ring-bg"/>
+          <circle cx="60" cy="60" r="50" class="ring-fg" id="ringFg"/>
+        </svg>
+        <div class="ring-txt"><b id="ringPct">0%</b><span id="achSummary"></span></div>
+      </div>
+      <div class="vit-info">
+        <div class="zone">Rango de cazadora de logros</div>
+        <h2 id="hunterRank"></h2>
+        <div class="tiers" id="tierCounts"></div>
+      </div>
+    </div>
     <div class="achs" id="achs"></div>
   </section>
 
@@ -892,6 +1245,10 @@
   </div>
 </dialog>
 
+<!-- Gran final del botón Ejecutar (sección Código) -->
+<div class="dinfx" id="dinFx" role="dialog" aria-modal="true" aria-label="Repetición de la cena" hidden></div>
+<div class="runfx" id="runFx" hidden><canvas id="rainCv"></canvas><div class="runfx-card" id="runCard"></div></div>
+
 <canvas id="fx"></canvas>
 
 <script>
@@ -906,11 +1263,11 @@ const START_IS_EXAMPLE = false;          // pon false cuando pongas la fecha rea
 const CREATED_DATE = "2026-09-28";       // día en que se creó esta página (año-mes-día)
 
 const PLAYER_1 = {
-  cls: "Violinista · dúo de Valorant",
+  cls: "Main: Sage · Violinista",
   stats: [["Puntería", 92], ["Paciencia conmigo", 100], ["Risa contagiosa", 97]]
 };
 const PLAYER_2 = {
-  cls: "Soporte oficial de Aoi",
+  cls: "Main: Jett · Soporte oficial de Aoi",
   stats: [["Cenas invitadas", 80], ["Regalos entregados", 90], ["Bugs arreglados", 60]]
 };
 
@@ -973,9 +1330,9 @@ const SILHOUETTES = {
 };
 
 const DINNERS = [
-  { icon: "🍕", title: "La primera cena", place: "Pizzería", text: "Estaba más nervioso que en un clutch 1 contra 5.", reward: "+100 de confianza", ej: true },
+  { icon: "🍕", title: "La primera cena", place: "Pizzería", text: "Estaba más nervioso que en un clutch 1 contra 5.", reward: "+100 de confianza" },
   { icon: "🍝", title: "Noche de lasaña", place: "Restaurante italiano", text: "Capa tras capa, como nuestras partidas: cada una mejor que la anterior.", reward: "+50 de felicidad (y de queso)" },
-  { icon: "🍔", title: "Hamburguesas después de una ranked", place: "Hamburguesería", text: "Ganamos la partida y lo celebramos como si fuera un torneo.", reward: "+1 celebración", ej: true }
+  { icon: "🍔", title: "Hamburguesas después de una ranked", place: "Hamburguesería", text: "Ganamos la partida y lo celebramos como si fuera un torneo.", reward: "+1 celebración" }
 ];
 const NEXT_DINNER = "Siguiente misión: tú eliges el lugar.";
 
@@ -994,17 +1351,36 @@ const PC_PARTS = [
   { id: "psu",  name: "Fuente de poder", icon: "⚡", have: false },
   { id: "fan",  name: "Ventiladores", icon: "🌀", have: false }
 ];
-const PC_PROMISE = "Cuando esté lista, la primera partida en ella la jugamos juntos.";
+// Setup completo (Misión PC). have: true si ya lo tiene · soon: true si ya viene en camino
+// La PC se completa según sus piezas (PC_PARTS)
+const SETUP = [
+  { id: "desk",     name: "Escritorio",        icon: "🪵", have: false, note: "La base de todo el setup." },
+  { id: "monitor",  name: "Monitor",           icon: "🖥️", have: false, note: "Donde vas a ver tus headshots en alta definición." },
+  { id: "pc",       name: "PC",                icon: "💻", note: "El corazón del setup. Pieza por pieza." },
+  { id: "keyboard", name: "Teclado",           icon: "⌨️", have: true,  note: "Para tus binds de Valorant y tus líneas de código." },
+  { id: "mouse",    name: "Mouse",             icon: "🖱️", have: true,  note: "+10 de puntería (no comprobado científicamente)." },
+  { id: "mousepad", name: "Mousepad",          icon: "🟪", have: true,  note: "El primer regalo físico. La base de todo buen flick." },
+  { id: "tablet",   name: "Tableta de diseño", icon: "✍️", have: true,  note: "Para que lo que imaginas pase directo a la pantalla." },
+  { id: "headset",  name: "Audífonos",         icon: "🎧", have: true,  note: "Para escuchar los pasos… y mis callouts." },
+  { id: "chair",    name: "Silla gamer",       icon: "🪑", have: false, soon: true, note: "Ya viene en camino. Para que las ranked largas no se sientan en la espalda." }
+];
+const PC_PROMISE ="Cuando esté lista, la primera partida en ella la jugamos juntos.";
 
+// tier: bronce, plata, oro o platino · hint: pista que se ve mientras está bloqueado
+// key: logros que se desbloquean jugando (se guardan en el navegador) · platinum: se gana al tener todos los demás
 const ACHIEVEMENTS = [
-  { icon: "📨", name: "Invitación aceptada", text: "Que un amigo nos presentara (le debemos una).", on: true },
-  { icon: "🤝", name: "Dúo oficial", text: "Pasar de compañeros de partida a dúo de siempre.", on: true },
-  { icon: "🕹️", name: "Multijugador", text: "Jugar juntos algo que no fuera Valorant.", on: true },
-  { icon: "🍝", name: "Cliente frecuente", text: "Salir a cenar juntos varias veces.", on: true },
-  { icon: "🎁", name: "Coleccionista", text: "Llenar el inventario de regalos.", on: true },
-  { icon: "💻", name: "Hola, mundo", text: "Empezar a trabajar juntos.", on: true },
-  { icon: "🖥️", name: "Setup completo", text: "Encender tu PC por primera vez.", on: false },
-  { icon: "🔒", name: "???", text: "Logro secreto. Todavía estamos en eso.", on: false }
+  { icon: "📨", name: "Invitación aceptada", text: "Que un amigo nos presentara (le debemos una).", tier: "bronce", on: true },
+  { icon: "🤝", name: "Dúo oficial", text: "Pasar de compañeros de partida a dúo de siempre.", tier: "plata", on: true },
+  { icon: "🕹️", name: "Multijugador", text: "Jugar juntos algo que no fuera Valorant.", tier: "bronce", on: true },
+  { icon: "🍝", name: "Cliente frecuente", text: "Salir a cenar juntos varias veces.", tier: "plata", on: true },
+  { icon: "🎁", name: "Coleccionista", text: "Llenar el inventario de regalos.", tier: "oro", on: true },
+  { icon: "💻", name: "Hola, mundo", text: "Empezar a trabajar juntos.", tier: "bronce", on: true },
+  { icon: "🖥️", name: "Setup completo", text: "Encender tu PC por primera vez.", tier: "oro", on: false, hint: "Termina de armar tu PC en Misión PC 🖥️" },
+  { icon: "🎯", name: "Puntería de Jett", text: "Llegar a Diamante o más en el rango de práctica.", tier: "oro", key: "aoi-logro-punteria", hint: "Llega a Diamante en Minijuegos 🎯" },
+  { icon: "❓", name: "Experta en nosotros", text: "Responder perfecto la trivia de Aoi & Benja.", tier: "plata", key: "aoi-logro-trivia", hint: "Responde todo bien en la trivia ❓" },
+  { icon: "🏁", name: "Partida completada", text: "Llegar al final… por ahora.", tier: "oro", key: "aoi-logro-final", hint: "Escucha el mensaje, lee la carta y mira los créditos 🏁" },
+  { icon: "🔒", name: "???", text: "Logro secreto. Todavía estamos en eso.", tier: "plata", on: false, hint: "Logro secreto. Todavía estamos en eso." },
+  { icon: "💎", name: "Aoi & Benja al 100%", text: "Conseguir todos los demás logros.", tier: "platino", platinum: true, key: "aoi-logro-platino", hint: "Consigue todos los demás logros 💎" }
 ];
 
 // Lo que dice el personaje en "Mensaje": corto y juguetón; al final la manda a la carta
@@ -1038,6 +1414,7 @@ const VIEWS = [
   { id: "inicio",   label: "Inicio",    icon: "🏠" },
   { id: "historia", label: "Historia",  icon: "📜" },
   { id: "juegos",   label: "Juegos",    icon: "🕹️" },
+  { id: "practica", label: "Minijuegos", icon: "🎮" },
   { id: "regalos",  label: "Regalos",   icon: "🎁" },
   { id: "cenas",    label: "Cenas",     icon: "🍝" },
   { id: "codigo",   label: "Código",    icon: "💻" },
@@ -1337,7 +1714,7 @@ function creditsHTML() {
   const piezas = PC_PARTS.filter(p => p.have).length;
   const sec = (title, lines) => `<section><h3>${title}</h3>${lines.map(l => `<p>${l}</p>`).join('')}</section>`;
   return `
-    <h1>Aoi &amp; yo</h1>
+    <h1>Aoi &amp; Benja</h1>
     <p class="tag">una partida de ${ME} para Aoi</p>
     ${sec('Jugadora 1', ['Aoi'])}
     ${sec('Jugador 2', [ME])}
@@ -1350,13 +1727,13 @@ function creditsHTML() {
     ${SOON_GIFTS.length ? sec('Próximamente', [`${SOON_GIFTS.length} regalos en camino`]) : ''}
     ${cenas.length ? sec('Misiones de cena', cenas.map(d => d.title)) : ''}
     ${sec('Misión en curso', [`Tu PC <small>(${piezas} de ${PC_PARTS.length} piezas)</small>`])}
-    ${sec('Logros desbloqueados', [`${ACHIEVEMENTS.filter(a => a.on).length} de ${ACHIEVEMENTS.length} <small>(los demás, pronto)</small>`])}
+    ${sec('Logros desbloqueados', [`${ACHIEVEMENTS.filter(achOn).length} de ${ACHIEVEMENTS.length} <small>(los demás, pronto)</small>`])}
     ${CREDITS_EXTRA.more.map(([t, v]) => sec(t, [v])).join('')}
     ${sec('Una palabra que te define', [CREDITS_EXTRA.word])}
     ${sec('Banda sonora', ['Cottonwood <small>(instrumental)</small>', '<small>Twenty One Pilots</small>'])}
     ${sec('Hecho a mano por', [ME])}`;
 }
-let creditsTimer = null;
+let creditsTimer = null, creditsFinished = false;   // finished: llegó al mensaje final (o lo saltó hasta ahí)
 // Dibuja el cielo una sola vez: estrellas cuadradas (pixel) de varios tamaños y brillos
 let skyDrawn = false;
 function drawSky() {
@@ -1392,7 +1769,7 @@ function openCredits() {
   void cr.offsetWidth;   // reinicia la animación si se abre de nuevo
   cr.classList.add('rolling');
   clearTimeout(creditsTimer);
-  creditsTimer = setTimeout(() => cr.classList.add('ended'), CREDITS_ROLL_SECONDS * 1000);
+  creditsTimer = setTimeout(() => { cr.classList.add('ended'); creditsFinished = true; }, CREDITS_ROLL_SECONDS * 1000);
   // la música entra desde el 1:49 con un fundido suave
   const m = getMusic();
   m.currentTime = LETTER_MUSIC.start;
@@ -1406,6 +1783,10 @@ function closeCredits() {
   $('credits').hidden = true;
   document.body.style.overflow = '';
   if (music && !music.paused) fadeMusic(0, 1200, () => { music.pause(); music.volume = musicVol; });
+  // logro final: se desbloquea al salir de los créditos después de haber llegado al mensaje final
+  if (creditsFinished && unlockAch('aoi-logro-final')) {
+    setTimeout(() => hearts(innerWidth / 2, innerHeight / 2, 90), 300);
+  }
 }
 $('endBtn').addEventListener('click', openCredits);
 $('creditsBtn').addEventListener('click', openCredits);
@@ -1417,7 +1798,7 @@ $('crSkip').addEventListener('click', () => {
   if ($('credits').classList.contains('ended')) return closeCredits();
   clearTimeout(creditsTimer);
   $('credits').classList.remove('rolling');
-  $('credits').classList.add('ended');
+  $('credits').classList.add('ended'); creditsFinished = true;
 });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('credits').hidden) closeCredits(); });
 $('playBtn').addEventListener('click', toggleMusic);
@@ -1451,7 +1832,7 @@ $('musicFab').addEventListener('click', toggleMusic);
 
 /* ---------- Historia ---------- */
 $('levels').innerHTML = LEVELS.map((l, i) => `
-  <article class="level${l.current ? ' current' : ''}">
+  <article class="level${l.current ? ' current' : ''}" style="--i:${i}">
     <div class="badge" aria-hidden="true">${l.icon}</div>
     <div class="box">
       <div class="lv">Nivel ${i + 1} · ${l.current ? 'en progreso' : 'completado ✓'}</div>
@@ -1462,21 +1843,50 @@ $('levels').innerHTML = LEVELS.map((l, i) => `
   </article>`).join('');
 
 /* ---------- Juegos ---------- */
-$('library').innerHTML = GAMES.map(g => `
-  <article class="game box">
-    <div class="cover" style="background:${g.color}"><span aria-hidden="true">${g.icon}</span></div>
-    <div class="info">
-      <h3>${g.name}${ej(g)}</h3>
-      <div class="meta">${g.tag} · ${g.hours}</div>
-      <p class="note">${g.note}</p>
-      <div class="ach">🏆 ${g.ach}</div>
+// Biblioteca como cartas coleccionables: se inclinan con brillo holográfico y se dan vuelta al tocarlas
+const pad2 = n => String(n).padStart(2, '0');
+$('library').innerHTML = GAMES.map((g, i) => `
+  <article class="gcard" style="--c:${g.color};--i:${i}" tabindex="0" role="button" aria-pressed="false" aria-label="${g.name}: dar vuelta la carta">
+    <div class="gc-inner">
+      <div class="gc-face gc-front">
+        <div class="cover" style="background:${g.color}"><span aria-hidden="true">${g.icon}</span><i class="holo" aria-hidden="true"></i>
+          <b class="gc-no">N.º ${pad2(i + 1)}</b></div>
+        <div class="info">
+          <h3>${g.name}${ej(g)}</h3>
+          <div class="meta">${g.tag}</div>
+          <div class="gc-hint">↻ toca para darla vuelta</div>
+        </div>
+      </div>
+      <div class="gc-face gc-back">
+        <div class="gc-band"><span aria-hidden="true">${g.icon}</span>${g.name}</div>
+        <p class="note">${g.note}</p>
+        <div class="gc-row">⏱ ${g.hours}</div>
+        <div class="ach">🏆 ${g.ach}</div>
+        <div class="gc-foot">Carta ${pad2(i + 1)} / ${pad2(GAMES.length)}</div>
+      </div>
     </div>
   </article>`).join('');
+const canTilt = matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.querySelectorAll('.gcard').forEach(card => {
+  const flip = () => { card.classList.toggle('flipped'); card.setAttribute('aria-pressed', card.classList.contains('flipped')); };
+  card.addEventListener('click', flip);
+  card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+  if (!canTilt) return;
+  card.addEventListener('pointermove', e => {
+    const r = card.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    card.style.setProperty('--ry', ((x - .5) * 18).toFixed(1) + 'deg');
+    card.style.setProperty('--rx', ((.5 - y) * 14).toFixed(1) + 'deg');
+    card.style.setProperty('--mx', (x * 100).toFixed(0) + '%');
+    card.style.setProperty('--my', (y * 100).toFixed(0) + '%');
+  });
+  card.addEventListener('pointerleave', () => { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
+});
+onEnter.juegos = () => { const el = $('library'); el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); };
 
 /* ---------- Regalos ---------- */
 const RARITY = { legendario: ['Legendario', 'var(--gold)'], epico: ['Épico', '#b47cff'], raro: ['Raro', 'var(--sky)'], comun: ['Común', 'var(--mint)'] };
 $('slots').innerHTML =
-  GIFTS.map((g, i) => `<button class="slot" data-i="${i}" aria-pressed="false" aria-label="${g.name}"><span aria-hidden="true">${g.icon}</span><i class="r rar-${g.rarity}"></i></button>`).join('');
+  GIFTS.map((g, i) => `<button class="slot rare-${g.rarity}" data-i="${i}" style="--i:${i};--d:${(i * .37 % 2).toFixed(2)}s" aria-pressed="false" aria-label="${g.name}"><span aria-hidden="true">${g.icon}</span><i class="r rar-${g.rarity}"></i></button>`).join('');
 // Candados: al menos LOCKED_SLOTS, y los que hagan falta para completar la última fila
 function fillLocked() {
   const slots = $('slots');
@@ -1488,16 +1898,25 @@ function fillLocked() {
   if (locked.length === want) return;
   locked.forEach(s => s.remove());
   slots.insertAdjacentHTML('beforeend', Array.from({ length: want }, (_, i) => i < SOON_SLOTS
-    ? `<button class="slot locked soon" data-s="${i}" aria-label="Regalo ${GIFTS.length + i + 1}, por desbloquear: ver pista"><span aria-hidden="true">🔓</span></button>`
-    : `<div class="slot locked" aria-hidden="true">🔒</div>`).join(''));
+    ? `<button class="slot locked soon" data-s="${i}" style="--i:${GIFTS.length + i};--d:${(i * .53 % 2).toFixed(2)}s" aria-label="Regalo ${GIFTS.length + i + 1}, por desbloquear: ver pista"><span aria-hidden="true">🔓</span></button>`
+    : `<div class="slot locked" style="--i:${GIFTS.length + i}" aria-hidden="true"><span>🔒</span></div>`).join(''));
 }
 new ResizeObserver(fillLocked).observe($('slots'));
 function showGift(i) {
   const g = GIFTS[i];
   const [rn, rc] = RARITY[g.rarity] || RARITY.comun;
-  document.querySelectorAll('.slot[data-i]').forEach(s => s.setAttribute('aria-pressed', s.dataset.i == i));
-  $('detail').innerHTML = `
-    <div class="big" aria-hidden="true">${g.icon}</div>
+  document.querySelectorAll('.slot[data-i]').forEach(s => {
+    s.setAttribute('aria-pressed', s.dataset.i == i);
+    if (s.dataset.i == i) { s.classList.remove('bump'); void s.offsetWidth; s.classList.add('bump'); }
+  });
+  const det = $('detail');
+  det.classList.remove('enter'); void det.offsetWidth; det.classList.add('enter');
+  const sparks = Array.from({ length: 8 }, (_, k) => {
+    const a = k / 8 * Math.PI * 2;
+    return `<i style="--x:${Math.round(Math.cos(a) * 58)}px;--y:${Math.round(Math.sin(a) * 58)}px;animation-delay:${(.15 + k * .03).toFixed(2)}s">✦</i>`;
+  }).join('');
+  det.innerHTML = `
+    <div class="big-wrap"><div class="big" aria-hidden="true">${g.icon}</div><div class="sparks" aria-hidden="true">${sparks}</div></div>
     <h3>${g.name}${ej(g)}</h3>
     <div class="rarity" style="color:${rc}">${rn}</div>
     <dl>${g.when ? `<dt>Obtenido</dt><dd>${g.when}</dd>` : ''}<dt>De</dt><dd>${ME}</dd><dt>Para</dt><dd>Aoi</dd></dl>
@@ -1521,17 +1940,67 @@ $('hintModal').addEventListener('click', e => { if (e.target === $('hintModal') 
 if (GIFTS.length) showGift(0);
 
 /* ---------- Cenas ---------- */
-$('quests').innerHTML = DINNERS.map(d => `
-  <article class="quest box">
+$('quests').innerHTML = DINNERS.map((d, i) => `
+  <article class="quest box" data-i="${i}" role="button" tabindex="0" aria-label="${d.title}: ver repetición">
     <div class="ico" aria-hidden="true">${d.icon}</div>
     <div><h3>${d.title}${ej(d)}</h3><p>${d.place} · ${d.text}</p></div>
     <div class="done">✓ Completada<small>${d.reward}</small></div>
   </article>`).join('') + `
-  <article class="quest box next">
+  <article class="quest box next" data-i="next" role="button" tabindex="0" aria-label="Misión pendiente">
     <div class="ico" aria-hidden="true">❔</div>
     <div><h3>Misión pendiente</h3><p>${NEXT_DINNER}</p></div>
     <div class="done">Disponible</div>
   </article>`;
+
+/* Al tocar una cena: repetición de "misión completada" a pantalla completa */
+function playDinner(i) {
+  const next = i === 'next';
+  const d = next ? { icon: '❔', title: 'Misión pendiente', place: '', text: NEXT_DINNER, reward: '' } : DINNERS[i];
+  const fx = $('dinFx');
+  const rain = Array.from({ length: 34 }, (_, k) => {
+    const ch = k % 3 === 0 ? (Math.random() < .5 ? '✨' : '⭐') : d.icon;
+    return `<span style="left:${(Math.random() * 100).toFixed(1)}%;font-size:${(1.4 + Math.random() * 2.2).toFixed(1)}rem;` +
+      `animation-duration:${(2.4 + Math.random() * 2.4).toFixed(1)}s;animation-delay:${(.3 + Math.random() * 1.6).toFixed(2)}s;--rot:${Math.round(Math.random() * 720 - 360)}deg">${ch}</span>`;
+  }).join('');
+  const m = d.reward.match(/^([+-]?)(\d+)(.*)$/);   // "+100 de confianza" → cuenta de 0 a 100
+  fx.innerHTML = `<div class="rays"></div><div class="rain">${rain}</div>
+    <div class="din-card">
+      <div class="food${next ? ' spin' : ''}">${d.icon}</div>
+      <div class="stamp">${next ? 'MISIÓN DISPONIBLE' : 'MISIÓN COMPLETADA'}</div>
+      <h3>${d.title}</h3>
+      ${d.place ? `<p class="place">📍 ${d.place}</p>` : ''}
+      <p class="quote">${d.text}</p>
+      ${d.reward ? `<p class="din-xp">${m ? `${m[1]}<b id="xpNum">0</b>${m[3]}` : d.reward}</p>` : ''}
+      <p class="tap">toca para cerrar</p>
+    </div>`;
+  fx.hidden = false; fx.classList.remove('closing');
+  document.body.style.overflow = 'hidden';
+  if (m) {   // la recompensa sube como XP
+    const target = +m[2], t0 = performance.now() + 1500;
+    (function count() {
+      const k = Math.min(1, Math.max(0, (performance.now() - t0) / 900));
+      const el = $('xpNum'); if (!el) return;
+      el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(count);
+    })();
+  }
+  setTimeout(() => hearts(innerWidth / 2, innerHeight * .45, 70), 900);
+  setTimeout(() => { hearts(innerWidth * .25, innerHeight * .35, 35); hearts(innerWidth * .75, innerHeight * .35, 35); }, 1700);
+  const opened = performance.now();
+  const close = e => {
+    if (e.type === 'keydown' && e.key !== 'Escape') return;
+    if (performance.now() - opened < 700) return;   // evita cerrarla sin querer al abrir
+    fx.removeEventListener('click', close); removeEventListener('keydown', close);
+    fx.classList.add('closing');
+    setTimeout(() => { fx.hidden = true; fx.innerHTML = ''; document.body.style.overflow = ''; }, 400);
+  };
+  fx.addEventListener('click', close); addEventListener('keydown', close);
+}
+$('quests').addEventListener('click', e => { const q = e.target.closest('.quest[data-i]'); if (q) playDinner(q.dataset.i === 'next' ? 'next' : +q.dataset.i); });
+$('quests').addEventListener('keydown', e => {
+  const q = e.target.closest('.quest[data-i]');
+  if (q && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); playDinner(q.dataset.i === 'next' ? 'next' : +q.dataset.i); }
+});
 
 /* ---------- Código ---------- */
 const CODE = [
@@ -1564,39 +2033,200 @@ const OUTPUT = [
   ['warn', '⚠ esto es intencional y no se va a arreglar'],
   ['ok', '✓ proceso terminado con 0 bugs y mucho cariño']
 ];
+/* Ejecutar: 1) se ilumina cada línea del código, 2) compila con barra de progreso,
+   3) lluvia de código a pantalla completa, 4) corazón gigante hecho de letras + fuegos artificiales */
 let running = false;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const HEART_MASK = [
+  "..#####.....#####..",
+  ".#######...#######.",
+  "#########.#########",
+  "###################",
+  "###################",
+  ".#################.",
+  "..###############..",
+  "....###########....",
+  "......#######......",
+  "........###........",
+  ".........#........."
+];
+function consoleLine(cls, text) {
+  const el = document.createElement('div');
+  el.className = cls; el.textContent = text;
+  $('console').appendChild(el);
+  $('console').scrollTop = $('console').scrollHeight;
+  return el;
+}
 $('runBtn').addEventListener('click', async () => {
   if (running) return;
   running = true;
+  $('runBtn').disabled = true;
   $('runState').textContent = 'ejecutando…';
   $('console').innerHTML = '';
-  for (const [cls, line] of OUTPUT) {
-    await new Promise(r => setTimeout(r, 420));
-    const el = document.createElement('div');
-    el.className = cls; el.textContent = line;
-    $('console').appendChild(el);
+  // 1) el código "se ejecuta" línea por línea
+  const lines = [...$('code').querySelectorAll('.l')];
+  for (const l of lines) { l.classList.add('exec'); await wait(70); l.classList.remove('exec'); l.classList.add('done'); }
+  // 2) compilación con barra de progreso
+  consoleLine('', '> node nuestro-equipo.js');
+  const bar = consoleLine('ok', '');
+  for (let p = 0; p <= 100; p += 5) {
+    const n = Math.round(p / 10);
+    bar.textContent = `compilando [${'█'.repeat(n)}${'░'.repeat(10 - n)}] ${p}%`;
+    await wait(55);
   }
-  $('runState').textContent = 'terminado';
+  for (const [cls, line] of OUTPUT.slice(1)) { await wait(240); consoleLine(cls, line); }
+  lines.forEach(l => l.classList.remove('done'));
+  await wait(400);
+  // 3) y 4) la gran final
+  await runFinale();
+  $('runState').textContent = 'terminado · 0 bugs';
+  $('runBtn').disabled = false;
   running = false;
-  hearts(innerWidth / 2, innerHeight * .6, 30);
 });
+
+async function runFinale() {
+  const fx = $('runFx'), card = $('runCard'), cv = $('rainCv'), g = cv.getContext('2d');
+  card.innerHTML = ''; card.classList.remove('show');
+  fx.hidden = false; fx.classList.remove('closing');
+  document.body.style.overflow = 'hidden';
+  // lluvia de código (canvas, ~2 s)
+  const W = cv.width = innerWidth, H = cv.height = innerHeight, fs = 16;
+  const cols = Math.ceil(W / fs), drops = Array.from({ length: cols }, () => Math.random() * -40);
+  const CH = 'AOIBENJA&♥01{}<>=;';
+  let raining = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  g.font = `${fs}px "JetBrains Mono", monospace`;
+  (function rain() {
+    if (!raining) return;
+    g.fillStyle = 'rgba(11,5,8,.18)'; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < cols; i++) {
+      const ch = CH[Math.floor(Math.random() * CH.length)];
+      g.fillStyle = ch === '♥' ? '#ff4655' : Math.random() < .08 ? '#fff3e6' : '#5ee6c1';
+      g.fillText(ch, i * fs, drops[i] * fs);
+      if (drops[i] * fs > H && Math.random() > .96) drops[i] = 0;
+      drops[i]++;
+    }
+    requestAnimationFrame(rain);
+  })();
+  await wait(2000);
+  raining = false;
+  cv.classList.add('fade');
+  // corazón gigante hecho de letras, fila por fila
+  const word = 'AOI&BENJA&';   // sin ♥: en esta tipografía es más ancho y deformaría el corazón
+  let k = 0;
+  card.innerHTML = `<pre class="ascii-heart" id="asciiHeart"></pre>
+    <p class="build">BUILD SUCCESSFUL ✓</p>
+    <p class="forever">teQuiero() se seguirá ejecutando para siempre…</p>
+    <p class="tap">toca para cerrar</p>`;
+  card.classList.add('show');
+  const pre = $('asciiHeart');
+  for (const row of HEART_MASK) {
+    pre.textContent += [...row].map(c => c === '#' ? word[k++ % word.length] : ' ').join('') + '\n';
+    await wait(90);
+  }
+  card.classList.add('done');
+  // fuegos artificiales de corazones
+  for (let i = 0; i < 6; i++) {
+    hearts(innerWidth * (.15 + Math.random() * .7), innerHeight * (.2 + Math.random() * .5), 40);
+    await wait(380);
+  }
+  await new Promise(res => {
+    const close = () => { fx.removeEventListener('click', close); res(); };
+    fx.addEventListener('click', close);
+  });
+  fx.classList.add('closing');
+  await wait(400);
+  fx.hidden = true; cv.classList.remove('fade');
+  g.clearRect(0, 0, W, H);
+  document.body.style.overflow = '';
+}
 $('projects').innerHTML = PROJECTS.map(p => `<li><b>${p.name}${ej(p)}</b><span>${p.info}</span></li>`).join('');
 
 /* ---------- Misión PC ---------- */
-const tower = $('tower');
-PC_PARTS.forEach(p => {
-  const el = document.createElement('div');
-  el.className = `part ${p.id}${p.have ? ' have' : ''}`;
-  el.textContent = p.icon;
-  el.title = p.name;
-  tower.appendChild(el);
+// Dibujo pixel del setup en colores claros (su PC, teclado y mouse son blancos).
+// Cada parte es un grupo que se puede tocar. [x, y, ancho, alto, color]; los primeros rectángulos son contornos suaves
+const OL = '#9fb2c8';   // contorno
+const SETUP_ART = {
+  desk: { badge: [126, 70], r: [[17,59,126,6,OL],[18,60,124,3,'#e9cfa6'],[18,63,124,2,'#d4b083'],[21,65,6,24,OL],[133,65,6,24,OL],[22,65,4,23,'#f3f6f9'],[134,65,4,23,'#f3f6f9'],[105,65,28,12,OL],[106,65,26,11,'#f7f9fb'],[116,70,6,1,'#9fd3ff']] },
+  monitor: { badge: [99, 23], r: [[49,19,54,33,OL],[50,20,52,31,'#fbfcfd'],[53,23,46,25,'#111018'],[53,23,46,2,'#1d1b26'],[54,23,2,2,'#eb0029'],[90,23.5,8,1,'#3a3848'],[53,25,9,23,'#18161f'],[55,27,5,5,'#ff4655'],[55,34,5,5,'#c8aa6e'],[55,41,5,5,'#3a3848'],[54,27,1,5,'#fff3e6'],[63,26,35,14,'#3b1220'],[63,26,35,2,'#ff4655'],[86,28,10,12,'#5a1a2c'],[89,30,4,8,'#ff4655'],[66,30,14,2,'#fff3e6'],[66,33,10,1,'#d9b6c0'],[66,35,12,1,'#d9b6c0'],[63,42,17,5,'#eb0029'],[66,44,11,1,'#fff3e6'],[82,42,16,5,'#1d1b26'],[84,44,8,1,'#5a5870'],[73,51,6,8,OL],[74,51,4,7,'#fbfcfd'],[67,57,18,3,OL],[68,58,16,2,'#fbfcfd']] },
+  pc: { badge: [127, 31], r: [[105,29,24,32,OL],[106,30,22,30,'#fdfeff'],[108,32,18,26,'#eef3f9'],[111,34,6,6,'#9fd3ff'],[113,36,2,2,'#e3f3ff'],[118,34,6,6,'#9be7d0'],[120,36,2,2,'#e2fbf3'],[110,45,15,4,'#cbbdf7'],[110,45,15,1,'#e6defc'],[110,51,15,5,'#e6ebf1'],[124,33,1,2,'#9be7d0'],[107,60,3,1,OL],[124,60,3,1,OL]] },
+  keyboard: { badge: [50, 53], r: [[43,55,28,5,OL],[44,56,26,4,'#ffffff'],[45,57,24,1,'#eef2f6'],[45,58,24,1,'#e3e9ef'],[46,57,2,1,'#9fd3ff'],[66,58,3,1,'#9be7d0']] },
+  mousepad: { badge: [84, 55], r: [[79,57,26,3,OL],[80,58,24,2,'#cbbdf7'],[80,58,24,1,'#ddd5fa']] },
+  mouse: { badge: [97, 51], r: [[90,54,8,4,OL],[91,55,6,3,'#ffffff'],[93,55,2,1,'#9fd3ff']] },
+  tablet: { badge: [41, 53], r: [[21,56,22,4,OL],[22,57,20,3,'#3a3550'],[24,57,14,2,'#5a5570'],[39,54,1,5,'#ffffff']] },
+  headset: { badge: [39, 40], r: [[29,45,4,12,OL],[30,46,2,10,'#f3f6f9'],[26,55,10,2,OL],[27,56,8,1,'#f3f6f9'],[25,40,14,4,OL],[26,41,12,2,'#ffffff'],[25,43,2,6,'#ffffff'],[37,43,2,6,'#ffffff'],[23,46,6,8,OL],[35,46,6,8,OL],[24,47,4,6,'#bfe0ff'],[36,47,4,6,'#bfe0ff']] },
+  chair: { badge: [156, 44], r: [[141,44,18,28,OL],[144,45,12,4,'#ffffff'],[142,49,16,22,'#ffffff'],[148,50,4,20,'#9fd3ff'],[145,53,10,5,'#e9f4ff'],[137,69,24,7,OL],[138,70,22,5,'#f7f9fb'],[138,66,3,5,'#e3e9ef'],[157,66,3,5,'#e3e9ef'],[147,75,6,10,'#d6dbe2'],[139,85,22,2,'#d6dbe2'],[139,87,2,2,'#aeb6c2'],[149,87,2,2,'#aeb6c2'],[159,87,2,2,'#aeb6c2']] }
+};
+const pcFrac = () => PC_PARTS.filter(p => p.have).length / PC_PARTS.length;
+const itemFrac = it => it.id === 'pc' ? pcFrac() : it.have ? 1 : 0;
+const itemState = it => itemFrac(it) === 1 ? 'ok' : it.soon ? 'soon' : itemFrac(it) > 0 ? 'prog' : 'no';   // prog: a medio camino (la PC)
+function itemStatus(it) {
+  if (it.id === 'pc') {
+    const n = PC_PARTS.filter(p => p.have).length;
+    return n === PC_PARTS.length ? '✓ Completado' : `${n} de ${PC_PARTS.length} piezas`;
+  }
+  return it.have ? '✓ Completado' : it.soon ? 'En camino' : 'Pendiente';
+}
+// Escena: habitación clara (pared, piso de madera, ventana de día, decoración) + cada parte del setup
+const rectsSvg = list => list.map(([x, y, w, h, c]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`).join('');
+const LED = Array.from({ length: 10 }, (_, i) => [38 + i * 7, 17, 7, 1, ['#bfe0ff', '#cbbdf7', '#9be7d0', '#ffffff'][i % 4]]);
+const ROOM = [
+  [0,0,160,88,'#d6e6f5'],[0,66,160,22,'#c3d6ea'],[0,66,160,1,'#aec4dc'],                       // pared y zócalo
+  [0,88,160,12,'#d8b48c'],[0,93,160,1,'#c79f75'],[0,97,160,1,'#c79f75'],[40,90,84,6,'#c9bff0'],[42,91,80,4,'#ddd5fa'],   // piso y alfombra
+  [0,4,36,1,'#c9d1dc'],[2,6,32,26,'#9fb2c8'],[3,7,30,24,'#ffffff'],[5,9,26,20,'#a9d8ff'],[8,12,7,2,'#ffffff'],[10,11,4,1,'#ffffff'],[20,21,8,2,'#ffffff'],[22,20,4,1,'#ffffff'],[17,9,2,20,'#ffffff'],[5,18,26,2,'#ffffff'],[1,5,4,30,'#bfe8d8'],[31,5,4,30,'#bfe8d8'],   // ventana con cortinas
+  [41,4,14,12,'#ffffff'],[42,5,12,10,'#ffe9b0'],[42,11,12,4,'#9be7a8'],[50,6,3,3,'#ffd452'],[44,7,4,1,'#ffffff'],     // cuadro
+  ...LED,                                                                                       // tira LED
+  [112,14,32,2,'#e2c49c'],[112,16,32,1,'#c79f75'],[115,16,1,3,'#c79f75'],[140,16,1,3,'#c79f75'],  // repisa
+  [114,8,2,6,'#cbbdf7'],[116,9,2,5,'#9be7d0'],[118,7,2,7,'#bfe0ff'],[120,10,3,4,'#ffd452'],      // libros
+  [126,10,6,4,'#ffffff'],[125,10,1,4,'#9fb2c8'],[127,6,1,4,'#8fcfa8'],[129,5,1,5,'#7bbf96'],[131,7,1,3,'#8fcfa8'],   // plantita
+  [135,9,3,3,'#f4f6fa'],[135,12,3,2,'#4f8fd1'],                                                 // mini Jett
+  [142,16,1,6,'#7bbf96'],[143,18,2,2,'#8fcfa8'],[141,21,2,2,'#8fcfa8'],[143,24,2,2,'#7bbf96'],[142,27,1,4,'#7bbf96'],[141,30,2,2,'#8fcfa8'],   // planta colgante
+  [5,73,12,13,'#9fb2c8'],[6,74,10,12,'#ffffff'],[6,74,10,2,'#9be7d0'],[8,77,6,4,'#efe1c6'],[4,86,14,2,'#bfe0ff']   // dispensador de la gata
+];
+$('setupSvg').innerHTML = rectsSvg(ROOM) +
+  SETUP.map(it => {
+    const a = SETUP_ART[it.id];
+    if (!a) return '';
+    const st = itemState(it);
+    const [bx, by] = a.badge;
+    const badge = st === 'ok' ? `<rect class="badge" x="${bx - 3}" y="${by - 4}" width="6" height="6" fill="#5ee6c1"/><text class="badge" x="${bx}" y="${by + .8}" text-anchor="middle" fill="#0b0508">✓</text>`
+      : `<rect class="badge" x="${bx - 3}" y="${by - 4}" width="6" height="6" fill="${st === 'no' ? '#8a94a6' : '#ffd452'}"/><text class="badge" x="${bx}" y="${by + .8}" text-anchor="middle" fill="${st === 'no' ? '#fff3e6' : '#0b0508'}">${st === 'prog' ? '+' : '?'}</text>`;
+    return `<g class="it${st === 'ok' || st === 'prog' ? '' : ' pending'}" data-id="${it.id}" tabindex="0" role="button" aria-label="${it.name}: ${itemStatus(it)}">` +
+      a.r.map(([x, y, w, h, c]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`).join('') + `</g>` + badge;
+  }).join('');
+
+function showItem(id) {
+  const it = SETUP.find(s => s.id === id);
+  document.querySelectorAll('#setupSvg .it').forEach(g => g.classList.toggle('sel', g.dataset.id === id));
+  document.querySelectorAll('#parts li').forEach(li => li.classList.toggle('sel', li.dataset.id === id));
+  const st = itemState(it);
+  let html = `<div class="item-head"><span class="ic" aria-hidden="true">${it.icon}</span><div><h3>${it.name}</h3>
+    <span class="pill ${st}">${itemStatus(it)}</span></div></div><p class="item-note">${it.note}</p>`;
+  if (id === 'pc') {
+    html += `<div class="tower" id="tower" role="img" aria-label="Gabinete de la PC con las piezas conseguidas encendidas"><div class="glass"></div>` +
+      PC_PARTS.map(p => `<div class="part ${p.id}${p.have ? ' have' : ''}" title="${p.name}">${p.icon}</div>`).join('') + `</div>
+      <ul class="parts">${PC_PARTS.map(p => `<li class="${p.have ? 'have' : ''}"><span aria-hidden="true">${p.icon}</span><span>${p.name}</span><span class="st">${p.have ? '✓ conseguida' : 'pendiente'}</span></li>`).join('')}</ul>`;
+  }
+  $('itemCard').innerHTML = html;
+}
+document.querySelectorAll('#setupSvg .it').forEach(g => {
+  g.addEventListener('click', () => showItem(g.dataset.id));
+  g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showItem(g.dataset.id); } });
 });
-const have = PC_PARTS.filter(p => p.have).length;
-const pct = Math.round(have / PC_PARTS.length * 100);
-$('parts').innerHTML = PC_PARTS.map(p => `
-  <li class="${p.have ? 'have' : ''}"><span aria-hidden="true">${p.icon}</span><span>${p.name}${ej(p)}</span><span class="st">${p.have ? '✓ conseguida' : 'pendiente'}</span></li>`).join('');
-$('pbarLabel').textContent = `${have} de ${PC_PARTS.length} piezas conseguidas`;
+
+const pct = Math.round(SETUP.reduce((s, it) => s + itemFrac(it), 0) / SETUP.length * 100);
+$('parts').innerHTML = SETUP.map(it => {
+  const st = itemState(it);
+  return `<li data-id="${it.id}" class="${st === 'ok' ? 'have' : st}"><span aria-hidden="true">${it.icon}</span><span>${it.name}</span><span class="st">${itemStatus(it)}</span></li>`;
+}).join('');
+$('parts').addEventListener('click', e => { const li = e.target.closest('li[data-id]'); if (li) showItem(li.dataset.id); });
+const doneItems = SETUP.filter(it => itemFrac(it) === 1).length;
+$('pbarLabel').textContent = `${doneItems} de ${SETUP.length} partes del setup completas`;
 $('promise').textContent = PC_PROMISE;
+showItem('pc');
+// Historia: reinicia la animación de los niveles cada vez que se entra
+onEnter.regalos = () => { const el = $('slots'); el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); };
+onEnter.inicio = () => { const el = document.querySelector('.players'); el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); };
+onEnter.historia = () => { const el = $('levels'); el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); };
 onEnter.pc = () => {
   $('pbar').style.width = '0';
   $('pct').textContent = '0%';
@@ -1606,13 +2236,253 @@ onEnter.pc = () => {
 };
 
 /* ---------- Logros ---------- */
-const unlocked = ACHIEVEMENTS.filter(a => a.on).length;
-$('achSummary').textContent = `🏆 ${unlocked} de ${ACHIEVEMENTS.length} logros`;
-$('achs').innerHTML = ACHIEVEMENTS.map(a => `
-  <article class="ach-card box${a.on ? '' : ' locked'}">
-    <div class="ai" aria-hidden="true">${a.icon}</div>
-    <div><h3>${a.name}</h3><p>${a.text}</p></div>
-  </article>`).join('');
+const achOn = a => a.on || (a.key && getFlag(a.key));
+const TIERS = { bronce: ['🥉', 'Bronce'], plata: ['🥈', 'Plata'], oro: ['🥇', 'Oro'], platino: ['💎', 'Platino'] };
+const HUNTER_RANKS = [[0, 'Novata'], [.35, 'Exploradora'], [.6, 'Cazadora de logros'], [.85, 'Leyenda'], [1, 'Leyenda absoluta 💎']];
+function renderAchs() {
+  const unlocked = ACHIEVEMENTS.filter(achOn).length, total = ACHIEVEMENTS.length, frac = unlocked / total;
+  $('achSummary').textContent = `${unlocked} de ${total}`;
+  $('ringPct').textContent = Math.round(frac * 100) + '%';
+  $('ringFg').style.setProperty('--p', frac);
+  $('hunterRank').textContent = HUNTER_RANKS.filter(([min]) => frac >= min).pop()[1];
+  $('tierCounts').innerHTML = Object.entries(TIERS).map(([t, [ic, name]]) => {
+    const all = ACHIEVEMENTS.filter(a => a.tier === t), got = all.filter(achOn).length;
+    return `<span class="tier-chip t-${t}">${ic} ${name} <b>${got}/${all.length}</b></span>`;
+  }).join('');
+  $('achs').innerHTML = ACHIEVEMENTS.map((a, i) => {
+    const on = achOn(a), [ic, tierName] = TIERS[a.tier] || TIERS.bronce;
+    return `<article class="ach-card box t-${a.tier}${on ? '' : ' locked'}${a.platinum ? ' plat' : ''}" style="--i:${i}">
+      <div class="ai" aria-hidden="true">${on ? a.icon : '🔒'}</div>
+      <div><div class="tier">${ic} ${tierName}</div><h3>${a.name}</h3>
+      <p>${on ? a.text : `💡 ${a.hint || a.text}`}</p></div>
+    </article>`;
+  }).join('');
+}
+// El platino se gana solo, al tener todos los demás
+function checkPlatinum() {
+  const plat = ACHIEVEMENTS.find(a => a.platinum);
+  if (!plat || getFlag(plat.key)) return false;
+  if (!ACHIEVEMENTS.filter(a => !a.platinum).every(achOn)) return false;
+  setFlag(plat.key);
+  return true;
+}
+checkPlatinum();
+renderAchs();
+// Desbloquea un logro con "key" (una sola vez) y avisa; devuelve true si era nuevo
+function unlockAch(key) {
+  const a = ACHIEVEMENTS.find(x => x.key === key);
+  if (!a || getFlag(key)) return false;
+  setFlag(key);
+  const plat = checkPlatinum();
+  renderAchs();
+  toast('🏆', '¡Logro desbloqueado!', a.name);
+  if (plat) setTimeout(() => {   // ¡platino!
+    toast('💎', '¡PLATINO DESBLOQUEADO!', 'Aoi & Benja al 100%');
+    for (let k = 0; k < 5; k++) setTimeout(() => hearts(innerWidth * (.2 + Math.random() * .6), innerHeight * (.25 + Math.random() * .4), 60), k * 300);
+  }, 3200);
+  return true;
+}
+onEnter.logros = () => {   // el anillo se llena y los logros aparecen en cascada
+  const el = $('achs'), ring = $('ringFg');
+  el.classList.remove('play'); ring.classList.remove('play'); void el.offsetWidth;
+  el.classList.add('play'); ring.classList.add('play');
+};
+
+/* ---------- Rango de práctica (mini juego estilo Valorant) ---------- */
+const RANGE_SECONDS = 30;
+// Rangos de Valorant según los puntos (headshot = 2, cuerpo = 1)
+const RANKS = [
+  { name: 'Hierro', min: 0, color: '#9a9a9a' },
+  { name: 'Bronce', min: 8, color: '#c08552' },
+  { name: 'Plata', min: 14, color: '#d4dbe3' },
+  { name: 'Oro', min: 20, color: '#ecc94b' },
+  { name: 'Platino', min: 26, color: '#4fc6c2' },
+  { name: 'Diamante', min: 32, color: '#c58af2' },
+  { name: 'Ascendente', min: 38, color: '#43d58c' },
+  { name: 'Inmortal', min: 44, color: '#ff4f6a' },
+  { name: 'Radiante', min: 50, color: '#fff2a8' }
+];
+const UNLOCK_RANK = 'Diamante';   // desde este rango se desbloquea "Puntería de Jett"
+const rankFor = s => RANKS.filter(r => s >= r.min).pop();
+const rg = { on: false, score: 0, shots: 0, hits: 0, hs: 0, left: 0, tick: null, spawnT: null, t0: 0 };
+let rgBest = 0;
+try { rgBest = parseInt(localStorage.getItem('aoi-rango-mejor'), 10) || 0; } catch (e) {}
+$('rgBest').textContent = rgBest;
+
+function rangeIntro() {
+  $('arenaMsg').innerHTML = `<p class="px">¿Lista, agente?</p>
+    <p class="detail">Mejor marca: ${rgBest ? `${rgBest} puntos (${rankFor(rgBest).name})` : 'todavía ninguna'}</p>
+    <button class="btn" id="rgStart">▶ Empezar</button>`;
+  $('arenaMsg').hidden = false;
+  $('rgStart').addEventListener('click', startRange);
+}
+function startRange() {
+  Object.assign(rg, { on: true, score: 0, shots: 0, hits: 0, hs: 0, left: RANGE_SECONDS, t0: performance.now() });
+  $('rgScore').textContent = 0; $('rgTime').textContent = RANGE_SECONDS;
+  $('arenaMsg').hidden = true;
+  $('arena').classList.add('playing');
+  clearInterval(rg.tick);
+  rg.tick = setInterval(() => {
+    rg.left--; $('rgTime').textContent = rg.left;
+    if (rg.left <= 0) endRange();
+  }, 1000);
+  spawnTarget();
+}
+function removeTarget(t) { t.dataset.done = 1; t.classList.add('out'); setTimeout(() => t.remove(), 160); }
+function spawnTarget() {
+  if (!rg.on) return;
+  const arena = $('arena');
+  const k = Math.min(1, (performance.now() - rg.t0) / (RANGE_SECONDS * 1000));   // 0 → 1 a lo largo de la partida
+  const size = Math.round(62 - 28 * k);          // cada vez más chicas
+  const life = 1500 - 700 * k;                    // y duran menos
+  const t = document.createElement('button');
+  t.className = 'tgt'; t.type = 'button'; t.setAttribute('aria-label', 'Diana');
+  t.style.width = t.style.height = size + 'px';
+  t.style.left = Math.random() * (arena.clientWidth - size) + 'px';
+  t.style.top = Math.random() * (arena.clientHeight - size) + 'px';
+  t.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    if (!rg.on || t.dataset.done) return;
+    const r = t.getBoundingClientRect(), a = arena.getBoundingClientRect();
+    const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) / (r.width / 2);
+    const head = d <= .33;                        // centro rojo = headshot
+    rg.shots++; rg.hits++; if (head) rg.hs++;
+    rg.score += head ? 2 : 1;
+    $('rgScore').textContent = rg.score;
+    hitFx(e.clientX - a.left, e.clientY - a.top, head);
+    removeTarget(t);
+    clearTimeout(rg.spawnT);
+    rg.spawnT = setTimeout(spawnTarget, 120);
+  });
+  arena.append(t);
+  clearTimeout(rg.spawnT);
+  rg.spawnT = setTimeout(() => {                  // si no le dispara a tiempo, la diana se va
+    if (!t.dataset.done) removeTarget(t);
+    spawnTarget();
+  }, life);
+}
+function hitFx(x, y, head) {
+  const f = document.createElement('span');
+  f.className = 'hitfx' + (head ? ' hs' : '');
+  f.textContent = head ? '+2 HEADSHOT' : '+1';
+  f.style.left = x + 'px'; f.style.top = y - 10 + 'px';
+  $('arena').append(f);
+  setTimeout(() => f.remove(), 600);
+}
+// disparo al aire (fuera de una diana): cuenta para la precisión
+$('arena').addEventListener('pointerdown', e => { if (rg.on && !e.target.closest('.arena-msg')) rg.shots++; });
+function endRange() {
+  if (!rg.on) return;
+  rg.on = false;
+  clearInterval(rg.tick); clearTimeout(rg.spawnT);
+  $('arena').classList.remove('playing');
+  $('arena').querySelectorAll('.tgt').forEach(t => t.remove());
+  const rank = rankFor(rg.score);
+  const acc = rg.shots ? Math.round(rg.hits / rg.shots * 100) : 0;
+  const record = rg.score > rgBest;
+  if (record) { rgBest = rg.score; $('rgBest').textContent = rgBest; try { localStorage.setItem('aoi-rango-mejor', rgBest); } catch (e) {} }
+  $('arenaMsg').innerHTML = `<p class="px">Rango alcanzado</p>
+    <p class="rank" style="color:${rank.color}">${rank.name}</p>
+    <p class="detail">${rg.score} puntos · ${rg.hits} aciertos · ${rg.hs} headshots · ${acc}% de precisión</p>
+    ${record ? '<p class="rec">★ ¡Nuevo récord!</p>' : ''}
+    <button class="btn" id="rgStart">↺ Otra vez</button>`;
+  $('arenaMsg').hidden = false;
+  $('rgStart').addEventListener('click', startRange);
+  if (rg.score >= RANKS.find(r => r.name === UNLOCK_RANK).min && unlockAch('aoi-logro-punteria')) {
+    const r = $('arena').getBoundingClientRect();
+    hearts(r.left + r.width / 2, r.top + r.height / 2, 60);
+  }
+}
+rangeIntro();
+// si sale de la sección en medio de una partida, la partida termina
+addEventListener('hashchange', () => { if (rg.on && location.hash !== '#practica') endRange(); });
+
+/* ---------- Minijuegos: selector ---------- */
+document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => {
+  const mode = b.dataset.mode;
+  document.querySelectorAll('.mode').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); });
+  if (mode !== 'range' && rg.on) endRange();
+  $('range').hidden = mode !== 'range';
+  $('trivia').hidden = mode !== 'trivia';
+}));
+
+/* ---------- Trivia de Aoi & Benja ----------
+   q: pregunta · a: respuesta correcta (o una lista si hay varias) · o: otras opciones (se mezclan) · note: comentario al responder */
+const TRIVIA = [
+  { q: "¿Quién nos presentó?", a: "Un 🦴", o: ["Nos tocó la misma partida", "Un primo", "Nadie, fue por TikTok"], note: "Le debemos una." },
+  { q: "¿Cuál fue el primer juego que te regalé?", a: "Ravenswatch", o: ["Minecraft", "It Takes Two", "V Rising"], note: "El primero de muchos." },
+  { q: "¿Cuándo empezamos a hablar?", a: "20 de mayo de 2026", o: ["14 de febrero de 2026", "20 de junio de 2026", "1 de mayo de 2026"], note: "A las 18:24, para ser exactos." },
+  { q: "¿Qué comimos en nuestra primera cena?", a: "Pizza", o: ["Sushi", "Hamburguesas", "Lasaña"], note: "Yo estaba más nervioso que en un clutch 1 contra 5." },
+  { q: "¿Cómo se llama mi gata?", a: "MJ", o: ["Luna", "Mía", "Nala"], note: "🐈" },
+  { q: "¿Qué palabra te describe?", a: "Lumina", o: ["Aurora", "Estrella", "Nova"], note: "Tú misma lo dijiste." },
+  { q: "¿Qué instrumento tocas?", a: "Violín", o: ["Piano", "Guitarra", "Flauta"], note: "Violinista oficial del equipo." },
+  { q: "¿Cuál fue el primer regalo físico que te di?", a: "Mousepad", o: ["Teclado", "Mouse", "Tableta de diseño"], note: "La base de todo buen flick." },
+  { q: "¿Cuál fue la primera skin de Valorant que te di?", a: ["Prime", "Mystbloom"], o: [], note: "¡Pregunta trampa! Te di las dos al mismo tiempo." },
+  { q: "¿Cuál fue el primer juego que jugamos juntos?", a: "Valorant", o: ["League of Legends", "Dead by Daylight", "Roblox"], note: "Donde empezó todo." }
+];
+const tv = { i: 0, score: 0, qs: [] };
+const rightAnswers = q => Array.isArray(q.a) ? q.a : [q.a];
+const shuffle = arr => arr.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(p => p[1]);
+function triviaIntro() {
+  $('tvCount').textContent = `${TRIVIA.length} preguntas`;
+  $('tvScore').textContent = '';
+  $('tvBar').style.width = '0%';
+  $('tvBody').innerHTML = `<div class="tv-end">
+    <div class="big">❓</div>
+    <h3>¿Cuánto sabes de nosotros?</h3>
+    <p>${TRIVIA.length} preguntas sobre nuestra partida. Con todas correctas hay premio.</p>
+    <button class="btn" id="tvStart">▶ Empezar</button></div>`;
+  $('tvStart').addEventListener('click', startTrivia);
+}
+function startTrivia() {
+  tv.i = 0; tv.score = 0; tv.qs = shuffle(TRIVIA);
+  showQuestion();
+}
+function showQuestion() {
+  const q = tv.qs[tv.i];
+  $('tvCount').textContent = `Pregunta ${tv.i + 1} de ${tv.qs.length}`;
+  $('tvScore').textContent = `✔ ${tv.score}`;
+  $('tvBar').style.width = (tv.i / tv.qs.length * 100) + '%';
+  $('tvBody').innerHTML = `<p class="tv-q">${q.q}</p>
+    <div class="tv-opts">${shuffle([...rightAnswers(q), ...q.o]).map(o => `<button class="tv-opt" type="button">${o}</button>`).join('')}</div>
+    <p class="tv-fb" id="tvFb" aria-live="polite"></p>`;
+  $('tvBody').querySelectorAll('.tv-opt').forEach(b => b.addEventListener('click', () => answer(b, q)));
+}
+function answer(btn, q) {
+  const rights = rightAnswers(q);
+  const ok = rights.includes(btn.textContent);
+  $('tvBody').querySelectorAll('.tv-opt').forEach(b => {
+    b.disabled = true;
+    if (rights.includes(b.textContent)) b.classList.add('right');
+  });
+  if (!ok) btn.classList.add('wrong');
+  if (ok) tv.score++;
+  $('tvScore').textContent = `✔ ${tv.score}`;
+  const fb = $('tvFb');
+  fb.className = 'tv-fb ' + (ok ? 'ok' : 'no');
+  fb.innerHTML = (ok ? '✔ ¡Correcto!' : `✖ Era: ${rights.join(' o ')}`) + (q.note ? `<small>${q.note}</small>` : '');
+  const last = tv.i === tv.qs.length - 1;
+  fb.insertAdjacentHTML('afterend', `<button class="btn tv-next" id="tvNext" type="button">${last ? 'Ver resultado' : 'Siguiente ▶'}</button>`);
+  $('tvNext').addEventListener('click', () => { tv.i++; last ? endTrivia() : showQuestion(); });
+  $('tvNext').focus({ focusVisible: false });
+}
+function endTrivia() {
+  const n = tv.qs.length, s = tv.score;
+  $('tvCount').textContent = 'Resultado';
+  $('tvBar').style.width = '100%';
+  const title = s === n ? 'Nos conoces de memoria' : s >= n * .7 ? 'Casi perfecta' : s >= n * .4 ? 'Vas bien, pero toca repasar' : '¿Segura que eres Aoi? 👀';
+  $('tvBody').innerHTML = `<div class="tv-end">
+    <div class="big">${s}/${n}</div>
+    <h3>${title}</h3>
+    <p>${s === n ? '¡Todas correctas!' : 'Puedes intentarlo de nuevo cuando quieras.'}</p>
+    <button class="btn" id="tvStart">↺ Jugar otra vez</button></div>`;
+  $('tvStart').addEventListener('click', startTrivia);
+  if (s === n && unlockAch('aoi-logro-trivia')) {
+    const r = $('trivia').getBoundingClientRect();
+    hearts(r.left + r.width / 2, r.top + 80, 70);
+  }
+}
+triviaIntro();
 
 /* ---------- Mensaje ---------- */
 // Personaje pixel: Jett de Valorant, copiada celda por celda del dibujo en papel cuadriculado.
@@ -1653,12 +2523,48 @@ const NPC_COLORS = {
   N: '#23408f',                 // ropa azul oscuro
   T: '#8d9099'                  // franjas grises de las piernas
 };
-$('npc').innerHTML = `<svg viewBox="0 0 ${NPC_SPRITE[0].length} ${NPC_SPRITE.length}" shape-rendering="crispEdges">` +
-  NPC_SPRITE.flatMap((row, y) => [...row].map((c, x) => {
-    if (c === '.') return '';
-    const cls = (c === 'E' || c === 'Q') ? ' class="eye"' : c === 'M' ? ' class="mouth"' : '';
-    return `<rect x="${x}" y="${y}" width="1" height="1" fill="${NPC_COLORS[c]}"${cls}/>`;
-  })).join('') + `</svg>`;
+// Dibuja un personaje pixel (filas de letras → rectángulos). Q/E = ojos (parpadean), M = boca
+function spriteSvg(rows, colors) {
+  return `<svg viewBox="0 0 ${rows[0].length} ${rows.length}" shape-rendering="crispEdges">` +
+    rows.flatMap((row, y) => [...row].map((c, x) => {
+      if (c === '.') return '';
+      const cls = (c === 'E' || c === 'Q') ? ' class="eye"' : c === 'M' ? ' class="mouth"' : '';
+      return `<rect x="${x}" y="${y}" width="1" height="1" fill="${colors[c]}"${cls}/>`;
+    })).join('') + `</svg>`;
+}
+$('npc').innerHTML = spriteSvg(NPC_SPRITE, NPC_COLORS);
+// Sage (main de Aoi), copiada celda por celda del dibujo en papel cuadriculado. H pelo, h brillo, Y adorno, J jade, B cinturón, W blanco
+const SAGE_SPRITE = [
+  "......HHHHH.....",
+  "......HYYHhH....",
+  "....OHHHHHHhH...",
+  "...OHHHHHHHHhH..",
+  "..OHHHHHHHHHhH..",
+  ".OOHHHHHHHHHHH..",
+  ".OOHHHHHOHHHHHH.",
+  ".OHHHHOHSSHHHHH.",
+  ".OHHHOSSSSHHHOH.",
+  ".OHHHSSSSSSHHOHO",
+  ".OHHQQSSQQQHHHHO",
+  ".OHHEQSSHEQHHHHO",
+  ".OJOSSSSHSOJHHHO",
+  "..OHOOOOOO..OHO.",
+  "..OOWOJJO...OHO.",
+  "....OWJJWO..OHO.",
+  "...OHWWJWHOOOHO.",
+  "...OWBBBBWOOHO..",
+  "...OHJJJJHO.OO..",
+  "...OSOWWWSO.....",
+  "....OOO..O......",
+  ".....OOH.O......",
+  ".....OOOO......."
+];
+const SAGE_COLORS = {
+  O: '#0b0718', Q: '#0b0718', H: '#3a3f47', h: '#b9bcc2', Y: '#ffd452', J: '#2fc4a6',
+  S: '#f1c08f', E: '#f4f6f8', B: '#3b3fa8', W: '#f4f6f8'
+};
+$('p1agent').innerHTML = spriteSvg(SAGE_SPRITE, SAGE_COLORS);   // Aoi → Sage
+$('p2agent').innerHTML = spriteSvg(NPC_SPRITE, NPC_COLORS);   // Benja → Jett
 
 $('speakerName').textContent = ME;
 let dIdx = 0, typing = false, skip = false;

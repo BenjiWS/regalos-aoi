@@ -1461,7 +1461,7 @@ const DIALOG = [
 /* ===================================================================== */
 
 // Carta: canción de fondo (YouTube) y texto, un elemento por párrafo
-const LETTER_MUSIC = { src: "cottonwood.mp3", start: 109, volume: 0.10 };   // Cottonwood (instrumental) desde el 1:49 (suena en los créditos finales); volumen inicial de 0 a 1
+const LETTER_MUSIC = { src: "cottonwood.mp3", start: 109, volume: 0.06 };   // Cottonwood (instrumental) desde el 1:49 (suena en los créditos finales); volumen inicial de 0 a 1
 const LETTER_TITLE = "Lo mucho que significas para mí";
 const LETTER = [
   "A veces siento que las palabras se quedan pequeñas cuando intento explicar lo mucho que alguien puede llegar a significar. Y contigo me pasa eso. No sé si alguna vez he logrado hacerte entender todo el cariño que te tengo, pero hay algo que sí quiero que quede escrito: eres una persona muy especial para mí.",
@@ -1871,7 +1871,7 @@ $('playBtn').addEventListener('click', toggleMusic);
 
 // Volumen: control deslizante en el reproductor; se recuerda en este navegador
 var musicVol = LETTER_MUSIC.volume;
-try { const v = parseFloat(localStorage.getItem('aoi-volumen-v2')); if (!isNaN(v)) musicVol = v; } catch (e) {}
+try { const v = parseFloat(localStorage.getItem('aoi-volumen-v3')); if (!isNaN(v)) musicVol = v; } catch (e) {}
 function setVolume(v, save) {
   musicVol = Math.min(1, Math.max(0, v));
   if (save) fadeId++;   // si ella mueve el volumen, se cancela cualquier fundido en curso
@@ -1880,7 +1880,7 @@ function setVolume(v, save) {
   $('volRange').value = pct;
   $('volRange').style.setProperty('--v', pct + '%');
   $('volIcon').textContent = pct === 0 ? '🔇' : pct < 40 ? '🔉' : '🔊';
-  if (save) try { localStorage.setItem('aoi-volumen-v2', musicVol); } catch (e) {}
+  if (save) try { localStorage.setItem('aoi-volumen-v3', musicVol); } catch (e) {}
 }
 $('volRange').addEventListener('input', e => setVolume(e.target.value / 100, true));
 $('volIcon').addEventListener('click', () => setVolume(musicVol > 0 ? 0 : LETTER_MUSIC.volume, true));

@@ -348,6 +348,19 @@
   .mode.on { color: var(--shadow); background: var(--gold); border-color: var(--shadow); }
   .trivia { padding: 20px; max-width: 900px; }
   .trivia[hidden], .range[hidden] { display: none; }
+  /* Atrapa a MJ */
+  .mj-game { padding: 16px; max-width: 900px; }
+  .mj-game[hidden] { display: none; }
+  .mj-arena { position: relative; aspect-ratio: 160 / 100; overflow: hidden; background: #d6e6f5; border: 3px solid var(--line); touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .mj-room { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+  .mj-spot { position: absolute; overflow: hidden; pointer-events: none; }
+  .mj-spot .mj { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; transition: transform .16s ease-out; }
+  .mj-spot .mj svg { display: block; width: 100%; height: 100%; }
+  .mj-spot.up .mj { transform: translateY(105%); }
+  .mj-spot.right .mj { transform: translateX(-105%); }
+  .mj-spot.left .mj { transform: translateX(105%); }
+  .mj-spot.show .mj { transform: none; pointer-events: auto; }
+  .mj-arena .hitfx { color: var(--pink); }
   .tv-top { display: flex; justify-content: space-between; font-family: 'Pixelify Sans'; color: var(--muted); }
   .tv-top span:last-child { color: var(--gold); }
   .tv-bar { height: 10px; margin: 8px 0 18px; background: var(--shadow); border: 2px solid var(--line); }
@@ -1091,6 +1104,22 @@
     <div class="modes" role="tablist" aria-label="Minijuegos">
       <button class="mode on" type="button" role="tab" aria-selected="true" data-mode="range">🎯 Rango de práctica</button>
       <button class="mode" type="button" role="tab" aria-selected="false" data-mode="trivia">❓ Trivia</button>
+      <button class="mode" type="button" role="tab" aria-selected="false" data-mode="mj">🐈 Atrapa a MJ</button>
+    </div>
+
+    <!-- Atrapa a MJ: se asoma por la habitación del setup -->
+    <div class="mj-game box" id="mj" hidden>
+      <div class="range-head">
+        <p>15 segundos. MJ se asoma por la habitación: tócala antes de que se esconda.<br>Atrápala <b>5 veces</b> para desbloquear un logro.</p>
+        <div class="range-stats">
+          <span>Tiempo<b id="mjTime">15</b></span>
+          <span>Atrapadas<b id="mjScore">0</b></span>
+          <span>Mejor<b id="mjBest">0</b></span>
+        </div>
+      </div>
+      <div class="mj-arena" id="mjArena">
+        <div class="arena-msg" id="mjMsg"></div>
+      </div>
     </div>
 
     <!-- Trivia sobre nosotros -->
@@ -1444,6 +1473,7 @@ const ACHIEVEMENTS = [
   { icon: "🖥️", name: "Setup completo", text: "Encender tu PC por primera vez.", tier: "oro", on: false, hint: "Termina de armar tu PC en Misión PC 🖥️" },
   { icon: "🎯", name: "Puntería de Jett", text: "Llegar a Diamante o más en el rango de práctica.", tier: "oro", key: "aoi-logro-punteria", hint: "Llega a Diamante en Minijuegos 🎯" },
   { icon: "❓", name: "Experta en nosotros", text: "Responder perfecto la trivia de Aoi & Benja.", tier: "plata", key: "aoi-logro-trivia", hint: "Responde todo bien en la trivia ❓" },
+  { icon: "🐈", name: "Amiga de MJ", text: "Atrapar a MJ 5 veces en una sola partida.", tier: "plata", key: "aoi-logro-mj", hint: "Atrapa a MJ en Minijuegos 🐈" },
   { icon: "🏁", name: "Partida completada", text: "Llegar al final… por ahora.", tier: "oro", key: "aoi-logro-final", hint: "Escucha el mensaje, lee la carta y mira los créditos 🏁" },
   { icon: "💚", name: "Resurrección", text: "Sage revivió a Jett. Nunca deja atrás a su dúo.", tier: "plata", secret: true, key: "aoi-logro-secreto", hint: "A veces Jett necesita que la salven…" },
   { icon: "💎", name: "Aoi & Benja al 100%", text: "Conseguir todos los demás logros.", tier: "platino", platinum: true, key: "aoi-logro-platino", hint: "Consigue todos los demás logros 💎" }
@@ -2482,9 +2512,119 @@ document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () =
   const mode = b.dataset.mode;
   document.querySelectorAll('.mode').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); });
   if (mode !== 'range' && rg.on) endRange();
+  if (mode !== 'mj' && mj.on) endMj();
   $('range').hidden = mode !== 'range';
   $('trivia').hidden = mode !== 'trivia';
+  $('mj').hidden = mode !== 'mj';
 }));
+
+/* ---------- Atrapa a MJ ----------
+   MJ se asoma por un escondite de la habitación del setup; hay que tocarla antes de que se esconda */
+const MJ_SECONDS = 15, MJ_GOAL = 5;    // MJ_GOAL: atrapadas para el logro "Amiga de MJ"
+// MJ asomándose con las patitas en el borde: gris humo casi negra, pelo largo con reflejos marrones y ojos ámbar.
+// O contorno, F pelo, f reflejos, P dentro de las orejas, Q ojos, E pupilas, N nariz
+const MJ_SPRITE = [
+  ".O........O.",
+  "OfO......OfO",
+  "OPFO....OFPO",
+  "OFFFOOOOFFFO",
+  "OFfFFFFFFfFO",
+  "OFQEFFFFEQFO",
+  "OFQEFFFFEQFO",
+  "OFFFFNNFFFFO",
+  "OfFFFFFFFFfO",
+  "OffOFFFFOffO",
+  "OffOOOOOOffO"
+];
+const MJ_COLORS = { O: '#0e0b0d', F: '#38312f', f: '#5c4c45', P: '#8a6662', Q: '#d1a24a', E: '#1a1210', N: '#241c1c' };
+const MJ_W = 18, MJ_H = 16.5;   // tamaño de MJ en unidades de la habitación (160×100)
+// x, y: borde por donde sale (up: centro de abajo · right: sale hacia la derecha · left: hacia la izquierda)
+const MJ_SPOTS = [
+  { x: 86, y: 19, d: 'up' },      // detrás del monitor
+  { x: 117, y: 29, d: 'up' },     // detrás de la PC
+  { x: 150, y: 44, d: 'up' },     // detrás de la silla
+  { x: 18, y: 31, d: 'up' },      // en la ventana
+  { x: 27, y: 88, d: 'right' },   // bajo el escritorio (pata izquierda)
+  { x: 133, y: 88, d: 'left' },   // bajo el escritorio (pata derecha)
+  { x: 11, y: 73, d: 'up' }       // detrás de su dispensador de comida
+];
+const mj = { on: false, score: 0, left: 0, tick: null, t: null, last: -1, t0: 0 };
+let mjBest = 0;
+try { mjBest = parseInt(localStorage.getItem('aoi-mj-mejor'), 10) || 0; } catch (e) {}
+$('mjBest').textContent = mjBest;
+$('mjArena').insertAdjacentHTML('afterbegin',
+  `<svg class="mj-room" viewBox="0 0 160 100" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">${rectsSvg(ROOM)}${Object.values(SETUP_ART).map(a => rectsSvg(a.r)).join('')}</svg>` +
+  MJ_SPOTS.map((s, i) => {
+    const x = s.d === 'up' ? s.x - MJ_W / 2 : s.d === 'right' ? s.x : s.x - MJ_W;
+    return `<div class="mj-spot ${s.d}" data-i="${i}" style="left:${x / 1.6}%;top:${s.y - MJ_H}%;width:${MJ_W / 1.6}%;height:${MJ_H}%"><button class="mj" type="button" aria-label="MJ" tabindex="-1">${spriteSvg(MJ_SPRITE, MJ_COLORS)}</button></div>`;
+  }).join(''));
+const mjSpots = [...document.querySelectorAll('.mj-spot')];
+
+function mjIntro() {
+  $('mjMsg').innerHTML = `<p class="px">¿Dónde está MJ?</p>
+    <p class="detail">Mejor marca: ${mjBest ? `${mjBest} atrapadas` : 'todavía ninguna'}</p>
+    <button class="btn" id="mjStart">▶ Empezar</button>`;
+  $('mjMsg').hidden = false;
+  $('mjStart').addEventListener('click', startMj);
+}
+function startMj() {
+  Object.assign(mj, { on: true, score: 0, left: MJ_SECONDS, last: -1, t0: performance.now() });
+  $('mjScore').textContent = 0; $('mjTime').textContent = MJ_SECONDS;
+  $('mjMsg').hidden = true;
+  clearInterval(mj.tick);
+  mj.tick = setInterval(() => {
+    mj.left--; $('mjTime').textContent = mj.left;
+    if (mj.left <= 0) endMj();
+  }, 1000);
+  clearTimeout(mj.t);
+  mj.t = setTimeout(mjPeek, 400);
+}
+function mjPeek() {
+  if (!mj.on) return;
+  let i; do i = Math.floor(Math.random() * MJ_SPOTS.length); while (i === mj.last);
+  mj.last = i;
+  const k = Math.min(1, (performance.now() - mj.t0) / (MJ_SECONDS * 1000));   // cada vez se esconde más rápido
+  mjSpots[i].classList.add('show');
+  mj.t = setTimeout(() => {                    // se escondió antes de que la tocara
+    mjSpots[i].classList.remove('show');
+    mj.t = setTimeout(mjPeek, 250 + Math.random() * 350);
+  }, 1300 - 650 * k);
+}
+mjSpots.forEach(spot => spot.querySelector('.mj').addEventListener('pointerdown', e => {
+  if (!mj.on || !spot.classList.contains('show')) return;
+  spot.classList.remove('show');
+  mj.score++; $('mjScore').textContent = mj.score;
+  const a = $('mjArena').getBoundingClientRect();
+  const f = document.createElement('span');
+  f.className = 'hitfx'; f.textContent = '¡Miau!';
+  f.style.left = e.clientX - a.left - 20 + 'px'; f.style.top = e.clientY - a.top - 24 + 'px';
+  $('mjArena').append(f);
+  setTimeout(() => f.remove(), 600);
+  clearTimeout(mj.t);
+  mj.t = setTimeout(mjPeek, 300);
+}));
+function endMj() {
+  if (!mj.on) return;
+  mj.on = false;
+  clearInterval(mj.tick); clearTimeout(mj.t);
+  mjSpots.forEach(s => s.classList.remove('show'));
+  const record = mj.score > mjBest;
+  if (record) { mjBest = mj.score; $('mjBest').textContent = mjBest; try { localStorage.setItem('aoi-mj-mejor', mjBest); } catch (e) {} }
+  const title = mj.score >= 10 ? 'Cazadora de gatos' : mj.score >= MJ_GOAL ? 'Amiga de MJ 🐈' : mj.score >= 3 ? '¡Casi la tienes!' : 'MJ fue más rápida';
+  $('mjMsg').innerHTML = `<p class="px">Atrapaste a MJ</p>
+    <p class="rank" style="color:var(--gold)">${mj.score} ${mj.score === 1 ? 'vez' : 'veces'}</p>
+    <p class="detail">${title}</p>
+    ${record ? '<p class="rec">★ ¡Nuevo récord!</p>' : ''}
+    <button class="btn" id="mjStart">↺ Otra vez</button>`;
+  $('mjMsg').hidden = false;
+  $('mjStart').addEventListener('click', startMj);
+  if (mj.score >= MJ_GOAL && unlockAch('aoi-logro-mj')) {
+    const r = $('mjArena').getBoundingClientRect();
+    hearts(r.left + r.width / 2, r.top + r.height / 2, 60);
+  }
+}
+mjIntro();
+addEventListener('hashchange', () => { if (mj.on && location.hash !== '#practica') endMj(); });
 
 /* ---------- Trivia de Aoi & Benja ----------
    q: pregunta · a: respuesta correcta (o una lista si hay varias) · o: otras opciones (se mezclan) · note: comentario al responder */
